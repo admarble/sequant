@@ -1,41 +1,45 @@
 # Sequant Demo - Quick Start
 # Run: vhs demo.tape
-# Output: demo.gif
 
 Output demo.gif
 
-# Terminal settings
-Set FontSize 18
-Set Width 800
-Set Height 500
+Set FontSize 16
+Set Width 700
+Set Height 450
 Set Theme "Catppuccin Mocha"
-Set TypingSpeed 50ms
+Set TypingSpeed 40ms
 Set Padding 20
 
-# Show the init command
+# Init command
 Type "npx sequant init"
-Sleep 500ms
 Enter
-Sleep 3s
+Sleep 400ms
 
-# Show doctor check
-Type "npx sequant doctor"
-Sleep 500ms
+# Simulated output (matches real CLI)
+Type "Checking dependencies..."
+Enter
+Sleep 300ms
+Type "  ✓ GitHub CLI (gh) - installed"
+Enter
+Type "  ✓ Claude Code CLI - installed"
+Enter
+Sleep 300ms
+Enter
+Type "📁 Creating directories..."
+Enter
+Type "📄 Copying templates..."
+Enter
+Sleep 300ms
+Enter
+Type "✅ Sequant initialized successfully!"
+Enter
+Enter
+Type "Next steps:"
+Enter
+Type "  /spec 123    - Plan implementation"
+Enter
+Type "  /exec 123    - Implement the feature"
+Enter
+Type "  /qa 123      - Quality review"
 Enter
 Sleep 2s
-
-# Clear and show Claude Code usage
-Type "clear"
-Enter
-Sleep 500ms
-
-# Simulate Claude Code prompt (this would need adjustment for actual Claude Code)
-Type "# In Claude Code, type:"
-Enter
-Sleep 500ms
-Type "/fullsolve 123"
-Sleep 2s
-Enter
-
-# End
-Sleep 3s
