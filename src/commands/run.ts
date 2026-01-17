@@ -396,8 +396,9 @@ async function ensureWorktreesChain(
 /**
  * Create a checkpoint commit in the worktree after QA passes
  * This allows recovery in case later issues in the chain fail
+ * @internal Exported for testing
  */
-function createCheckpointCommit(
+export function createCheckpointCommit(
   worktreePath: string,
   issueNumber: number,
   verbose: boolean,
