@@ -166,6 +166,13 @@ async function main(): Promise<void> {
           process.exit(1);
         }
         await ensureIssueExists(issueNumber);
+        const issueState = await manager.getIssueState(issueNumber);
+        if (!issueState?.loop) {
+          console.warn(
+            `⚠️  Issue #${issueNumber} has no quality loop configured - iteration not tracked`,
+          );
+          break;
+        }
         await manager.updateLoopIteration(issueNumber, iteration);
         console.log(`📊 Loop iteration ${iteration} for issue #${issueNumber}`);
         break;
