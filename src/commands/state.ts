@@ -14,7 +14,6 @@ import {
   cleanupStaleEntries,
   discoverUntrackedWorktrees,
   type DiscoverOptions,
-  type DiscoverResult,
 } from "../lib/workflow/state-utils.js";
 import { createIssueState } from "../lib/workflow/state-schema.js";
 

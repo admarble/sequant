@@ -18,14 +18,13 @@ import * as path from "path";
 import { spawnSync } from "child_process";
 import { StateManager } from "./state-manager.js";
 import {
-  type WorkflowState,
   type IssueState,
   type Phase,
   createEmptyState,
   createIssueState,
   createPhaseState,
 } from "./state-schema.js";
-import { RunLogSchema, type RunLog, LOG_PATHS } from "./run-log-schema.js";
+import { RunLogSchema, LOG_PATHS } from "./run-log-schema.js";
 
 /**
  * PR merge status from GitHub
