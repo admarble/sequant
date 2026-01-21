@@ -416,9 +416,13 @@ If `gh pr view` fails after retry:
 | License | MIT, Apache-2.0, BSD | Permissive, compatible |
 | Bundle size | Proportional to use | Avoid 500kb for one function |
 
-**Quick check command:**
+**Quick check commands:**
 ```bash
-npm view <pkg> --json | jq '{name, version, license, downloads: .downloads, modified: .time.modified, size: .dist.unpackedSize}'
+# Package metadata (license, last update, size)
+npm view <pkg> --json | jq '{name, version, license, modified: .time.modified, size: .dist.unpackedSize}'
+
+# Weekly downloads (requires npm API)
+curl -s "https://api.npmjs.org/downloads/point/last-week/<pkg>" | jq '.downloads'
 ```
 
 **Custom implementation is appropriate when:**
