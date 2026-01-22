@@ -555,10 +555,18 @@ class SequantTreeDataProvider implements vscode.TreeDataProvider<SequantTreeItem
   }
 
   /**
-   * Get phase items for an issue
+   * Get relevant phases to display for an issue.
+   * Filters out pending phases except for the next one to reduce visual clutter.
+   *
+   * Shows:
+   * - Completed phases
+   * - In-progress phases
+   * - Failed phases
+   * - Skipped phases
+   * - Next pending phase (only one, and only for active issues)
    */
-  private getPhaseItems(issue: IssueState): SequantTreeItem[] {
-    const phases: Phase[] = [
+  private getRelevantPhases(issue: IssueState): Phase[] {
+    const allPhases: Phase[] = [
       "spec",
       "security-review",
       "exec",
@@ -569,6 +577,42 @@ class SequantTreeDataProvider implements vscode.TreeDataProvider<SequantTreeItem
       "loop",
       "merger",
     ];
+
+    // For merged/abandoned issues, only show non-pending phases
+    const isFinalState =
+      issue.status === "merged" || issue.status === "abandoned";
+
+    const relevantPhases: Phase[] = [];
+    let nextPendingAdded = false;
+
+    for (const phase of allPhases) {
+      const phaseState = issue.phases[phase] as PhaseState | undefined;
+      const status = phaseState?.status ?? "pending";
+
+      if (
+        status === "completed" ||
+        status === "in_progress" ||
+        status === "failed" ||
+        status === "skipped"
+      ) {
+        // Always include non-pending phases
+        relevantPhases.push(phase);
+      } else if (status === "pending" && !nextPendingAdded && !isFinalState) {
+        // Include only the first pending phase (for active issues)
+        relevantPhases.push(phase);
+        nextPendingAdded = true;
+      }
+      // Skip remaining pending phases
+    }
+
+    return relevantPhases;
+  }
+
+  /**
+   * Get phase items for an issue
+   */
+  private getPhaseItems(issue: IssueState): SequantTreeItem[] {
+    const phases = this.getRelevantPhases(issue);
 
     return phases.map((phase) => {
       const phaseState = issue.phases[phase] as PhaseState | undefined;
