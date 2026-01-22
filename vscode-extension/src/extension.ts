@@ -740,11 +740,6 @@ class SequantTreeDataProvider implements vscode.TreeDataProvider<SequantTreeItem
       }
     } else if (issue.status === "in_progress") {
       // Check which phase is next
-      const phases: Phase[] = ["spec", "exec", "qa"];
-      const completedPhases = phases.filter(
-        (p) => issue.phases[p]?.status === "completed",
-      );
-
       if (!issue.phases["spec"] || issue.phases["spec"].status === "pending") {
         actionLabel = "💡 Action: Run /spec";
       } else if (
