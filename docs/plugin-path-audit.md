@@ -94,6 +94,19 @@ Some skills use template tokens that need substitution:
 - Skills use `{{PM_RUN}}` token or document alternatives
 - User projects may use any package manager
 
+### Project-Relative Paths
+
+Some skills reference project-specific config files. These are **intentionally project-relative**, not plugin-relative:
+
+| File | Reference | Fallback |
+|------|-----------|----------|
+| `/test` | `.claude/.sequant/config.json` | Defaults: localhost:3000 (Next.js), :4321 (Astro), :5173 (Vite) |
+
+These paths work correctly because:
+- They reference the user's project configuration, not plugin files
+- Each skill documents default values when config is missing
+- Plugin installation doesn't affect project-relative paths
+
 ## MCP Fallback Audit
 
 Skills that use optional MCPs include graceful degradation:
@@ -104,6 +117,8 @@ Skills that use optional MCPs include graceful degradation:
 | `/exec` | context7, sequential-thinking | WebSearch, step-by-step analysis |
 | `/spec` | context7, sequential-thinking | Codebase search, explicit reasoning |
 | `/qa` | context7, sequential-thinking | Codebase search, explicit reasoning |
+| `/loop` | all three | Explicit analysis steps, WebSearch |
+| `/fullsolve` | all three | Delegates to child skills with fallbacks |
 
 ## Recommendations
 
@@ -134,6 +149,54 @@ Skills that use optional MCPs include graceful degradation:
 - [ ] Hooks execute without path errors
 - [ ] `/fullsolve` works end-to-end
 - [ ] Works without optional MCPs (graceful degradation)
+
+### Plugin Verification Script
+
+Run this in Claude Code to verify plugin installation:
+
+```
+# Step 1: Add marketplace and install
+/plugin marketplace add admarble/sequant
+/plugin install sequant
+
+# Step 2: Verify skills are available
+# Type "/" and check that sequant skills appear (sequant:spec, sequant:exec, etc.)
+
+# Step 3: Test a skill without MCPs
+# Create a test issue or use an existing one
+/sequant:assess 1  # Should work even without MCPs
+
+# Step 4: Verify hooks are registered
+# Run any tool and check if hooks execute (look for timing info in output)
+
+# Step 5: Test worktree scripts
+# In a git repository:
+./scripts/list-worktrees.sh  # Should list worktrees
+
+# Expected results:
+# - All skills load without errors
+# - Skills that use MCPs show "MCP unavailable, using fallback" (if MCPs not installed)
+# - Worktree scripts find project root correctly
+```
+
+### MCP Degradation Verification
+
+To verify graceful degradation without MCPs:
+
+1. **Disable MCPs temporarily** (if installed):
+   - Comment out MCP config in `.claude/settings.json`
+   - Restart Claude Code
+
+2. **Run MCP-dependent skills:**
+   ```
+   /sequant:spec 1    # Should use explicit reasoning instead of Sequential Thinking
+   /sequant:test 1    # Should generate manual checklist instead of browser automation
+   ```
+
+3. **Verify output:**
+   - Skills complete without errors
+   - Output indicates fallback behavior used
+   - Quality of output is acceptable (may be less automated but still useful)
 
 ---
 
