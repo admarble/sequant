@@ -497,6 +497,7 @@ Fall back to sequential execution (standard implementation loop).
 - Run Prettier on all modified files after each group (agents skip auto-format)
 - On any agent failure: stop remaining agents, log error, continue with sequential
 - File locking prevents concurrent edits to the same file
+- **Use prompt templates** for each agent — see [Section 4c](#4c-prompt-templates-for-sub-agents)
 
 **Error Handling with Automatic Retry:**
 
