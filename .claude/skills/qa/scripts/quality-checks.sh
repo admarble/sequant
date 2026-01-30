@@ -279,5 +279,8 @@ run_build_with_verification() {
   fi
 }
 
+# 10. Run build with verification (calls the functions defined above)
+run_build_with_verification
+
 echo ""
 echo "✅ Quality checks complete"
