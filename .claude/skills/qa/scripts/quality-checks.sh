@@ -164,11 +164,12 @@ verify_build_against_main() {
 
   # Find the main repository (parent of worktrees)
   if [[ "$current_dir" == *"/worktrees/"* ]]; then
-    # We're in a worktree, find the main repo
-    main_repo_dir=$(git worktree list | grep "\[main\]" | awk '{print $1}' | head -1)
+    # We're in a worktree, find the main repo (check both main and master branches)
+    main_repo_dir=$(git worktree list | grep -E "\[(main|master)\]" | awk '{print $1}' | head -1)
     if [[ -z "$main_repo_dir" ]]; then
-      # Fallback: try to find main repo from worktree list
+      # Fallback: first worktree entry is typically the main repo
       main_repo_dir=$(git worktree list | head -1 | awk '{print $1}')
+      echo "   Note: Using fallback worktree detection (no [main] or [master] found)"
     fi
   else
     # We're in the main repo
@@ -189,7 +190,13 @@ verify_build_against_main() {
   local main_error_output=""
 
   # Use a subshell to avoid changing directory in main shell
-  main_error_output=$(cd "$main_repo_dir" && npm run build 2>&1 | head -30) || main_exit_code=$?
+  # Timeout after 120s to prevent hanging on slow builds
+  if command -v timeout &> /dev/null; then
+    main_error_output=$(cd "$main_repo_dir" && timeout 120 npm run build 2>&1 | head -30) || main_exit_code=$?
+  else
+    # macOS doesn't have timeout by default, use perl fallback
+    main_error_output=$(cd "$main_repo_dir" && perl -e 'alarm 120; exec @ARGV' npm run build 2>&1 | head -30) || main_exit_code=$?
+  fi
 
   # Extract first meaningful error line for comparison
   local feature_first_error=$(echo "$feature_error_output" | grep -E "Error:|error:|ERROR:" | head -1)
@@ -259,7 +266,13 @@ run_build_with_verification() {
   local build_output=""
   local build_exit_code=0
 
-  build_output=$(npm run build 2>&1) || build_exit_code=$?
+  # Timeout after 120s to prevent hanging on slow builds
+  if command -v timeout &> /dev/null; then
+    build_output=$(timeout 120 npm run build 2>&1) || build_exit_code=$?
+  else
+    # macOS doesn't have timeout by default, use perl fallback
+    build_output=$(perl -e 'alarm 120; exec @ARGV' npm run build 2>&1) || build_exit_code=$?
+  fi
 
   if [[ $build_exit_code -eq 0 ]]; then
     echo "✅ Build: Passed"
@@ -280,7 +293,21 @@ run_build_with_verification() {
 }
 
 # 10. Run build with verification (calls the functions defined above)
-run_build_with_verification
+# Capture return code to prevent set -e from exiting early
+build_verification_result=0
+run_build_with_verification || build_verification_result=$?
+
+# Report build verification status
+if [[ $build_verification_result -eq 1 ]]; then
+  echo ""
+  echo "⚠️  Build verification: REGRESSION DETECTED (blocking)"
+elif [[ $build_verification_result -eq 2 ]]; then
+  echo ""
+  echo "⚠️  Build verification: Different errors detected (needs review)"
+fi
 
 echo ""
 echo "✅ Quality checks complete"
+
+# Exit with build verification result if it indicates a problem
+exit $build_verification_result
