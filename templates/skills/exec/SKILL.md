@@ -497,7 +497,12 @@ Fall back to sequential execution (standard implementation loop).
 - Run Prettier on all modified files after each group (agents skip auto-format)
 - On any agent failure: stop remaining agents, log error, continue with sequential
 - File locking prevents concurrent edits to the same file
-- **Use prompt templates** for each agent — see [Section 4c](#4c-prompt-templates-for-sub-agents)
+- **REQUIRED:** You MUST use prompt templates for each agent — see [Section 4c](#4c-prompt-templates-for-sub-agents)
+
+**⚠️ WARNING:** Spawning agents without structured templates will result in:
+- Inconsistent prompt quality
+- QA rejection during `/qa` phase
+- Potential AC verification failures
 
 **Error Handling with Automatic Retry:**
 
@@ -539,7 +544,15 @@ Parse the agent's output text for these patterns to detect failures:
 
 ### 4c. Prompt Templates for Sub-Agents
 
-When spawning sub-agents for implementation tasks, use task-specific prompt templates for better results. See [prompt-templates.md](../_shared/references/prompt-templates.md) for the full reference.
+**REQUIRED:** When spawning sub-agents for implementation tasks, you MUST use task-specific prompt templates. See [prompt-templates.md](../_shared/references/prompt-templates.md) for the full reference.
+
+**Mandatory Template Usage:**
+When spawning agents for implementation tasks, you MUST:
+1. Determine the task type (component, type, CLI, test, refactor, or generic)
+2. Apply the appropriate template from the reference below
+3. Include all template sections (Requirements, Constraints, Deliverable)
+
+**Skipping templates for typed tasks will result in QA rejection.**
 
 **Template Selection:**
 
