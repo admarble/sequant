@@ -66,38 +66,9 @@ Invocation:
 - `/exec <freeform description>`:
   - Treat the text as a lightweight description + AC if no issue context is available.
 
-## Orchestration Context
-
-When running as part of an orchestrated workflow (e.g., `sequant run` or `/fullsolve`), this skill receives environment variables that indicate the orchestration context:
-
-| Environment Variable | Description | Example Value |
-|---------------------|-------------|---------------|
-| `SEQUANT_ORCHESTRATOR` | The orchestrator invoking this skill | `sequant-run` |
-| `SEQUANT_PHASE` | Current phase in the workflow | `exec` |
-| `SEQUANT_ISSUE` | Issue number being processed | `123` |
-| `SEQUANT_WORKTREE` | Path to the feature worktree | `/path/to/worktrees/feature/...` |
-| `SEQUANT_BASE_BRANCH` | Base branch for worktree (if custom) | `feature/dashboard` |
-
-**Behavior when orchestrated (SEQUANT_ORCHESTRATOR is set):**
-
-1. **Skip pre-flight git checks** - The orchestrator has already verified git state
-2. **Skip worktree creation** - Orchestrator creates worktrees before invoking skills
-3. **Use provided worktree path** - Work in `SEQUANT_WORKTREE` instead of creating a new one
-4. **Reduce GitHub comment frequency** - Defer progress updates to the orchestrator
-5. **Trust issue context** - The orchestrator has already fetched and validated issue data
-
-**Behavior when standalone (SEQUANT_ORCHESTRATOR is NOT set):**
-
-- Perform all pre-flight checks
-- Create worktree if needed
-- Post progress updates to GitHub
-- Fetch fresh issue context
-
 ### 0. Pre-flight Check (After Context Restoration)
 
-**Skip this section if `SEQUANT_ORCHESTRATOR` is set** - the orchestrator has already performed these checks.
-
-**CRITICAL:** If continuing from a restored/summarized conversation (standalone mode), verify git state first:
+**CRITICAL:** If continuing from a restored/summarized conversation, verify git state first:
 
 ```bash
 # Check current state - are we in a worktree or main repo?
@@ -139,161 +110,34 @@ git branch -a | grep -i "<issue-number>"
 - Issue is already closed
 - No acceptance criteria exist and cannot be inferred
 
-### 2. Re-establish Context (with Parallel Optimization)
+### 2. Re-establish Context
 
-**Performance Optimization:** When creating a new worktree, gather context in parallel with worktree creation to reduce setup time by ~5-10 seconds.
-
-#### Parallel Context Gathering Pattern
-
-When worktree creation is needed (standalone mode, no existing worktree):
-
-```
-1. Start worktree creation in background    → runs ~30s (npm install)
-2. While waiting, gather context in parallel:
-   - Fetch issue details                    ~2s
-   - Read all issue comments                ~2s
-   - Check for existing patterns/files      ~2s
-3. Wait for worktree completion
-4. Begin implementation with full context ready
-```
-
-**Implementation:**
-
-1. **Start worktree creation as background task:**
-   ```bash
-   # From main repo, start worktree creation in background
-   ./scripts/dev/new-feature.sh <issue-number> &
-   WORKTREE_PID=$!
-   echo "Worktree creation started (PID: $WORKTREE_PID)"
-   ```
-
-2. **Gather context while waiting:**
-   - **Read all GitHub issue comments** to gather complete context:
-     - Comments often contain clarifications, updates, or additional AC added after the initial issue description
-     - Look for discussion about implementation details, edge cases, or requirements mentioned in comments
-     - Review feedback from previous implementation cycles or review comments
-   - Summarize briefly:
-     - The AC checklist (AC-1, AC-2, ...) from the issue and all comments
-     - The current implementation plan (from issue comments or `/spec`)
-   - If there is no plan:
-     - Ask whether to quickly propose one (or suggest using `/spec` first).
-
-3. **Wait for worktree completion before implementation:**
-   ```bash
-   # Wait for worktree creation to complete
-   wait $WORKTREE_PID
-   WORKTREE_EXIT=$?
-   if [ $WORKTREE_EXIT -ne 0 ]; then
-     echo "ERROR: Worktree creation failed with exit code $WORKTREE_EXIT"
-     # Fall back to sequential creation with error visibility
-   fi
-   ```
-
-**When to use parallel context gathering:**
-- ✅ Creating a new worktree (standalone mode)
-- ❌ Worktree already exists (skip - just navigate to it)
-- ❌ Orchestrated mode (SEQUANT_WORKTREE set - worktree pre-created)
-
-**Fallback:** If parallel execution fails or is not applicable, fall back to sequential context gathering.
-
-### 2.1a Smoke Test (Recommended for UI Issues)
-
-**Purpose:** Catch runtime failures that pass `npm test` and `npm run build` but crash at runtime (e.g., missing module registrations, framework version incompatibilities).
-
-**When to run:** Issues with `admin`, `ui`, or `frontend` labels.
-
-**Skip if:** Issue has none of these labels (backend-only, CLI, docs, etc.).
-
-**Quick verification (< 30 seconds):**
-
-1. Start dev server in background:
-   ```bash
-   npm run dev &
-   DEV_PID=$!
-   sleep 5  # Wait for server startup
-   ```
-
-2. Check for startup errors:
-   ```bash
-   # Verify server is running
-   curl -s http://localhost:3000 > /dev/null && echo "✓ Server responding" || echo "✗ Server not responding"
-   ```
-
-3. Kill the dev server:
-   ```bash
-   kill $DEV_PID 2>/dev/null
-   ```
-
-**What to look for:**
-- ✗ Server crash on startup → Check `framework-gotchas.md`
-- ✗ Blank white page → React hydration error or missing component
-- ✗ Module registration errors → AG Grid, chart libraries, etc.
-- ✗ Console errors on load → Missing imports, env vars
-
-**If issues found:** Fix before proceeding with new implementation. Reference `references/shared/framework-gotchas.md` for common solutions.
+- **Read all GitHub issue comments** to gather complete context:
+  - Comments often contain clarifications, updates, or additional AC added after the initial issue description
+  - Look for discussion about implementation details, edge cases, or requirements mentioned in comments
+  - Review feedback from previous implementation cycles or review comments
+- Summarize briefly:
+  - The AC checklist (AC-1, AC-2, ...) from the issue and all comments
+  - The current implementation plan (from issue comments or `/spec`)
+- If there is no plan:
+  - Ask whether to quickly propose one (or suggest using `/spec` first).
 
 ### Feature Worktree Workflow
 
 **Execution Phase:** Create and work in a feature worktree.
 
-**CRITICAL: Main Branch Safeguard (Issue #85)**
-
-Before starting any implementation, verify you are NOT on the main/master branch:
-
-```bash
-# Check current branch
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-echo "Current branch: $CURRENT_BRANCH"
-```
-
-**If on main/master branch:**
-1. **STOP** - Do not implement directly on main
-2. Create a feature worktree first: `./scripts/dev/new-feature.sh <issue-number>`
-   - For custom base branch: `./scripts/dev/new-feature.sh <issue-number> --base <branch>`
-3. Navigate to the worktree before making any changes
-
-**Why this matters:** Work done directly on main can be lost during sync operations (git reset, git pull --rebase, etc.). Worktrees provide isolation and safe recovery through branches.
-
-**If orchestrated (SEQUANT_WORKTREE is set):**
-- Use the provided worktree path directly: `cd $SEQUANT_WORKTREE`
-- Skip steps 1-2 below (worktree already created by orchestrator)
-- Continue with step 3 (Work in the worktree)
-
-**If standalone:**
-
 1. **Check if worktree already exists:**
    - Check if you're already in a worktree: `git worktree list` or check if `../worktrees/` contains a directory for this issue
    - If worktree exists, navigate to it and continue work there
 
-2. **Create worktree if needed (with parallel context gathering):**
-
-   **Optimized flow (parallel):**
-   ```bash
-   # Step 1: Start worktree creation in background
-   # For default (main) base:
-   ./scripts/dev/new-feature.sh <issue-number> &
-   # For custom base branch (e.g., feature integration branch):
-   ./scripts/dev/new-feature.sh <issue-number> --base feature/dashboard &
-   WORKTREE_PID=$!
-
-   # Step 2: Gather context while worktree creates (see Section 2)
-   # - Fetch issue details
-   # - Read issue comments
-   # - Check for existing patterns
-
-   # Step 3: Wait for worktree completion
-   wait $WORKTREE_PID
-   ```
-
-   **What new-feature.sh does:**
+2. **Create worktree if needed:**
+   - From the main repository directory, run: `./scripts/dev/new-feature.sh <issue-number>`
+   - This will:
      - Fetch issue details from GitHub
      - Create branch: `feature/<issue-number>-<issue-title-slug>`
      - Create worktree in: `../worktrees/feature/<branch-name>/`
-     - Branch from specified base (default: main)
-     - Install dependencies (can use cache if `SEQUANT_NPM_CACHE=true`)
+     - Install dependencies
      - Copy environment files if they exist
-
-   **After completion:**
    - Navigate to the worktree directory: `cd ../worktrees/feature/<branch-name>/`
 
 3. **Work in the worktree:**
@@ -350,16 +194,6 @@ After implementation is complete and all checks pass, create and verify the PR:
    - If PR exists: Record the URL from `gh pr view` output
    - If PR creation failed: Record the error and include manual creation instructions
 
-6. **Record PR info in workflow state:**
-   ```bash
-   # Extract PR number and URL from gh pr view output, then update state
-   PR_INFO=$(gh pr view --json number,url)
-   PR_NUMBER=$(echo "$PR_INFO" | jq -r '.number')
-   PR_URL=$(echo "$PR_INFO" | jq -r '.url')
-   npx tsx scripts/state/update.ts pr <issue-number> "$PR_NUMBER" "$PR_URL"
-   ```
-   This enables `--cleanup` to detect merged PRs and auto-remove state entries.
-
 **PR Verification Failure Handling:**
 
 If `gh pr view` fails after retry:
@@ -391,52 +225,6 @@ If `gh pr view` fails after retry:
 - If it needs modification, extend it rather than creating a new one
 - Document why existing utilities don't meet requirements before creating new ones
 
-### Check npm for Existing Packages
-
-**IMPORTANT:** Before implementing utilities for common "solved problem" domains, check if a well-maintained package exists.
-
-**Domains to check npm first:**
-
-| Domain | Recommended Packages |
-|--------|---------------------|
-| Date/time handling | `date-fns`, `dayjs` |
-| Validation | `zod`, `yup`, `valibot` |
-| HTTP requests with retry | `ky`, `got`, `axios` |
-| Form state | `react-hook-form`, `formik` |
-| State management | `zustand`, `jotai` |
-| ID generation | `nanoid`, `uuid` |
-| String utilities | `lodash` (specific imports only) |
-
-**Package evaluation criteria:**
-
-| Criterion | Threshold | Why |
-|-----------|-----------|-----|
-| Weekly downloads | >10,000 | Indicates community trust |
-| Last update | <6 months ago | Actively maintained |
-| License | MIT, Apache-2.0, BSD | Permissive, compatible |
-| Bundle size | Proportional to use | Avoid 500kb for one function |
-
-**Quick check commands:**
-```bash
-# Package metadata (license, last update, size)
-npm view <pkg> --json | jq '{name, version, license, modified: .time.modified, size: .dist.unpackedSize}'
-
-# Weekly downloads (requires npm API)
-curl -s "https://api.npmjs.org/downloads/point/last-week/<pkg>" | jq '.downloads'
-```
-
-**Custom implementation is appropriate when:**
-- Only a tiny subset of functionality needed (<20 lines)
-- Package is abandoned (no updates 12+ months) or has security issues
-- Project constraints prohibit new dependencies
-- User explicitly requests custom solution
-
-**Decision flow:**
-1. Is this a "solved problem" domain? → Check npm first
-2. Does a well-maintained package exist? → Prefer package
-3. Would custom implementation be <20 lines? → Custom is OK
-4. Uncertain? → Ask user preference
-
 ### Check Framework Gotchas on Runtime Errors
 
 **When encountering unexpected runtime errors or build failures:**
@@ -454,40 +242,18 @@ If you discover a new framework-specific issue that caused debugging time, add i
 
 This section covers optional MCP tools that enhance implementation quality when available.
 
-#### MCP Availability Check (Lazy Loading)
+#### MCP Availability Check
 
-**Performance Optimization:** Check MCP availability lazily on first use, NOT proactively at session start. This avoids wasting time checking MCPs for issues that don't need them.
-
-**Lazy Check Pattern:**
-- ❌ **Don't:** Check all MCPs at session start
-- ✅ **Do:** Check MCP availability only when you're about to use it
+**Before using MCP tools**, verify they are available in your session. If unavailable, use the documented fallback behavior.
 
 ```markdown
-**MCP Check (on first use only):**
-When you need to use an MCP tool:
-1. Attempt the MCP call
-2. If it fails with "tool not available", use the fallback strategy
-3. Cache the result for the session (don't re-check)
-```
+**MCP Status Check (perform at session start):**
+- [ ] Context7: Try `mcp__context7__resolve-library-id` - if available, proceed
+- [ ] Sequential Thinking: Try `mcp__sequential-thinking__sequentialthinking` - if available, proceed
+- [ ] Chrome DevTools: Try `mcp__chrome-devtools__take_snapshot` - if available, proceed
 
-**Example - Lazy Context7 Check:**
-```javascript
-// Only check when you actually need library docs
-// NOT at session start
-if (need_library_documentation) {
-  // Try Context7 - fallback to WebSearch if unavailable
-  try {
-    mcp__context7__resolve-library-id(...)
-  } catch {
-    // Fallback: use WebSearch or codebase patterns
-  }
-}
+If any MCP is unavailable, use fallback strategies documented below.
 ```
-
-**Why lazy loading:**
-- Many issues don't need MCPs (simple bugs, docs, config changes)
-- Proactive checks waste 2-5 seconds per MCP
-- Lazy checks only run when the tool provides value
 
 ---
 
@@ -652,73 +418,6 @@ If your project uses a database MCP (e.g., Supabase, Postgres):
 
 Do NOT silently skip checks. Always state which commands you intend to run and why.
 
-### 3a. Test Coverage Transparency (REQUIRED)
-
-**Purpose:** Report which changed files have corresponding tests, not just "N tests passed."
-
-**After running `npm test`, you MUST analyze test coverage for changed files:**
-
-```bash
-# Get changed source files (excluding tests)
-changed=$(git diff main...HEAD --name-only | grep -E '\.(ts|tsx|js|jsx)$' | grep -v -E '\.test\.|\.spec\.|__tests__')
-
-# Check for corresponding test files
-for file in $changed; do
-  base=$(basename "$file" .ts | sed 's/\.tsx$//')
-  # Look for test files in __tests__/ or co-located
-  if ! find . -name "${base}.test.*" -o -name "${base}.spec.*" 2>/dev/null | grep -q .; then
-    echo "NO TEST: $file"
-  fi
-done
-```
-
-**Required reporting format:**
-
-| Scenario | Report |
-|----------|--------|
-| Tests cover changed files | `Tests: N passed (covers changed files)` |
-| Tests don't cover changed files | `Tests: N passed (⚠️ 0 cover changed files)` |
-| No tests for specific files | `Tests: N passed (⚠️ NO TESTS: file1.ts, file2.ts)` |
-
-### 3b. Change Tier Classification
-
-**Purpose:** Flag coverage gaps based on criticality, not just presence/absence.
-
-**Tier definitions:**
-
-| Tier | Change Type | Coverage Requirement |
-|------|-------------|---------------------|
-| **Critical** | Auth, payments, security, server-actions, middleware, admin | Flag prominently if missing |
-| **Standard** | Business logic, API handlers, utilities | Note if missing |
-| **Optional** | Config, types-only, UI tweaks | No flag needed |
-
-**Detection heuristic:**
-
-```bash
-# Detect critical paths in changed files
-changed=$(git diff main...HEAD --name-only | grep -E '\.(ts|tsx|js|jsx)$')
-critical=$(echo "$changed" | grep -E 'auth|payment|security|server-action|middleware|admin' || true)
-
-if [[ -n "$critical" ]]; then
-  echo "⚠️ CRITICAL PATH CHANGES (test coverage strongly recommended):"
-  echo "$critical"
-fi
-```
-
-**Include in progress summary:**
-
-```markdown
-### Test Coverage Analysis
-
-| Changed File | Tier | Has Tests? |
-|--------------|------|------------|
-| `auth/login.ts` | Critical | ⚠️ NO TESTS |
-| `lib/utils.ts` | Standard | ✅ Yes |
-| `types/index.ts` | Optional | - (types only) |
-
-**Coverage:** X/Y changed source files have corresponding tests
-```
-
 ### 4. Implementation Loop
 
 - Implement in **small, incremental diffs**.
@@ -798,6 +497,12 @@ Fall back to sequential execution (standard implementation loop).
 - Run Prettier on all modified files after each group (agents skip auto-format)
 - On any agent failure: stop remaining agents, log error, continue with sequential
 - File locking prevents concurrent edits to the same file
+- **REQUIRED:** You MUST use prompt templates for each agent — see [Section 4c](#4c-prompt-templates-for-sub-agents)
+
+**⚠️ WARNING:** Spawning agents without structured templates will result in:
+- Inconsistent prompt quality
+- QA rejection during `/qa` phase
+- Potential AC verification failures
 
 **Error Handling with Automatic Retry:**
 
@@ -836,6 +541,95 @@ Parse the agent's output text for these patterns to detect failures:
 | `unable to proceed` | Agent could not complete the task |
 | `blocked by hook` | Operation was blocked by pre-tool hook |
 | `I'm unable to` | Agent hit a blocking constraint |
+
+### 4c. Prompt Templates for Sub-Agents
+
+**REQUIRED:** When spawning sub-agents for implementation tasks, you MUST use task-specific prompt templates. See [prompt-templates.md](../_shared/references/prompt-templates.md) for the full reference.
+
+**Mandatory Template Usage:**
+When spawning agents for implementation tasks, you MUST:
+1. Determine the task type (component, type, CLI, test, refactor, or generic)
+2. Apply the appropriate template from the reference below
+3. Include all template sections (Requirements, Constraints, Deliverable)
+
+**Skipping templates for typed tasks will result in QA rejection.**
+
+**Template Selection:**
+
+Templates are selected automatically based on keywords in the task description:
+
+| Keywords | Template |
+|----------|----------|
+| `component`, `Component`, `React` | Component Template |
+| `type`, `interface`, `types/` | Type Definition Template |
+| `CLI`, `command`, `script`, `bin/` | CLI/Script Template |
+| `test`, `spec`, `.test.` | Test Template |
+| `refactor`, `restructure`, `migrate` | Refactor Template |
+| (none matched) | Generic Template |
+
+**Explicit Override:**
+
+Use `[template: X]` annotation to force a specific template:
+
+```
+[template: component] Create UserCard in components/admin/
+[template: cli] Add export command to scripts/
+```
+
+**Example with Template:**
+
+Instead of a generic prompt:
+```
+Task(subagent_type="general-purpose",
+     model="haiku",
+     prompt="Create MetricsCard component in components/admin/")
+```
+
+Use a structured template prompt:
+```
+Task(subagent_type="general-purpose",
+     model="haiku",
+     prompt="## Task: Create React Component
+
+**Component:** MetricsCard
+**Location:** components/admin/metrics/MetricsCard.tsx
+
+**Requirements:**
+- [ ] TypeScript with proper prop types
+- [ ] Follow existing component patterns
+- [ ] Include displayName for debugging
+- [ ] No inline styles
+
+**Constraints:**
+- Working directory: [worktree path]
+- Do NOT create test files
+
+**Deliverable:**
+Report: files created, component name, props interface")
+```
+
+**Error Recovery with Enhanced Context:**
+
+When retrying a failed agent, use the error recovery template from [prompt-templates.md](../_shared/references/prompt-templates.md#error-recovery-template):
+
+```markdown
+## RETRY: Previous Attempt Failed
+
+**Original Task:** [task]
+**Previous Error:** [error from TaskOutput]
+
+**Diagnosis Checklist:**
+- [ ] Check imports are correct
+- [ ] Verify file paths use worktree directory
+- [ ] Confirm types match expected signatures
+- [ ] Look for typos in identifiers
+
+**Fix Strategy:**
+1. Read the failing file
+2. Identify the specific error location
+3. Apply minimal fix
+4. Verify fix compiles
+```
 
 ## Implementation Quality Standards
 
@@ -914,49 +708,7 @@ When in doubt, choose:
 
 The goal is to satisfy AC with the smallest, safest change possible.
 
-### 5. Adversarial Self-Evaluation (REQUIRED)
-
-**Before outputting your final summary**, you MUST complete this adversarial self-evaluation to catch issues that automated checks miss.
-
-**Why this matters:** Sessions show that honest self-questioning consistently catches real issues:
-- Tests that pass but don't cover the actual changes
-- Features that build but don't work as expected
-- AC items marked "done" but with weak implementation
-
-**Answer these questions honestly:**
-1. "Did anything not work as expected during implementation?"
-2. "If this feature broke tomorrow, would the current tests catch it?"
-3. "What's the weakest part of this implementation?"
-4. "Am I reporting success metrics without honest self-evaluation?"
-
-**Include this section in your output:**
-
-```markdown
-### Self-Evaluation
-
-- **Worked as expected:** [Yes/No - if No, explain what didn't work]
-- **Test coverage confidence:** [High/Medium/Low - explain why]
-- **Weakest part:** [Identify the weakest aspect of the implementation]
-- **Honest assessment:** [Any concerns or caveats?]
-```
-
-**If any answer reveals concerns:**
-- Address the issues before proceeding
-- Re-run relevant checks (`npm test`, `npm run build`)
-- Update the self-evaluation after fixes
-
-**Do NOT skip this self-evaluation.** Honest reflection catches issues that automated checks miss.
-
----
-
-### 6. Progress Summary and Draft Issue Update
-
-**If orchestrated (SEQUANT_ORCHESTRATOR is set):**
-- Skip posting progress comments to GitHub (orchestrator handles summary)
-- Still provide AC coverage summary in output for orchestrator to capture
-- Let orchestrator handle final GitHub update
-
-**If standalone:**
+### 5. Progress Summary and Draft Issue Update
 
 At the end of a session:
 
@@ -1002,42 +754,10 @@ You may be invoked multiple times for the same issue. Each time, re-establish co
 
 ---
 
-## State Tracking
-
-**IMPORTANT:** Update workflow state when running standalone (not orchestrated).
-
-### Check Orchestration Mode
-
-The orchestration check happens automatically when you run the state update script - it exits silently if `SEQUANT_ORCHESTRATOR` is set.
-
-### State Updates (Standalone Only)
-
-When NOT orchestrated (`SEQUANT_ORCHESTRATOR` is not set):
-
-**At skill start:**
-```bash
-npx tsx scripts/state/update.ts start <issue-number> exec
-```
-
-**On successful completion:**
-```bash
-npx tsx scripts/state/update.ts complete <issue-number> exec
-```
-
-**On failure:**
-```bash
-npx tsx scripts/state/update.ts fail <issue-number> exec "Error description"
-```
-
-**Why this matters:** State tracking enables dashboard visibility, resume capability, and workflow orchestration. Skills update state when standalone; orchestrators handle state when running workflows.
-
----
-
 ## Output Verification
 
 **Before responding, verify your output includes ALL of these:**
 
-- [ ] **Self-Evaluation Completed** - Adversarial self-evaluation section included in output
 - [ ] **AC Progress Summary** - Which AC items are satisfied, partially met, or blocked
 - [ ] **Files Changed** - List of key files modified
 - [ ] **Test/Build Results** - Output from `npm test` and `npm run build`
