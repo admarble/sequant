@@ -288,11 +288,22 @@ Identify AC items that depend on CI by matching these patterns:
 - "Build succeeds in CI"
 - "GitHub Actions pass"
 - "Pipeline passes"
+- "Workflow passes"
+- "Checks pass"
+- "Actions succeed"
+- "CI/CD passes"
 
 ```bash
 # Example: Check if any AC mentions CI
-ci_ac_patterns="CI|pipeline|GitHub Actions|build succeeds|tests pass in CI"
+ci_ac_patterns="CI|pipeline|GitHub Actions|build succeeds|tests pass in CI|workflow|checks pass|actions succeed"
 ```
+
+**Error Handling:**
+
+If `gh pr checks` fails or returns unexpected results:
+- **Network/auth error** → Treat as N/A with note: "CI status unavailable (gh command failed)"
+- **No PR exists** → Skip CI status section entirely
+- **Empty response** → No CI configured (not an error)
 
 **Output Format:**
 
