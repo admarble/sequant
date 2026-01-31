@@ -24,6 +24,7 @@ import {
   type PhaseLog,
   type Phase,
   type IssueStatus,
+  type QaVerdict,
   createEmptyRunLog,
   finalizeRunLog,
   generateLogFilename,
@@ -272,7 +273,12 @@ export function createPhaseLogFromTiming(
   options?: Partial<
     Pick<
       PhaseLog,
-      "error" | "iterations" | "filesModified" | "testsRun" | "testsPassed"
+      | "error"
+      | "iterations"
+      | "filesModified"
+      | "testsRun"
+      | "testsPassed"
+      | "verdict"
     >
   >,
 ): PhaseLog {

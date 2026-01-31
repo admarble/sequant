@@ -65,6 +65,15 @@ export const DEFAULT_CONFIG: ExecutionConfig = {
 };
 
 /**
+ * Valid QA verdicts
+ */
+export type QaVerdict =
+  | "READY_FOR_MERGE"
+  | "AC_MET_BUT_NOT_A_PLUS"
+  | "AC_NOT_MET"
+  | "NEEDS_VERIFICATION";
+
+/**
  * Result of executing a single phase
  */
 export interface PhaseResult {
@@ -74,6 +83,8 @@ export interface PhaseResult {
   error?: string;
   /** Captured output from the phase (used for parsing spec recommendations) */
   output?: string;
+  /** Parsed QA verdict (only for qa phase) */
+  verdict?: QaVerdict;
 }
 
 /**
