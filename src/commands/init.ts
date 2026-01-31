@@ -11,7 +11,6 @@ import {
   detectPackageManager,
   getPackageManagerCommands,
   STACKS,
-  type DetectedStack,
 } from "../lib/stacks.js";
 import { copyTemplates } from "../lib/templates.js";
 import { createManifest } from "../lib/manifest.js";

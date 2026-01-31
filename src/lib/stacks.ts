@@ -3,7 +3,6 @@
  */
 
 import { readdir } from "fs/promises";
-import { join } from "path";
 import { fileExists, readFile } from "./fs.js";
 
 /**
