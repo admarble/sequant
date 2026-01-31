@@ -24,7 +24,6 @@ import {
   type PhaseLog,
   type Phase,
   type IssueStatus,
-  type QaVerdict,
   createEmptyRunLog,
   finalizeRunLog,
   generateLogFilename,
