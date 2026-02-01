@@ -273,15 +273,15 @@ export async function logsCommand(options: LogsOptions): Promise<void> {
   const logFiles = listLogFiles(logDir);
 
   if (logFiles.length === 0) {
-    console.log(chalk.yellow("\n  No logs found."));
+    console.log(colors.warning("\n  No logs found."));
     console.log(
-      chalk.gray("  Run `npx sequant run <issues>` to generate logs."),
+      colors.muted("  Run `npx sequant run <issues>` to generate logs."),
     );
     console.log("");
     return;
   }
 
-  console.log(chalk.gray(`  Found ${logFiles.length} log file(s)\n`));
+  console.log(colors.muted(`  Found ${logFiles.length} log file(s)\n`));
 
   // Parse all logs
   const logs = logFiles

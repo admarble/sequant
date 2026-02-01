@@ -668,10 +668,11 @@ export async function statsCommand(options: StatsOptions): Promise<void> {
   const logFiles = listLogFiles(logDir);
 
   if (logFiles.length === 0) {
-    console.log(chalk.blue("\n📊 Sequant Analytics (local data only)\n"));
-    console.log(chalk.yellow("  No data found."));
+    console.log(ui.headerBox("SEQUANT ANALYTICS"));
+    console.log(colors.muted("\n  Local data only - no telemetry\n"));
+    console.log(colors.warning("  No data found."));
     console.log(
-      chalk.gray("  Run `npx sequant run <issues>` to collect metrics."),
+      colors.muted("  Run `npx sequant run <issues>` to collect metrics."),
     );
     console.log("");
     return;
@@ -685,7 +686,7 @@ export async function statsCommand(options: StatsOptions): Promise<void> {
     .filter((log): log is RunLog => log !== null);
 
   if (logs.length === 0) {
-    console.log(chalk.yellow("\n  No valid log files found.\n"));
+    console.log(colors.warning("\n  No valid log files found.\n"));
     return;
   }
 
