@@ -64,14 +64,9 @@ export const DEFAULT_CONFIG: ExecutionConfig = {
   mcp: true,
 };
 
-/**
- * Valid QA verdicts
- */
-export type QaVerdict =
-  | "READY_FOR_MERGE"
-  | "AC_MET_BUT_NOT_A_PLUS"
-  | "AC_NOT_MET"
-  | "NEEDS_VERIFICATION";
+// Import and re-export QaVerdict from run-log-schema (single source of truth)
+import type { QaVerdict } from "./run-log-schema.js";
+export type { QaVerdict } from "./run-log-schema.js";
 
 /**
  * Result of executing a single phase

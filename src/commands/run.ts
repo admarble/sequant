@@ -28,6 +28,7 @@ import {
   ExecutionConfig,
   IssueResult,
   PhaseResult,
+  QaVerdict,
 } from "../lib/workflow/types.js";
 import { ShutdownManager } from "../lib/shutdown.js";
 import { getMcpServersConfig } from "../lib/system.js";
@@ -60,15 +61,6 @@ function slugify(title: string): string {
     .replace(/^-+|-+$/g, "")
     .substring(0, 50);
 }
-
-/**
- * Valid QA verdicts that can be parsed from QA phase output
- */
-export type QaVerdict =
-  | "READY_FOR_MERGE"
-  | "AC_MET_BUT_NOT_A_PLUS"
-  | "AC_NOT_MET"
-  | "NEEDS_VERIFICATION";
 
 /**
  * Parse QA verdict from phase output
