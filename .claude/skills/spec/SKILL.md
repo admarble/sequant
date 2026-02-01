@@ -487,6 +487,54 @@ Based on quality planning, identify additional ACs needed:
 | CLI/Script | Completeness, Error Handling, Test Coverage, Best Practices |
 | Docs only | Completeness only |
 
+**Example (API endpoint feature):**
+
+```markdown
+## Feature Quality Planning
+
+### Completeness Check
+- [x] All AC items have corresponding implementation steps
+- [x] Integration points: Auth middleware, database queries, response serializer
+- [x] No partial implementations planned
+- [ ] State management: N/A (stateless API)
+- [x] Data flow: Request → Validate → Query → Transform → Response
+
+### Error Handling
+- [x] Invalid input: Return 400 with validation errors
+- [x] Auth failure: Return 401 with "Unauthorized" message
+- [x] Not found: Return 404 with resource ID
+- [x] Server error: Return 500, log full error, return generic message
+- [x] Rate limit: Return 429 with retry-after header
+
+### Code Quality
+- [x] Types: Define RequestDTO, ResponseDTO, ErrorResponse
+- [x] Patterns: Follow existing controller pattern in `src/api/`
+- [ ] Error boundaries: N/A (API, not UI)
+- [x] No magic strings: Use constants for error messages
+
+### Test Coverage Plan
+- [x] Unit: Validation logic, data transformation
+- [x] Integration: Full request/response cycle
+- [x] Edge cases: Empty results, max pagination, invalid IDs
+- [x] Mocking: Mock database, not HTTP layer
+
+### Best Practices
+- [x] Logging: Log request ID, duration, status code
+- [ ] Accessibility: N/A (API)
+- [x] Performance: Add database index for query field
+- [x] Security: Validate input, sanitize output, check auth
+
+### Derived ACs
+
+| Source | Derived AC | Priority |
+|--------|-----------|----------|
+| Error Handling | AC-6: Return 429 with retry-after header on rate limit | Medium |
+| Best Practices | AC-7: Log request ID and duration for observability | High |
+| Test Coverage | AC-8: Add integration test for auth failure path | High |
+```
+
+### 4. Plan Review
+
 Ask the user to confirm or adjust:
 - The AC checklist (with verification criteria)
 - The implementation plan

@@ -1196,11 +1196,13 @@ At the end of a session:
    - Include:
      - AC coverage summary
      - Brief list of key files changed
-     - **Quality Plan Alignment** (if quality plan was available from `/spec`)
+     - **Quality Plan Alignment** (REQUIRED if quality plan exists in issue comments)
      - **PR Status** (Created with URL, or Failed with reason and manual instructions)
      - Any known gaps or open questions
 
-   **Quality Plan Alignment format (if applicable):**
+   **Quality Plan Alignment (REQUIRED when quality plan exists):**
+
+   If the issue has a Feature Quality Planning section from `/spec`, you MUST include this section. If no quality plan exists, output: "Quality Plan Alignment: N/A - No quality plan in issue"
    ```markdown
    ### Quality Plan Alignment
 

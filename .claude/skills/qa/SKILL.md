@@ -259,7 +259,7 @@ No code changes found to review. The acceptance criteria cannot be evaluated wit
 **Detection:**
 ```bash
 # Check if issue has quality planning section in comments
-quality_plan_exists=$(gh issue view <issue> --comments --json comments -q '.comments[].body' | grep -l "Feature Quality Planning" | head -1)
+quality_plan_exists=$(gh issue view <issue> --comments --json comments -q '.comments[].body' | grep -q "Feature Quality Planning" && echo "yes" || echo "no")
 ```
 
 **If Quality Plan found:**
@@ -318,6 +318,19 @@ quality_plan_exists=$(gh issue view <issue> --comments --json comments -q '.comm
 | Partial | Note in findings, consider `AC_MET_BUT_NOT_A_PLUS` |
 | Not Addressed | Flag in findings, may indicate gaps |
 | No Plan Found | Note: "Quality plan not available - standard QA only" |
+
+**Status Threshold Definitions:**
+
+| Status | Criteria |
+|--------|----------|
+| **Complete** | All applicable dimensions have ≥80% items addressed |
+| **Partial** | At least 50% of applicable dimensions have items addressed |
+| **Not Addressed** | <50% of applicable dimensions addressed, or 0 items addressed |
+
+*Example: If 4 dimensions apply (Completeness, Error Handling, Code Quality, Test Coverage):*
+- *Complete: 4/4 dimensions at ≥80%*
+- *Partial: 2-3/4 dimensions have work done*
+- *Not Addressed: 0-1/4 dimensions have work done*
 
 **If no Quality Plan found:**
 - Output: "Quality Plan Verification: N/A - No quality plan found in issue comments"
