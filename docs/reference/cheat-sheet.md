@@ -54,7 +54,6 @@
 | `/merger` | Multi-issue post-QA merge coordination |
 | `/upstream` | Monitor Claude Code releases for compatibility |
 | `/release` | Version bump, tag, GitHub release, npm publish |
-| `/setup` | Initialize Sequant in a project (worktrees, templates, stack detection) |
 
 ---
 
