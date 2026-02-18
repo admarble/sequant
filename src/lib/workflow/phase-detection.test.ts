@@ -136,6 +136,16 @@ This is documentation, not a real marker.`;
     expect(markers).toEqual([]);
   });
 
+  it("ignores markers inside 4+ backtick fenced code blocks", () => {
+    const body = `Example with 4 backticks:
+
+\`\`\`\`markdown
+<!-- SEQUANT_PHASE: {"phase":"spec","status":"completed","timestamp":"2025-01-15T10:00:00.000Z"} -->
+\`\`\`\``;
+    const markers = parsePhaseMarkers(body);
+    expect(markers).toEqual([]);
+  });
+
   it("ignores markers inside inline code (AC-2)", () => {
     const body =
       'Use the marker format: `<!-- SEQUANT_PHASE: {"phase":"spec","status":"completed","timestamp":"2025-01-15T10:00:00.000Z"} -->`';

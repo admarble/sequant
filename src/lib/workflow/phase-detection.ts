@@ -24,10 +24,10 @@ const PHASE_MARKER_REGEX = /<!-- SEQUANT_PHASE: (\{[^}]+\}) -->/g;
 
 /**
  * Regex patterns for markdown code constructs that should be ignored.
- * - Fenced code blocks: ```...``` or ~~~...~~~
+ * - Fenced code blocks: 3+ backticks or tildes (CommonMark spec)
  * - Inline code: `...`
  */
-const FENCED_CODE_BLOCK_REGEX = /```[\s\S]*?```|~~~[\s\S]*?~~~/g;
+const FENCED_CODE_BLOCK_REGEX = /`{3,}[\s\S]*?`{3,}|~{3,}[\s\S]*?~{3,}/g;
 const INLINE_CODE_REGEX = /`[^`\n]+`/g;
 
 /**
