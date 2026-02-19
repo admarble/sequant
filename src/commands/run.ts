@@ -1309,7 +1309,10 @@ const COLD_START_MAX_RETRIES = 2;
  * The MCP fallback is safe because MCP servers are optional enhancements, not required
  * for core functionality.
  */
-async function executePhaseWithRetry(
+/**
+ * @internal Exported for testing only
+ */
+export async function executePhaseWithRetry(
   issueNumber: number,
   phase: Phase,
   config: ExecutionConfig,
@@ -1317,10 +1320,12 @@ async function executePhaseWithRetry(
   worktreePath?: string,
   shutdownManager?: ShutdownManager,
   spinner?: PhaseSpinner,
+  /** @internal Injected for testing — defaults to module-level executePhase */
+  executePhaseFn: typeof executePhase = executePhase,
 ): Promise<PhaseResult & { sessionId?: string }> {
   // Skip retry logic if explicitly disabled
   if (config.retry === false) {
-    return executePhase(
+    return executePhaseFn(
       issueNumber,
       phase,
       config,
@@ -1335,7 +1340,7 @@ async function executePhaseWithRetry(
 
   // Phase 1: Cold-start retry attempts (with MCP enabled if configured)
   for (let attempt = 0; attempt <= COLD_START_MAX_RETRIES; attempt++) {
-    lastResult = await executePhase(
+    lastResult = await executePhaseFn(
       issueNumber,
       phase,
       config,
@@ -1382,7 +1387,7 @@ async function executePhaseWithRetry(
       mcp: false,
     };
 
-    const retryResult = await executePhase(
+    const retryResult = await executePhaseFn(
       issueNumber,
       phase,
       configWithoutMcp,
