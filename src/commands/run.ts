@@ -755,6 +755,207 @@ passed QA in chain mode. It serves as a recovery point if later issues fail.`;
 }
 
 /**
+ * Lockfile names for different package managers
+ */
+const LOCKFILES = [
+  "package-lock.json",
+  "pnpm-lock.yaml",
+  "bun.lock",
+  "yarn.lock",
+];
+
+/**
+ * Check if any lockfile changed during a rebase and re-run install if needed.
+ * This prevents dependency drift when the lockfile was updated on main.
+ * @param worktreePath Path to the worktree
+ * @param packageManager Package manager to use for install
+ * @param verbose Whether to show verbose output
+ * @returns true if reinstall was performed, false otherwise
+ * @internal Exported for testing
+ */
+export function reinstallIfLockfileChanged(
+  worktreePath: string,
+  packageManager: string | undefined,
+  verbose: boolean,
+): boolean {
+  // Check if any lockfile changed in the last commit (after rebase)
+  // We compare HEAD to HEAD~1 to see what the rebase brought in
+  let lockfileChanged = false;
+
+  for (const lockfile of LOCKFILES) {
+    const result = spawnSync(
+      "git",
+      ["-C", worktreePath, "diff", "--name-only", "HEAD~1", "--", lockfile],
+      { stdio: "pipe" },
+    );
+
+    if (result.status === 0 && result.stdout.toString().trim().length > 0) {
+      lockfileChanged = true;
+      if (verbose) {
+        console.log(chalk.gray(`    📦 Lockfile changed: ${lockfile}`));
+      }
+      break;
+    }
+  }
+
+  if (!lockfileChanged) {
+    if (verbose) {
+      console.log(chalk.gray(`    📦 No lockfile changes detected`));
+    }
+    return false;
+  }
+
+  // Re-run install to sync node_modules with updated lockfile
+  console.log(
+    chalk.blue(`    📦 Reinstalling dependencies (lockfile changed)...`),
+  );
+
+  const pm = (packageManager as keyof typeof PM_CONFIG) || "npm";
+  const pmConfig = PM_CONFIG[pm];
+  const [cmd, ...args] = pmConfig.installSilent.split(" ");
+
+  const installResult = spawnSync(cmd, args, {
+    cwd: worktreePath,
+    stdio: "pipe",
+  });
+
+  if (installResult.status !== 0) {
+    const error = installResult.stderr.toString();
+    console.log(
+      chalk.yellow(`    ⚠️  Dependency reinstall failed: ${error.trim()}`),
+    );
+    return false;
+  }
+
+  console.log(chalk.green(`    ✅ Dependencies reinstalled`));
+  return true;
+}
+
+/**
+ * Result of a pre-PR rebase operation
+ */
+export interface RebaseResult {
+  /** Whether the rebase was performed */
+  performed: boolean;
+  /** Whether the rebase succeeded */
+  success: boolean;
+  /** Whether dependencies were reinstalled */
+  reinstalled: boolean;
+  /** Error message if rebase failed */
+  error?: string;
+}
+
+/**
+ * Rebase the worktree branch onto origin/main before PR creation.
+ * This ensures the branch is up-to-date and prevents lockfile drift.
+ *
+ * @param worktreePath Path to the worktree
+ * @param issueNumber Issue number (for logging)
+ * @param packageManager Package manager to use if reinstall needed
+ * @param verbose Whether to show verbose output
+ * @returns RebaseResult indicating success/failure and whether reinstall was performed
+ * @internal Exported for testing
+ */
+export function rebaseBeforePR(
+  worktreePath: string,
+  issueNumber: number,
+  packageManager: string | undefined,
+  verbose: boolean,
+): RebaseResult {
+  if (verbose) {
+    console.log(
+      chalk.gray(
+        `    🔄 Rebasing #${issueNumber} onto origin/main before PR...`,
+      ),
+    );
+  }
+
+  // Fetch latest main to ensure we're rebasing onto fresh state
+  const fetchResult = spawnSync(
+    "git",
+    ["-C", worktreePath, "fetch", "origin", "main"],
+    {
+      stdio: "pipe",
+    },
+  );
+
+  if (fetchResult.status !== 0) {
+    const error = fetchResult.stderr.toString();
+    console.log(
+      chalk.yellow(`    ⚠️  Could not fetch origin/main: ${error.trim()}`),
+    );
+    // Continue anyway - might work with local state
+  }
+
+  // Perform the rebase
+  const rebaseResult = spawnSync(
+    "git",
+    ["-C", worktreePath, "rebase", "origin/main"],
+    { stdio: "pipe" },
+  );
+
+  if (rebaseResult.status !== 0) {
+    const rebaseError = rebaseResult.stderr.toString();
+
+    // Check if it's a conflict
+    if (
+      rebaseError.includes("CONFLICT") ||
+      rebaseError.includes("could not apply")
+    ) {
+      console.log(
+        chalk.yellow(
+          `    ⚠️  Rebase conflict detected. Aborting rebase and keeping original branch state.`,
+        ),
+      );
+      console.log(
+        chalk.yellow(
+          `    ℹ️  PR will be created without rebase. Manual rebase may be required before merge.`,
+        ),
+      );
+
+      // Abort the rebase to restore branch state
+      spawnSync("git", ["-C", worktreePath, "rebase", "--abort"], {
+        stdio: "pipe",
+      });
+
+      return {
+        performed: true,
+        success: false,
+        reinstalled: false,
+        error: "Rebase conflict - manual resolution required",
+      };
+    } else {
+      console.log(chalk.yellow(`    ⚠️  Rebase failed: ${rebaseError.trim()}`));
+      console.log(
+        chalk.yellow(`    ℹ️  Continuing with branch in its original state.`),
+      );
+
+      return {
+        performed: true,
+        success: false,
+        reinstalled: false,
+        error: rebaseError.trim(),
+      };
+    }
+  }
+
+  console.log(chalk.green(`    ✅ Branch rebased onto origin/main`));
+
+  // Check if lockfile changed and reinstall if needed
+  const reinstalled = reinstallIfLockfileChanged(
+    worktreePath,
+    packageManager,
+    verbose,
+  );
+
+  return {
+    performed: true,
+    success: true,
+    reinstalled,
+  };
+}
+
+/**
  * Natural language prompts for each phase
  * These prompts will invoke the corresponding skills via natural language
  */
@@ -965,6 +1166,12 @@ interface RunOptions {
    * Reads phase markers from GitHub issue comments and skips completed phases.
    */
   resume?: boolean;
+  /**
+   * Skip pre-PR rebase onto origin/main.
+   * When true, branches are not rebased before creating the PR.
+   * Use when you want to preserve branch state or handle rebasing manually.
+   */
+  noRebase?: boolean;
 }
 
 /**
@@ -1953,6 +2160,7 @@ export async function runCommand(
           issueInfoMap,
           worktreeMap,
           shutdown,
+          manifest.packageManager,
         );
         results.push(...batchResults);
 
@@ -1993,6 +2201,7 @@ export async function runCommand(
           worktreeInfo?.branch,
           shutdown,
           mergedOptions.chain, // Enable checkpoint commits in chain mode
+          manifest.packageManager,
         );
         results.push(result);
 
@@ -2082,6 +2291,7 @@ export async function runCommand(
           worktreeInfo?.branch,
           shutdown,
           false, // Parallel mode doesn't support chain
+          manifest.packageManager,
         );
         results.push(result);
 
@@ -2267,6 +2477,7 @@ async function executeBatch(
   issueInfoMap: Map<number, { title: string; labels: string[] }>,
   worktreeMap: Map<number, WorktreeInfo>,
   shutdownManager?: ShutdownManager,
+  packageManager?: string,
 ): Promise<IssueResult[]> {
   const results: IssueResult[] = [];
 
@@ -2299,6 +2510,7 @@ async function executeBatch(
       worktreeInfo?.branch,
       shutdownManager,
       false, // Batch mode doesn't support chain
+      packageManager,
     );
     results.push(result);
 
@@ -2326,6 +2538,7 @@ async function runIssueWithLogging(
   branch?: string,
   shutdownManager?: ShutdownManager,
   chainMode?: boolean,
+  packageManager?: string,
 ): Promise<IssueResult> {
   const startTime = Date.now();
   const phaseResults: PhaseResult[] = [];
@@ -2755,6 +2968,14 @@ async function runIssueWithLogging(
   // Create checkpoint commit in chain mode after QA passes
   if (success && chainMode && worktreePath) {
     createCheckpointCommit(worktreePath, issueNumber, config.verbose);
+  }
+
+  // Rebase onto origin/main before PR creation (unless --no-rebase)
+  // This ensures the branch is up-to-date and prevents lockfile drift
+  // AC-1: Non-chain mode rebases onto origin/main before PR
+  // AC-2: Chain mode rebases final branch onto origin/main before PR
+  if (success && worktreePath && !options.noRebase) {
+    rebaseBeforePR(worktreePath, issueNumber, packageManager, config.verbose);
   }
 
   return {
