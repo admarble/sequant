@@ -1245,6 +1245,7 @@ export function createPR(
   issueTitle: string,
   branch: string,
   verbose: boolean,
+  labels?: string[],
 ): PRCreationResult {
   // Step 1: Check for existing PR on this branch
   const existingPR = spawnSync(
@@ -1302,7 +1303,9 @@ export function createPR(
     console.log(chalk.gray(`    📝 Creating PR for #${issueNumber}...`));
   }
 
-  const prTitle = `feat(#${issueNumber}): ${issueTitle}`;
+  const isBug = labels?.some((l) => /^bug/i.test(l));
+  const prefix = isBug ? "fix" : "feat";
+  const prTitle = `${prefix}(#${issueNumber}): ${issueTitle}`;
   const prBody = [
     `## Summary`,
     ``,
@@ -3696,6 +3699,7 @@ async function runIssueWithLogging(
       issueTitle,
       branch,
       config.verbose,
+      labels,
     );
     if (prResult.success && prResult.prNumber && prResult.prUrl) {
       prNumber = prResult.prNumber;

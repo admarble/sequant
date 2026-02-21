@@ -1680,6 +1680,51 @@ describe("pre-PR rebase", () => {
         );
       });
 
+      it("should use fix() prefix for bug-labeled issues", () => {
+        // gh pr view fails (no existing PR)
+        mockSpawnSync.mockReturnValueOnce({
+          status: 1,
+          stdout: Buffer.from(""),
+          stderr: Buffer.from("not found"),
+          signal: null,
+          pid: 0,
+          output: [],
+        });
+        // git push succeeds
+        mockSpawnSync.mockReturnValueOnce({
+          status: 0,
+          stdout: Buffer.from(""),
+          stderr: Buffer.from(""),
+          signal: null,
+          pid: 0,
+          output: [],
+        });
+        // gh pr create succeeds
+        mockSpawnSync.mockReturnValueOnce({
+          status: 0,
+          stdout: Buffer.from("https://github.com/org/repo/pull/99\n"),
+          stderr: Buffer.from(""),
+          signal: null,
+          pid: 0,
+          output: [],
+        });
+
+        createPR(
+          "/path/to/worktree",
+          123,
+          "Test issue",
+          "feature/123-test",
+          false,
+          ["bug"],
+        );
+
+        expect(mockSpawnSync).toHaveBeenCalledWith(
+          "gh",
+          expect.arrayContaining(["--title", "fix(#123): Test issue"]),
+          expect.objectContaining({ cwd: "/path/to/worktree" }),
+        );
+      });
+
       it("should return failure when git push fails", () => {
         // gh pr view fails (no existing PR)
         mockSpawnSync.mockReturnValueOnce({
