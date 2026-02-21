@@ -213,6 +213,38 @@ describe("extractTestBlocks", () => {
     expect(blocks[0].body).toContain("nested");
     expect(blocks[0].body).toContain("expect(true)");
   });
+
+  it("skips test blocks inside template literal strings", () => {
+    const content = `
+      import { extractTestBlocks } from './detector';
+
+      it('outer real test', () => {
+        const content = \`
+          it('inner fake test', () => {
+            expect(true).toBe(true);
+          });
+        \`;
+        const blocks = extractTestBlocks(content);
+        expect(blocks).toHaveLength(1);
+      });
+    `;
+    const blocks = extractTestBlocks(content);
+    // Should only find the outer test block, not the one inside the template literal
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].description).toBe("outer real test");
+  });
+
+  it("skips test blocks inside single-quoted strings", () => {
+    const content = `
+      it('outer test', () => {
+        const str = 'it("inner", () => { expect(1).toBe(1); })';
+        expect(str).toBeDefined();
+      });
+    `;
+    const blocks = extractTestBlocks(content);
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].description).toBe("outer test");
+  });
 });
 
 describe("testBlockCallsProductionCode", () => {
@@ -268,6 +300,34 @@ describe("testBlockCallsProductionCode", () => {
       { name: "funcB", modulePath: "./b" },
     ];
     expect(testBlockCallsProductionCode(body, imports)).toBe(true);
+  });
+
+  it("returns true when function is passed as callback reference", () => {
+    const body = `{
+      const results = items.map(validator);
+      expect(results).toEqual([true, false]);
+    }`;
+    const imports = [{ name: "validator", modulePath: "./validate" }];
+    expect(testBlockCallsProductionCode(body, imports)).toBe(true);
+  });
+
+  it("returns true when function is assigned to a variable", () => {
+    const body = `{
+      const handler = myHandler;
+      handler();
+    }`;
+    const imports = [{ name: "myHandler", modulePath: "./handlers" }];
+    expect(testBlockCallsProductionCode(body, imports)).toBe(true);
+  });
+
+  it("does not match function name as substring of another identifier", () => {
+    const body = `{
+      const fooHandler = 42;
+      expect(fooHandler).toBe(42);
+    }`;
+    const imports = [{ name: "foo", modulePath: "./foo" }];
+    // "foo" appears as prefix of "fooHandler" but not as a standalone reference
+    expect(testBlockCallsProductionCode(body, imports)).toBe(false);
   });
 });
 

@@ -8,8 +8,10 @@
  * ```typescript
  * import { detectTautologicalTests, formatTautologyResults } from './test-tautology-detector';
  *
- * const results = detectTautologicalTests(testFileContent, 'src/lib/foo.test.ts');
- * console.log(formatTautologyResults([results]));
+ * const results = detectTautologicalTests([
+ *   { path: 'src/lib/foo.test.ts', content: fileContent },
+ * ]);
+ * console.log(formatTautologyResults(results));
  * ```
  */
 
@@ -244,6 +246,11 @@ export function extractTestBlocks(content: string): Array<{
     const description = match[3];
     const startIndex = match.index;
 
+    // Skip matches inside string literals (e.g., test code embedded in template literals)
+    if (isInsideString(content, startIndex)) {
+      continue;
+    }
+
     // Calculate line number
     const contentBeforeMatch = content.substring(0, startIndex);
     const lineNumber = contentBeforeMatch.split("\n").length;
@@ -262,6 +269,43 @@ export function extractTestBlocks(content: string): Array<{
   }
 
   return blocks;
+}
+
+/**
+ * Check if a position in the content is inside a string literal (single, double, or template).
+ * Scans from the start of content to the given position tracking string state.
+ */
+function isInsideString(content: string, position: number): boolean {
+  let inString = false;
+  let stringChar = "";
+  let escaped = false;
+
+  for (let i = 0; i < position && i < content.length; i++) {
+    const char = content[i];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (char === "\\") {
+      escaped = true;
+      continue;
+    }
+
+    if (!inString && (char === '"' || char === "'" || char === "`")) {
+      inString = true;
+      stringChar = char;
+      continue;
+    }
+
+    if (inString && char === stringChar) {
+      inString = false;
+      continue;
+    }
+  }
+
+  return inString;
 }
 
 /**
@@ -341,6 +385,14 @@ export function testBlockCallsProductionCode(
     // This handles `import * as foo from './module'; foo.bar()`
     const methodCallPattern = new RegExp(`\\b${fn.name}\\.\\w+\\s*\\(`, "g");
     if (methodCallPattern.test(body)) {
+      return true;
+    }
+
+    // Check for function reference (passed as callback, assigned, etc.)
+    // e.g., array.map(validator), const handler = myFunc, [myFunc, other]
+    // Uses word boundary to avoid matching substrings in other identifiers
+    const referencePattern = new RegExp(`\\b${fn.name}\\b`, "g");
+    if (referencePattern.test(body)) {
       return true;
     }
   }
