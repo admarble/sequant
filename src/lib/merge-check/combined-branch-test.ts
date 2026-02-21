@@ -210,7 +210,7 @@ export function runCombinedBranchTest(
   }
 }
 
-function buildResult(
+export function buildResult(
   branchResults: BranchCheckResult[],
   batchFindings: CheckFinding[],
   startTime: number,

@@ -2,9 +2,11 @@
  * Cross-issue file overlap detection (AC-4)
  *
  * Compares git diff --name-only across all feature branches to detect
- * when multiple PRs modify the same files.
+ * when multiple PRs modify the same files. Classifies overlaps as
+ * "additive" (different lines) or "conflicting" (same lines).
  */
 
+import { spawnSync } from "child_process";
 import type {
   BranchInfo,
   CheckResult,
@@ -14,13 +16,95 @@ import type {
 } from "./types.js";
 
 /**
+ * Parse git diff hunk headers to extract changed line ranges.
+ * Returns an array of [start, end] tuples.
+ */
+function getChangedLineRanges(
+  branch: string,
+  file: string,
+  repoRoot: string,
+): Array<[number, number]> {
+  const result = spawnSync(
+    "git",
+    [
+      "-C",
+      repoRoot,
+      "diff",
+      "--unified=0",
+      `origin/main...origin/${branch}`,
+      "--",
+      file,
+    ],
+    { stdio: "pipe", encoding: "utf-8" },
+  );
+  if (result.status !== 0 || !result.stdout) {
+    return [];
+  }
+  const ranges: Array<[number, number]> = [];
+  for (const line of result.stdout.split("\n")) {
+    const match = line.match(/^@@\s+[^\s]+\s+\+(\d+)(?:,(\d+))?\s+@@/);
+    if (match) {
+      const start = parseInt(match[1], 10);
+      const count = match[2] ? parseInt(match[2], 10) : 1;
+      if (count > 0) {
+        ranges.push([start, start + count - 1]);
+      }
+    }
+  }
+  return ranges;
+}
+
+/**
+ * Check if any ranges from two sets overlap.
+ */
+export function rangesOverlap(
+  a: Array<[number, number]>,
+  b: Array<[number, number]>,
+): boolean {
+  for (const [aStart, aEnd] of a) {
+    for (const [bStart, bEnd] of b) {
+      if (aStart <= bEnd && bStart <= aEnd) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Classify overlap as "conflicting" (same lines) or "additive" (different lines).
+ */
+function classifyOverlap(
+  file: string,
+  issueBranches: Array<{ issueNumber: number; branch: string }>,
+  repoRoot: string,
+): "additive" | "conflicting" {
+  const rangesByIssue = issueBranches.map((b) => ({
+    issueNumber: b.issueNumber,
+    ranges: getChangedLineRanges(b.branch, file, repoRoot),
+  }));
+
+  for (let i = 0; i < rangesByIssue.length; i++) {
+    for (let j = i + 1; j < rangesByIssue.length; j++) {
+      if (rangesOverlap(rangesByIssue[i].ranges, rangesByIssue[j].ranges)) {
+        return "conflicting";
+      }
+    }
+  }
+  return "additive";
+}
+
+/**
  * Run overlap detection across all branches.
  *
  * Builds a map of file -> issues, then flags files with multiple modifiers.
- * All overlaps are classified as "additive" — true merge conflicts are
- * caught by the combined-branch-test check instead.
+ * Overlaps are classified as "additive" (different lines changed) or
+ * "conflicting" (same lines changed) using git diff hunk analysis.
  */
-export function runOverlapDetection(branches: BranchInfo[]): CheckResult {
+export function runOverlapDetection(
+  branches: BranchInfo[],
+  repoRoot: string,
+): CheckResult {
   const startTime = Date.now();
   const branchResults: BranchCheckResult[] = [];
   const batchFindings: CheckFinding[] = [];
@@ -39,10 +123,14 @@ export function runOverlapDetection(branches: BranchInfo[]): CheckResult {
   const overlaps: FileOverlap[] = [];
   for (const [file, issues] of fileToIssues) {
     if (issues.length >= 2) {
+      const issueBranches = issues
+        .map((iss) => branches.find((b) => b.issueNumber === iss))
+        .filter((b): b is BranchInfo => b !== undefined)
+        .map((b) => ({ issueNumber: b.issueNumber, branch: b.branch }));
       overlaps.push({
         file,
         issues,
-        type: "additive",
+        type: classifyOverlap(file, issueBranches, repoRoot),
       });
     }
   }

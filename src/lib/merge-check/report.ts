@@ -192,6 +192,74 @@ export function formatReportMarkdown(report: MergeReport): string {
   return lines.join("\n");
 }
 
+/**
+ * Format a report scoped to a single issue/PR.
+ *
+ * Includes batch verdict header, the issue's own findings, and any
+ * cross-issue findings that mention this issue (e.g. overlap warnings).
+ */
+export function formatBranchReportMarkdown(
+  report: MergeReport,
+  issueNumber: number,
+): string {
+  const lines: string[] = [];
+  const branch = report.branches.find((b) => b.issueNumber === issueNumber);
+  if (!branch) {
+    return `No data for issue #${issueNumber} in this report.`;
+  }
+
+  const issueVerdict = report.issueVerdicts.get(issueNumber) ?? "PASS";
+
+  lines.push("# Merge Readiness — Per-Issue Report");
+  lines.push("");
+  lines.push(`**Issue:** #${issueNumber} — ${branch.title}`);
+  lines.push(`**Branch:** \`${branch.branch}\``);
+  lines.push(
+    `**Batch Verdict:** ${verdictIcon(report.batchVerdict)} **${report.batchVerdict}**`,
+  );
+  lines.push(
+    `**Issue Verdict:** ${verdictIcon(issueVerdict)} **${issueVerdict}**`,
+  );
+  lines.push("");
+
+  for (const check of report.checks) {
+    const branchResult = check.branchResults.find(
+      (r) => r.issueNumber === issueNumber,
+    );
+    if (!branchResult) continue;
+
+    const significant = branchResult.findings.filter(
+      (f) => f.severity !== "info",
+    );
+    const relevantBatch = check.batchFindings.filter(
+      (f) =>
+        f.issueNumber === issueNumber || f.message.includes(`#${issueNumber}`),
+    );
+
+    if (significant.length === 0 && relevantBatch.length === 0) {
+      continue;
+    }
+
+    lines.push(`## ${formatCheckName(check.name)}`);
+    lines.push("");
+
+    for (const finding of relevantBatch) {
+      lines.push(`- ${severityIcon(finding.severity)} ${finding.message}`);
+    }
+    for (const finding of significant) {
+      lines.push(`- ${severityIcon(finding.severity)} ${finding.message}`);
+    }
+    lines.push("");
+  }
+
+  if (lines.length <= 7) {
+    lines.push("All checks passed for this issue.");
+    lines.push("");
+  }
+
+  return lines.join("\n");
+}
+
 function formatCheckName(name: string): string {
   return name
     .split("-")
@@ -216,10 +284,10 @@ function severityIcon(severity: string): string {
  * Post report to GitHub as PR comments (AC-5 --post flag)
  */
 export function postReportToGitHub(report: MergeReport): void {
-  const markdown = formatReportMarkdown(report);
-
   for (const branch of report.branches) {
     if (!branch.prNumber) continue;
+
+    const markdown = formatBranchReportMarkdown(report, branch.issueNumber);
 
     const result = spawnSync(
       "gh",

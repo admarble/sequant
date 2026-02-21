@@ -23,7 +23,7 @@ import type { MergeCommandOptions } from "../lib/merge-check/types.js";
 /**
  * Determine exit code from batch verdict
  */
-function getExitCode(batchVerdict: string): number {
+export function getExitCode(batchVerdict: string): number {
   switch (batchVerdict) {
     case "READY":
       return 0;

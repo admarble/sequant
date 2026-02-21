@@ -155,7 +155,7 @@ describe("overlap-detection", () => {
       },
     ];
 
-    const result = runOverlapDetection(branches);
+    const result = runOverlapDetection(branches, "");
     expect(result.passed).toBe(true);
     expect(result.batchFindings[0].message).toContain("No file overlaps");
   });
@@ -176,7 +176,7 @@ describe("overlap-detection", () => {
       },
     ];
 
-    const result = runOverlapDetection(branches);
+    const result = runOverlapDetection(branches, "");
     expect(result.passed).toBe(false);
     expect(result.batchFindings).toHaveLength(1);
     expect(result.batchFindings[0].message).toContain("src/commands/run.ts");
@@ -200,7 +200,7 @@ describe("overlap-detection", () => {
       },
     ];
 
-    const result = runOverlapDetection(branches);
+    const result = runOverlapDetection(branches, "");
     expect(result.branchResults[0].verdict).toBe("WARN");
     expect(result.branchResults[1].verdict).toBe("WARN");
     expect(result.branchResults[0].findings[0].message).toContain("#299");
@@ -229,7 +229,7 @@ describe("overlap-detection", () => {
       },
     ];
 
-    const result = runOverlapDetection(branches);
+    const result = runOverlapDetection(branches, "");
     expect(result.passed).toBe(false);
     expect(result.batchFindings[0].message).toContain("#1, #2, #3");
   });

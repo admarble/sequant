@@ -29,6 +29,7 @@ import { runResidualPatternScan } from "./residual-pattern-scan.js";
 import {
   buildReport,
   formatReportMarkdown,
+  formatBranchReportMarkdown,
   postReportToGitHub,
 } from "./report.js";
 
@@ -172,10 +173,12 @@ export function resolveBranches(
     }
 
     const info = issueInfo.get(issueNumber);
+    const title =
+      info?.title ?? fetchIssueTitle(issueNumber) ?? `Issue #${issueNumber}`;
 
     branches.push({
       issueNumber,
-      title: info?.title ?? `Issue #${issueNumber}`,
+      title,
       branch,
       worktreePath,
       prNumber: info?.prNumber,
@@ -187,35 +190,41 @@ export function resolveBranches(
 }
 
 /**
- * Determine which checks to run based on command options
+ * Fetch issue title from GitHub via gh CLI.
+ * Returns null if gh is not available or the issue doesn't exist.
  */
-function getChecksToRun(options: MergeCommandOptions): string[] {
-  if (options.all) {
-    return [
-      "combined-branch-test",
-      "mirroring",
-      "overlap-detection",
-      "residual-pattern-scan",
-    ];
+function fetchIssueTitle(issueNumber: number): string | null {
+  const result = spawnSync(
+    "gh",
+    ["issue", "view", String(issueNumber), "--json", "title", "--jq", ".title"],
+    { stdio: "pipe", encoding: "utf-8", timeout: 10_000 },
+  );
+  if (result.status !== 0 || !result.stdout?.trim()) {
+    return null;
   }
-  if (options.scan) {
-    return [
-      "combined-branch-test",
-      "mirroring",
-      "overlap-detection",
-      "residual-pattern-scan",
-    ];
-  }
-  if (options.review) {
-    return [
-      "combined-branch-test",
-      "mirroring",
-      "overlap-detection",
-      "residual-pattern-scan",
-    ];
+  return result.stdout.trim();
+}
+
+/**
+ * Determine which checks to run based on command options.
+ *
+ * --scan, --review, and --all currently return the same checks because
+ * Phase 3 (AI briefing) is not yet implemented. When Phase 3 is added,
+ * --review and --all will include additional AI-powered checks.
+ * The distinction is preserved so callers can detect review mode
+ * and show the Phase 3 stub message (see merge.ts).
+ */
+export function getChecksToRun(options: MergeCommandOptions): string[] {
+  const phase1 = ["combined-branch-test", "mirroring", "overlap-detection"];
+  const phase2 = ["residual-pattern-scan"];
+  // Phase 3 checks will be added here when AI briefing is implemented
+  // const phase3 = ["ai-briefing"];
+
+  if (options.all || options.review || options.scan) {
+    return [...phase1, ...phase2];
   }
   // Default --check: Phase 1 only
-  return ["combined-branch-test", "mirroring", "overlap-detection"];
+  return phase1;
 }
 
 /**
@@ -272,7 +281,7 @@ export async function runMergeChecks(
   }
 
   if (checksToRun.includes("overlap-detection")) {
-    checkResults.push(runOverlapDetection(branches));
+    checkResults.push(runOverlapDetection(branches, repoRoot));
   }
 
   // Phase 2: Residual pattern detection
@@ -293,4 +302,4 @@ export async function runMergeChecks(
 
 // Re-export types and utilities for external use
 export type { MergeReport, MergeCommandOptions, BranchInfo, CheckResult };
-export { formatReportMarkdown, postReportToGitHub };
+export { formatReportMarkdown, formatBranchReportMarkdown, postReportToGitHub };
