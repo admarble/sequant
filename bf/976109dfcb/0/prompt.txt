@@ -1,0 +1,28 @@
+Set up Entire CLI in this project with telemetry disabled.                    
+                                                                                
+  Steps:                                                                        
+  1. Run entire enable — if it fails on the telemetry TTY prompt, that's fine,  
+  the hooks and config still install
+  2. Verify with entire status — should show "Enabled (manual-commit)"          
+  3. Ensure telemetry is off: check ~/.config/entire/config.json exists with    
+  {"telemetry": false}. If it doesn't exist, create it.                         
+  4. Verify the git hook exists at .git/hooks/prepare-commit-msg and contains   
+  entire hooks git prepare-commit-msg                                           
+  5. Confirm .entire/ is in .gitignore — if not, add it                         
+  6. Run a test: git log -1 --format="%B" on the most recent commit — if Entire
+  is working, future commits will have an Entire-Checkpoint: trailer appended
+  aully
+
+  Do NOT send any telemetry. Do NOT run entire commands that require interactive
+   TTY input. If a command fails due to TTY, skip it — the non-interactive parts
+   are sufficient.
+
+  ---
+
+---
+
+if I set it up in sequant, will convo histroy be piblicly accessible in our commits?
+
+---
+
+yes, set it up in sequant
