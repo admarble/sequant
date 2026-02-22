@@ -360,6 +360,28 @@ describe("report", () => {
       ]);
       expect(computeBatchVerdict(verdicts)).toBe("BLOCKED");
     });
+
+    it("should return BLOCKED when batch-level check has error findings", () => {
+      const verdicts = new Map<number, "PASS" | "WARN" | "FAIL">([
+        [265, "PASS"],
+      ]);
+      const checks: CheckResult[] = [
+        {
+          name: "combined-branch-test",
+          passed: false,
+          branchResults: [],
+          batchFindings: [
+            {
+              check: "combined-branch-test",
+              severity: "error",
+              message: "Failed to create temp branch",
+            },
+          ],
+          durationMs: 100,
+        },
+      ];
+      expect(computeBatchVerdict(verdicts, checks)).toBe("BLOCKED");
+    });
   });
 
   describe("buildReport", () => {

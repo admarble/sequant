@@ -15,6 +15,7 @@ import type {
   ExtractedPattern,
   ResidualMatch,
 } from "./types.js";
+import { getBranchRef } from "./types.js";
 
 /**
  * Minimum pattern length to avoid false positives from trivial removals
@@ -57,7 +58,7 @@ export function extractPatternsFromDiff(
       "-C",
       repoRoot,
       "diff",
-      `origin/main...origin/${branch.branch}`,
+      `origin/main...${getBranchRef(branch)}`,
       "--unified=0",
     ],
     { stdio: "pipe", encoding: "utf-8" },

@@ -11,6 +11,7 @@ import { getChecksToRun, findMostRecentLog } from "./index.js";
 import { buildResult } from "./combined-branch-test.js";
 import { rangesOverlap } from "./overlap-detection.js";
 import { formatBranchReportMarkdown, buildReport } from "./report.js";
+import { getBranchRef } from "./types.js";
 import type { BranchInfo, CheckResult, MergeCommandOptions } from "./types.js";
 
 // Mock child_process for extractPatternsFromDiff tests
@@ -23,6 +24,33 @@ import { spawnSync } from "child_process";
 import { extractPatternsFromDiff } from "./residual-pattern-scan.js";
 
 const mockSpawnSync = vi.mocked(spawnSync);
+
+// ============================================================================
+// getBranchRef Tests
+// ============================================================================
+
+describe("getBranchRef", () => {
+  it("should return origin/ prefix for remote-only branches", () => {
+    const branch: BranchInfo = {
+      issueNumber: 100,
+      title: "Test",
+      branch: "feature/100-test",
+      filesModified: [],
+    };
+    expect(getBranchRef(branch)).toBe("origin/feature/100-test");
+  });
+
+  it("should return bare branch name for worktree branches", () => {
+    const branch: BranchInfo = {
+      issueNumber: 200,
+      title: "Test",
+      branch: "feature/200-test",
+      filesModified: [],
+      worktreePath: "/some/worktree/path",
+    };
+    expect(getBranchRef(branch)).toBe("feature/200-test");
+  });
+});
 
 // ============================================================================
 // getExitCode Tests
@@ -135,6 +163,18 @@ describe("extractPatternsFromDiff", () => {
     mockSpawnSync.mockReset();
   });
 
+  const makeBranch = (
+    num: number,
+    branch: string,
+    worktreePath?: string,
+  ): BranchInfo => ({
+    issueNumber: num,
+    title: `Test issue #${num}`,
+    branch,
+    filesModified: [],
+    worktreePath,
+  });
+
   it("should extract removed lines from diff output", () => {
     mockSpawnSync.mockReturnValue({
       status: 0,
@@ -151,10 +191,13 @@ describe("extractPatternsFromDiff", () => {
       signal: null,
     });
 
-    const patterns = extractPatternsFromDiff("feature/1-test", "/tmp");
+    const branch = makeBranch(1, "feature/1-test");
+    const patterns = extractPatternsFromDiff(branch, "/tmp");
     expect(patterns.length).toBeGreaterThanOrEqual(1);
     const patternTexts = patterns.map((p) => p.pattern);
     expect(patternTexts.some((p) => p.includes("oldFunction"))).toBe(true);
+    // Verify issueNumber is propagated correctly
+    expect(patterns.every((p) => p.issueNumber === 1)).toBe(true);
   });
 
   it("should skip short lines and imports", () => {
@@ -174,10 +217,13 @@ describe("extractPatternsFromDiff", () => {
       signal: null,
     });
 
-    const patterns = extractPatternsFromDiff("feature/2-test", "/tmp");
+    const branch = makeBranch(2, "feature/2-test");
+    const patterns = extractPatternsFromDiff(branch, "/tmp");
     const patternTexts = patterns.map((p) => p.pattern);
     expect(patternTexts.some((p) => p.includes("import"))).toBe(false);
     expect(patternTexts.some((p) => p === "x")).toBe(false);
+    // Verify issueNumber propagation
+    expect(patterns.every((p) => p.issueNumber === 2)).toBe(true);
   });
 
   it("should return empty array on git failure", () => {
@@ -190,7 +236,8 @@ describe("extractPatternsFromDiff", () => {
       signal: null,
     });
 
-    const patterns = extractPatternsFromDiff("feature/3-test", "/tmp");
+    const branch = makeBranch(3, "feature/3-test");
+    const patterns = extractPatternsFromDiff(branch, "/tmp");
     expect(patterns).toEqual([]);
   });
 
@@ -209,9 +256,12 @@ describe("extractPatternsFromDiff", () => {
       signal: null,
     });
 
-    const patterns = extractPatternsFromDiff("feature/4-test", "/tmp");
+    const branch = makeBranch(4, "feature/4-test");
+    const patterns = extractPatternsFromDiff(branch, "/tmp");
     const unique = new Set(patterns.map((p) => p.pattern));
     expect(unique.size).toBe(patterns.length);
+    // Verify issueNumber propagation
+    expect(patterns.every((p) => p.issueNumber === 4)).toBe(true);
   });
 });
 

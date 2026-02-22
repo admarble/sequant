@@ -189,3 +189,14 @@ export const DEFAULT_MIRROR_PAIRS: MirrorPair[] = [
   { source: ".claude/skills", target: "templates/skills" },
   { source: "hooks", target: "templates/hooks" },
 ];
+
+/**
+ * Get the git ref to use for diff/merge operations on a branch.
+ *
+ * Worktree-only branches (not pushed to remote) exist as local refs,
+ * so we use the branch name directly. Branches that have been pushed
+ * use the remote ref for consistency.
+ */
+export function getBranchRef(branch: BranchInfo): string {
+  return branch.worktreePath ? branch.branch : `origin/${branch.branch}`;
+}

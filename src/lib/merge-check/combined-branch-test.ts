@@ -12,6 +12,7 @@ import type {
   BranchCheckResult,
   CheckFinding,
 } from "./types.js";
+import { getBranchRef } from "./types.js";
 
 /**
  * Result from merging a branch into the temp branch
@@ -101,7 +102,7 @@ export function runCombinedBranchTest(
     // Merge each feature branch
     for (const branch of branches) {
       const mergeResult = git(
-        ["merge", "--no-ff", "--no-edit", `origin/${branch.branch}`],
+        ["merge", "--no-ff", "--no-edit", getBranchRef(branch)],
         repoRoot,
       );
 

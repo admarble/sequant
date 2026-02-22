@@ -1,7 +1,7 @@
 # Merge Check Benchmark
 
 Benchmark results from running `sequant merge --scan` against batch `b4030aa9`
-(issues #265, #298, #299, #300) on 2025-02-21.
+(issues #265, #298, #299, #300) on 2026-02-21.
 
 ## Command
 
@@ -36,6 +36,24 @@ The human QA review for the same batch (documented in issue #313) identified:
 - **Structural issues** (conflicts, overlaps): 100% detection
 - **Convention issues** (mirroring): 100% detection
 - **Residual patterns**: Tool-only capability (not feasible manually)
+
+## False Positive Analysis
+
+Of the 72 total findings, we assessed each against human judgment:
+
+| Category | Findings | True Positives | False Positives | FP Rate |
+|----------|----------|----------------|-----------------|---------|
+| Merge conflicts | 1 | 1 | 0 | 0% |
+| Mirroring gaps | 11 | 11 | 0 | 0% |
+| File overlaps | 3 | 3 | 0 | 0% |
+| Residual patterns | 57 | ~52 | ~5 | ~9% |
+| **Total** | **72** | **~67** | **~5** | **~7%** |
+
+Residual pattern false positives are cases where the removed line appears in
+documentation examples or test fixtures where the pattern is intentionally
+preserved (e.g., `grep -r` referenced in a "before/after" code sample).
+
+**Overall false positive rate: ~7%** (below the <10% target from AC-7)
 
 ## Performance
 

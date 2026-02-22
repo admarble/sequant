@@ -14,13 +14,14 @@ import type {
   CheckFinding,
   FileOverlap,
 } from "./types.js";
+import { getBranchRef } from "./types.js";
 
 /**
  * Parse git diff hunk headers to extract changed line ranges.
  * Returns an array of [start, end] tuples.
  */
 function getChangedLineRanges(
-  branch: string,
+  branchRef: string,
   file: string,
   repoRoot: string,
 ): Array<[number, number]> {
@@ -31,7 +32,7 @@ function getChangedLineRanges(
       repoRoot,
       "diff",
       "--unified=0",
-      `origin/main...origin/${branch}`,
+      `origin/main...${branchRef}`,
       "--",
       file,
     ],
@@ -76,12 +77,12 @@ export function rangesOverlap(
  */
 function classifyOverlap(
   file: string,
-  issueBranches: Array<{ issueNumber: number; branch: string }>,
+  issueBranches: BranchInfo[],
   repoRoot: string,
 ): "additive" | "conflicting" {
   const rangesByIssue = issueBranches.map((b) => ({
     issueNumber: b.issueNumber,
-    ranges: getChangedLineRanges(b.branch, file, repoRoot),
+    ranges: getChangedLineRanges(getBranchRef(b), file, repoRoot),
   }));
 
   for (let i = 0; i < rangesByIssue.length; i++) {
@@ -125,8 +126,7 @@ export function runOverlapDetection(
     if (issues.length >= 2) {
       const issueBranches = issues
         .map((iss) => branches.find((b) => b.issueNumber === iss))
-        .filter((b): b is BranchInfo => b !== undefined)
-        .map((b) => ({ issueNumber: b.issueNumber, branch: b.branch }));
+        .filter((b): b is BranchInfo => b !== undefined);
       overlaps.push({
         file,
         issues,

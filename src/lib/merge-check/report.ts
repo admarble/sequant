@@ -47,11 +47,25 @@ export function computeIssueVerdicts(
 }
 
 /**
- * Compute batch-level verdict from per-issue verdicts
+ * Compute batch-level verdict from per-issue verdicts and check results.
+ *
+ * Checks that fail at the batch level (e.g., combined-branch-test can't
+ * create temp branch) may have no branch results but still indicate a
+ * problem. These are reflected via the checks parameter.
  */
 export function computeBatchVerdict(
   issueVerdicts: Map<number, CheckVerdict>,
+  checks?: CheckResult[],
 ): BatchVerdict {
+  // Check for batch-level failures (checks that failed without branch results)
+  if (
+    checks?.some(
+      (c) => !c.passed && c.batchFindings.some((f) => f.severity === "error"),
+    )
+  ) {
+    return "BLOCKED";
+  }
+
   const verdicts = Array.from(issueVerdicts.values());
 
   if (verdicts.some((v) => v === "FAIL")) {
@@ -60,6 +74,12 @@ export function computeBatchVerdict(
   if (verdicts.some((v) => v === "WARN")) {
     return "NEEDS_ATTENTION";
   }
+
+  // Check for batch-level warnings
+  if (checks?.some((c) => !c.passed)) {
+    return "NEEDS_ATTENTION";
+  }
+
   return "READY";
 }
 
@@ -86,7 +106,7 @@ export function buildReport(
   runId?: string,
 ): MergeReport {
   const issueVerdicts = computeIssueVerdicts(branches, checks);
-  const batchVerdict = computeBatchVerdict(issueVerdicts);
+  const batchVerdict = computeBatchVerdict(issueVerdicts, checks);
   const findings = collectFindings(checks);
 
   return {
