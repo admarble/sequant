@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "be89c6723d82",
+  "strategy": "manual-commit",
+  "branch": "feature/319-refactor-state-utils-split-943-line-file-into-focu",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/lib/workflow/pr-status.ts",
+    "src/lib/workflow/state-cleanup.ts",
+    "src/lib/workflow/state-rebuild.ts",
+    "src/lib/workflow/state-utils.ts",
+    "src/lib/workflow/worktree-discovery.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/be/89c6723d82/0/metadata.json",
+      "transcript": "/be/89c6723d82/0/full.jsonl",
+      "context": "/be/89c6723d82/0/context.md",
+      "content_hash": "/be/89c6723d82/0/content_hash.txt",
+      "prompt": "/be/89c6723d82/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 42,
+    "cache_creation_tokens": 72130,
+    "cache_read_tokens": 3864369,
+    "output_tokens": 369,
+    "api_call_count": 38
+  }
+}
