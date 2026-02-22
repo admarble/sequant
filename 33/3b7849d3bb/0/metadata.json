@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "333b7849d3bb",
+  "session_id": "d9515e91-7437-4802-9007-70301a215517",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-22T08:53:59.09446Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".claude/skills/exec/SKILL.md",
+    ".claude/skills/spec/SKILL.md"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "b6330679-a714-4dad-903f-034b3d96c226",
+  "token_usage": {
+    "input_tokens": 184,
+    "cache_creation_tokens": 44085,
+    "cache_read_tokens": 446248,
+    "output_tokens": 638,
+    "api_call_count": 11
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-22T08:53:58.959268Z",
+    "agent_lines": 42,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 42,
+    "agent_percentage": 100
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-sequant/d9515e91-7437-4802-9007-70301a215517.jsonl"
+}

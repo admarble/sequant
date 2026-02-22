@@ -1,0 +1,110 @@
+got these errors during fullsolve. can you invetigate:\
+ Now let me run the AC extraction and quality checks.                             
+                                                
+⏺ Bash(npx tsx -e "                                                                
+      import { extractAcceptanceCriteria } from './src/lib/ac-parser.js';…)        
+  ⎿  Error: Exit code 1                                                            
+     node:internal/process/promises:394                                            
+         triggerUncaughtException(err, true /* fromPromise */);                    
+         ^        
+                                                                                   
+     Error: Transform failed with 3 errors:
+     /eval.ts:38:19: ERROR: Top-level await is currently not supported with the    
+     "cjs" output format
+     /eval.ts:40:4: ERROR: Top-level await is currently not supported with the
+     "cjs" output format
+     /eval.ts:42:2: ERROR: Top-level await is currently not supported with the
+     "cjs" output f         at failureErrorWithLog
+     (/Users/tony/Projects/sequant/node_modules/esbuild/lib/main.js:1467:15)
+     … +136 lines (ctrl+o to see all)
+
+⏺ Bash(npx tsx -e "                                
+      import { parseAcceptanceCriteria } from './src/lib/ac-parser.js';…)
+  ⎿  Error: Sibling tool call errored                                              
+  
+⏺ Bash(npx tsx -e "                                                                
+      import { parseAcceptanceCriteria } from './src/lib/ac-parser.js';…)
+  ⎿  Error: Sibling tool call errored                                              
+  
+⏺ Bash(npx tsx -e "                                                                
+      import { extractAcceptanceCriteria } from './src/lib/ac-parser.js';…)
+  ⎿  Error: Exit code 1                                                            
+     /Users/tony/Projects/sequant/node_modules/tsx/dist/register-D46fvsV_.cjs:3
+     `)},"createLog"),x=I(g.bgLightYellow(g.black(" CJS "))),ae=I(g.bgBl,oe=[".cts",".mts",".ts",".tsx",".jsx"],ie=[".js",".cjs",".mjs"],k=[".ts","
+     .tsx",".jsx"],F=o((s,e,r,n)=>{const t=Object.getOwnPropertyDescriptor(s,e);t?.
+     set?s[e]=r:(!t||t.configurable)&&Object.defineProperty(s,e,{value:r,enumerable
+     :t?.enumerable||n?.enumerable,writable:n?.writable??(t?t.writable:!0),configur
+     able:n?.configurable??(t?t.configurable:!0)})},"safeSet"),ce=o((s,e,r)=>{const
+      n=e[".js"],t=o((a,i)=>{if(s.enabled===!1)return
+     n(a,i);const[c,f]=i.split("?");if((new
+     URLSearchParams(f).get("namespace")??void 0)!==r)return n(a,i);x(2,"load",{fil
+     ePath:i}),a.id.startsWith("data:text/javascript,")&&(a.path=m.dirname(c)),R.pa
+     rent?.send&&R.parent.send({type:"dependency",path:c});const
+     p=oe.some(h=>c.endsWith(h)),P=ie.some(h=>c.endsWith(h));if(!p&&!P)return
+     n(a,c);let d=O.readFileSync(c,"utf8");if(c.endsWith(".cjs")){const
+     h=w.transformDynamicImport(i,d);h&&(d=A()?$(h):h.code)}else
+     if(p||w.isESM(d)){const h=w.transformSync(d,i,{tsconfigRaw:exports.fileMatcher
+     ?.(c)});d=A()?$(h):h.code}x(1,"loaded",{filePath:c}),a._compile(d,c)},"transfo
+     rmer");F(e,".js",t);for(const a of
+     k)F(e,a,t,{enumerable:!r,writable:!0,configurable:!0});return F(e,".mjs",t,{wr
+     itable:!0,configurable:!0}),()=>{e[".js"]===t&&(e[".js"]=n);for(const a
+     of[...k,".mjs"])e[a]===t&&delete e[a]}},"createExtensions"),le=o(s=>e=>{if((e=
+     =="."||e===".."||e.endsWith("/.."))&&(e+="/"),_.test(e)){let
+     r=m.join(e,"index.js");e.startsWith("./")&&(r=`./${r}`);try{return
+     s(r)}catch{}}try{return s(e)}catch(r){const
+     n=r;if(n.code==="MODULE_NOT_FOUND")try{return
+     s(`${e}${m.sep}index.js`)}catch{}throw n}},"createImplicitResolver"),B=[".js",
+     ".json"],G=[".ts",".tsx",".jsx"],fe=[...G,...B],he=[...B,...G],y=Object.create
+     (null);y[".js"]=[".ts",".tsx",".js",".jsx"],y[".jsx"]=[".tsx",".ts",".jsx",".j
+     s"],y[".cjs"]=[".cts"],y[".mjs"]=[".mts"];const X=o(s=>{const e=s.split("?"),r
+     =e[1]?`?${e[1]}`:"",[n]=e,t=m.extname(n),a=[],i=y[t];if(i){const
+     f=n.slice(0,-t.length);a.push(...i.map(l=>f+l+r))}const c=!(s.startsWith(v)||j
+     (n))||n.includes(J)||n.includes("/node_modules/")?he:fe;return
+     a.push(...c.map(f=>n+f+r)),a},"mapTsExtensions"),S=o((s,e,r)=>{if(x(3,"resolve
+     TsFilename",{request:e,isDirectory:_.test(e),isTsParent:r,allowJs:exports.allo
+     wJs}),_.test(e)||!r&&!exports.allowJs)return;const n=X(e);if(n)for(const t of
+     n)try{return s(t)}catch(a){const{code:i}=a;if(i!=="MODULE_NOT_FOUND"&&i!=="ERR
+     _PACKAGE_PATH_NOT_EXPORTED")throw a}},"resolveTsFilename"),me=o((s,e)=>r=>{if(
+     x(3,"resolveTsFilename",{request:r,isTsParent:e,isFilePath:j(r)}),j(r)){const
+     n=S(s,r,e);if(n)return n}try{return s(r)}catch(n){const
+     t=n;if(t.code==="MODULE_NOT_FOUND"){if(t.path){const
+     i=t.message.match(/^Cannot find module '([^']+)'$/);if(i){const
+     f=i[1],l=S(s,f,e);if(l)return l}const c=t.message.match(/^Cannot find module
+     '([^']+)'. Please verify that the package.json has a valid "main"
+     entry$/);if(c){const f=c[1],l=S(s,f,e);if(l)return l}}const
+     a=S(s,r,e);if(a)return a}throw t}},"createTsExtensionResolver"),z="at
+     cjsPreparseModuleExports (node:internal",de=o(s=>{const e=s.stack.split(`
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+     Error: Cannot find module './src/lib/ac-parser.js'
+     Require stack:
+     - /Users/tony/Projects/sequant/[eval]
+         at node:internal/modules/cjs/loader:1405:15
+         at nextResolveSimple (/Users/tony/Projects/sequant/node_modules/tsx/dist/r
+     egister-D46fvsV_.cjs:4:1004)
+     … +30 lines (ctrl+o to see all)
+
+⏺ Bash(npx tsx -e "                
+      import { parseAcceptanceCriteria } from './src/lib/ac-parser.js';…)
+  ⎿  Error: Sibling tool call errored                                              
+  
+⏺ Bash(npx tsx -e "                                                                
+      import { parseAcceptanceCriteria } from './src/lib/ac-parser.js';…)
+  ⎿  Error: Sibling too
+
+---
+
+commit this
