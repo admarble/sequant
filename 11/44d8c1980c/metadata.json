@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "1144d8c1980c",
+  "strategy": "manual-commit",
+  "branch": "feature/318-refactor-run-split-3-459-line-monolith-into-focuse",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/commands/run.ts",
+    "src/lib/workflow/batch-executor.ts",
+    "src/lib/workflow/phase-executor.ts",
+    "src/lib/workflow/phase-mapper.ts",
+    "src/lib/workflow/worktree-manager.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/11/44d8c1980c/0/metadata.json",
+      "transcript": "/11/44d8c1980c/0/full.jsonl",
+      "context": "/11/44d8c1980c/0/context.md",
+      "content_hash": "/11/44d8c1980c/0/content_hash.txt",
+      "prompt": "/11/44d8c1980c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2035,
+    "cache_creation_tokens": 250743,
+    "cache_read_tokens": 8406411,
+    "output_tokens": 536,
+    "api_call_count": 76
+  }
+}
