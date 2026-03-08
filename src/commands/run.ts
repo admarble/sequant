@@ -574,7 +574,7 @@ async function ensureWorktree(
       } else if (freshness.hasUnpushedCommits) {
         console.log(
           chalk.yellow(
-            `    ⚠️  Worktree is ${freshness.commitsBehind} commits behind main but has unpushed commits`,
+            `    ⚠️  Worktree is ${freshness.commitsBehind} commits behind ${detectedBase} but has unpushed commits`,
           ),
         );
         console.log(
@@ -585,7 +585,7 @@ async function ensureWorktree(
         // Safe to recreate - no uncommitted/unpushed work
         console.log(
           chalk.yellow(
-            `    ⚠️  Worktree is ${freshness.commitsBehind} commits behind main — recreating fresh`,
+            `    ⚠️  Worktree is ${freshness.commitsBehind} commits behind ${detectedBase} — recreating fresh`,
           ),
         );
 
