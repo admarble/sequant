@@ -2,13 +2,24 @@
   "cli_version": "0.4.4",
   "checkpoint_id": "1e43716fecdd",
   "strategy": "manual-commit",
-  "branch": "main",
-  "checkpoints_count": 1,
+  "branch": "feature/318-refactor-run-split-3-459-line-monolith-into-focuse",
+  "checkpoints_count": 2,
   "files_touched": [
     "CHANGELOG.md",
     "README.md",
     "docs/internal/what-weve-built.md",
-    "package.json"
+    "package.json",
+    "src/commands/run.ts",
+    "src/lib/workflow/batch-executor.test.ts",
+    "src/lib/workflow/batch-executor.ts",
+    "src/lib/workflow/phase-executor.test.ts",
+    "src/lib/workflow/phase-mapper.test.ts",
+    "src/lib/workflow/pr-operations.test.ts",
+    "src/lib/workflow/pr-operations.ts",
+    "src/lib/workflow/run-summary.test.ts",
+    "src/lib/workflow/run-summary.ts",
+    "src/lib/workflow/worktree-manager.test.ts",
+    "src/lib/workflow/worktree-manager.ts"
   ],
   "sessions": [
     {
@@ -17,13 +28,20 @@
       "context": "/1e/43716fecdd/0/context.md",
       "content_hash": "/1e/43716fecdd/0/content_hash.txt",
       "prompt": "/1e/43716fecdd/0/prompt.txt"
+    },
+    {
+      "metadata": "/1e/43716fecdd/1/metadata.json",
+      "transcript": "/1e/43716fecdd/1/full.jsonl",
+      "context": "/1e/43716fecdd/1/context.md",
+      "content_hash": "/1e/43716fecdd/1/content_hash.txt",
+      "prompt": "/1e/43716fecdd/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 85,
-    "cache_creation_tokens": 40372,
-    "cache_read_tokens": 770168,
-    "output_tokens": 3932,
-    "api_call_count": 19
+    "input_tokens": 181,
+    "cache_creation_tokens": 308948,
+    "cache_read_tokens": 7886552,
+    "output_tokens": 46135,
+    "api_call_count": 98
   }
 }
