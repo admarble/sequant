@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "f24510ce3777",
+  "session_id": "8286ecbc-0d42-4114-896b-f13478be6320",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-12T03:35:56.219576Z",
+  "branch": "feature/254-feat-qa-add-smoke-test-template-section-for-workfl",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".claude/skills/qa/SKILL.md"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 45,
+    "cache_creation_tokens": 105935,
+    "cache_read_tokens": 4167978,
+    "output_tokens": 459,
+    "api_call_count": 41
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-12T03:35:55.51269Z",
+    "agent_lines": 62,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 62,
+    "agent_percentage": 100
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-worktrees-feature-254-feat-qa-add-smoke-test-template-section-for-workfl/8286ecbc-0d42-4114-896b-f13478be6320.jsonl"
+}
