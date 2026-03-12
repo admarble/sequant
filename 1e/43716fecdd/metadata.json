@@ -3,8 +3,9 @@
   "checkpoint_id": "1e43716fecdd",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 5,
+  "checkpoints_count": 6,
   "files_touched": [
+    ".claude-plugin/plugin.json",
     "CHANGELOG.md",
     "README.md",
     "docs/features/solve-analysis-persistence.md",
@@ -58,13 +59,20 @@
       "context": "/1e/43716fecdd/4/context.md",
       "content_hash": "/1e/43716fecdd/4/content_hash.txt",
       "prompt": "/1e/43716fecdd/4/prompt.txt"
+    },
+    {
+      "metadata": "/1e/43716fecdd/5/metadata.json",
+      "transcript": "/1e/43716fecdd/5/full.jsonl",
+      "context": "/1e/43716fecdd/5/context.md",
+      "content_hash": "/1e/43716fecdd/5/content_hash.txt",
+      "prompt": "/1e/43716fecdd/5/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 395,
-    "cache_creation_tokens": 679088,
-    "cache_read_tokens": 19343868,
-    "output_tokens": 88160,
-    "api_call_count": 266
+    "input_tokens": 431,
+    "cache_creation_tokens": 796338,
+    "cache_read_tokens": 20521617,
+    "output_tokens": 95860,
+    "api_call_count": 291
   }
 }
