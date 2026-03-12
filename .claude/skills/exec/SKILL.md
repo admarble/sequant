@@ -660,10 +660,10 @@ echo "Current branch: $CURRENT_BRANCH"
 
 ```bash
 # List all RunOptions fields
-grep -E '^\s+\w+\??: ' src/lib/workflow/batch-executor.ts | head -30
+grep -E '^\s+\w+\??: ' src/lib/workflow/batch-executor.ts | head -30 || true
 
 # List all registered options for 'run' command
-grep -A 50 'command("run")' bin/cli.ts | grep '\.option(' | head -30
+grep -A 50 'command("run")' bin/cli.ts | grep '\.option(' | head -30 || true
 
 # Check if a specific field is registered (e.g., 'force')
 field_name="force"
