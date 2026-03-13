@@ -6,7 +6,7 @@
  */
 
 import { readdir, stat } from "fs/promises";
-import { join, extname, basename } from "path";
+import { join, extname } from "path";
 import { fileExists, readFile, writeFile, ensureDir } from "./fs.js";
 
 /** Path to conventions file */
@@ -365,8 +365,8 @@ async function detectIndentation(root: string): Promise<Convention | null> {
       const lines = content.split("\n").slice(0, 50);
       for (const line of lines) {
         if (/^\t/.test(line)) tabs++;
-        else if (/^  [^ ]/.test(line)) twoSpace++;
-        else if (/^    [^ ]/.test(line)) fourSpace++;
+        else if (/^ {2}[^ ]/.test(line)) twoSpace++;
+        else if (/^ {4}[^ ]/.test(line)) fourSpace++;
       }
     } catch {
       // skip
@@ -423,7 +423,7 @@ async function detectSemicolons(root: string): Promise<Convention | null> {
           trimmed.startsWith("//") ||
           trimmed.startsWith("/*") ||
           trimmed.startsWith("*") ||
-          /^[{}()\[\]]$/.test(trimmed) ||
+          /^[{}()[\]]$/.test(trimmed) ||
           /^import\s/.test(trimmed) ||
           /^export\s/.test(trimmed)
         )

@@ -9,7 +9,7 @@ import {
   formatConventions,
   CONVENTIONS_PATH,
 } from "../lib/conventions-detector.js";
-import { fileExists, writeFile, readFile } from "../lib/fs.js";
+import { fileExists, writeFile } from "../lib/fs.js";
 
 interface ConventionsOptions {
   detect?: boolean;
