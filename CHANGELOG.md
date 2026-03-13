@@ -18,16 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Weekly npm dependency scanning with grouped PRs (production vs development)
   - Dev dependencies limited to minor+patch updates to reduce noise
   - PR limit of 10 to prevent overwhelming the repo
-
-## [1.18.0] - 2026-03-11
-
-### Added
-
 - Codebase conventions detection during `sequant init` (#233)
   - Detects 8+ conventions: test patterns, export style, async patterns, TypeScript strictness, indentation, semicolons, package manager, project structure
   - Stores results in `.sequant/conventions.json` with manual override support
   - New `sequant conventions` command to view, re-detect, or reset conventions
   - `/exec` skill template references conventions for style-aware code generation
+
+## [1.18.0] - 2026-03-11
+
+### Added
+
 - Marketplace submission tooling and plugin metadata enrichment (#248)
   - `scripts/prepare-marketplace.sh` builds `external_plugins/sequant/` for official marketplace
   - `npm run prepare:marketplace` and `npm run validate:marketplace` scripts
