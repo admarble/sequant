@@ -316,6 +316,26 @@ Per Quality Plan:
 
 **If no Quality Plan found:** Proceed with standard implementation but note in progress update that quality planning was not available.
 
+#### 2.1b2 Codebase Conventions (RECOMMENDED)
+
+**Before generating code**, check for codebase conventions detected during `sequant init`:
+
+```bash
+# Read conventions file if it exists
+cat .sequant/conventions.json 2>/dev/null || echo "No conventions detected"
+```
+
+**If `.sequant/conventions.json` exists**, use the detected conventions to align generated code:
+- **testFilePattern** → Name test files accordingly (e.g., `*.test.ts` vs `*.spec.ts`)
+- **exportStyle** → Use named or default exports to match codebase style
+- **asyncPattern** → Prefer async/await or promise chains as appropriate
+- **indentation** → Match existing indentation style
+- **semicolons** → Include or omit semicolons per convention
+
+**Manual overrides** in the `manual` section take precedence over detected values.
+
+**If no conventions file exists:** Proceed normally — conventions are optional enhancement.
+
 #### 2.1c Derived AC Extraction (REQUIRED when Quality Plan exists)
 
 **Purpose:** Extract derived ACs from the spec comment's Derived ACs table so they can be tracked alongside original ACs during implementation.
@@ -424,11 +444,6 @@ Once extracted, derived ACs should be:
 - ✗ Console errors on load → Missing imports, env vars
 
 **If issues found:** Fix before proceeding with new implementation. Reference `references/shared/framework-gotchas.md` for common solutions.
-
-- **Check codebase conventions** (if `.sequant/conventions.json` exists):
-  - Read conventions to align generated code with codebase style
-  - Respect test file pattern, export style, async pattern, indentation, etc.
-  - Manual overrides in `manual` section take precedence over detected values
 
 ### Feature Worktree Workflow
 
