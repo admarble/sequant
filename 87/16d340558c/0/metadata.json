@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "8716d340558c",
+  "session_id": "6abbe4f6-5189-4c0a-bc7d-6f26e27960ce",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-13T15:13:07.930298Z",
+  "branch": "feature/94-feat-add-support-for-more-technology-stacks",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/lib/stacks.test.ts",
+    "src/lib/stacks.ts"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 147,
+    "cache_creation_tokens": 98520,
+    "cache_read_tokens": 4855268,
+    "output_tokens": 569,
+    "api_call_count": 54
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-13T15:13:07.608242Z",
+    "agent_lines": 161,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 161,
+    "agent_percentage": 100
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-worktrees-feature-94-feat-add-support-for-more-technology-stacks/6abbe4f6-5189-4c0a-bc7d-6f26e27960ce.jsonl"
+}

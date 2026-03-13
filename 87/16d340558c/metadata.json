@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "8716d340558c",
+  "strategy": "manual-commit",
+  "branch": "feature/94-feat-add-support-for-more-technology-stacks",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/lib/stacks.test.ts",
+    "src/lib/stacks.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/87/16d340558c/0/metadata.json",
+      "transcript": "/87/16d340558c/0/full.jsonl",
+      "context": "/87/16d340558c/0/context.md",
+      "content_hash": "/87/16d340558c/0/content_hash.txt",
+      "prompt": "/87/16d340558c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 147,
+    "cache_creation_tokens": 98520,
+    "cache_read_tokens": 4855268,
+    "output_tokens": 569,
+    "api_call_count": 54
+  }
+}
