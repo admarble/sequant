@@ -3,31 +3,31 @@
   "checkpoint_id": "78781336ea85",
   "session_id": "cc8d5dfc-3f29-4ac6-a2d7-17080324c763",
   "strategy": "manual-commit",
-  "created_at": "2026-03-13T21:13:43.336238Z",
+  "created_at": "2026-03-14T14:46:32.895982Z",
   "branch": "main",
-  "checkpoints_count": 3,
+  "checkpoints_count": 1,
   "files_touched": [
-    "CHANGELOG.md",
-    "docs/features/codebase-conventions.md",
-    "docs/features/python-stack-support.md",
-    "templates/skills/exec/SKILL.md"
+    "docs/internal/what-weve-built.md",
+    "docs/reference/cheat-sheet.md",
+    "docs/reference/conventions-command.md"
   ],
   "agent": "Claude Code",
+  "transcript_identifier_at_start": "0604310d-e0a5-4fa2-961e-d859735cfc71",
   "token_usage": {
-    "input_tokens": 517,
-    "cache_creation_tokens": 249873,
-    "cache_read_tokens": 8877108,
-    "output_tokens": 22334,
-    "api_call_count": 116
+    "input_tokens": 541,
+    "cache_creation_tokens": 475440,
+    "cache_read_tokens": 10602376,
+    "output_tokens": 25951,
+    "api_call_count": 132
   },
   "initial_attribution": {
-    "calculated_at": "2026-03-13T21:13:42.713319Z",
-    "agent_lines": 184,
-    "human_added": 1273,
-    "human_modified": 76,
+    "calculated_at": "2026-03-14T14:46:31.957878Z",
+    "agent_lines": 0,
+    "human_added": 107,
+    "human_modified": 0,
     "human_removed": 0,
-    "total_committed": 1533,
-    "agent_percentage": 12.002609262883235
+    "total_committed": 107,
+    "agent_percentage": 0
   },
   "transcript_path": ".claude/projects/-Users-tony-Projects-sequant/cc8d5dfc-3f29-4ac6-a2d7-17080324c763.jsonl"
 }

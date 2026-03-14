@@ -77,3 +77,19 @@ When invoked as `/docs`, your job is to:
 
 yes
 
+### Prompt 10
+
+do we need to smoketrst?
+
+### Prompt 11
+
+push
+
+### Prompt 12
+
+Are all docs up to date?
+
+### Prompt 13
+
+yes. also what-weve-built
+

@@ -3380,3 +3380,19 @@ ARGUMENTS: 233
 ---
 
 yes
+
+---
+
+do we need to smoketrst?
+
+---
+
+push
+
+---
+
+Are all docs up to date?
+
+---
+
+yes. also what-weve-built
