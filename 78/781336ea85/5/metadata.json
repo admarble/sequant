@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "78781336ea85",
+  "session_id": "8f61a17d-1af7-40ca-b23c-1a7dd952afca",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-15T17:05:17.352532Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".claude-plugin/plugin.json",
+    "CHANGELOG.md",
+    "docs/internal/what-weve-built.md"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "9dd92bd4-f852-42c7-88fe-e39be487880f",
+  "token_usage": {
+    "input_tokens": 115,
+    "cache_creation_tokens": 286670,
+    "cache_read_tokens": 9612864,
+    "output_tokens": 22435,
+    "api_call_count": 88
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-15T17:05:16.26128Z",
+    "agent_lines": 13,
+    "human_added": 1031,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1044,
+    "agent_percentage": 1.2452107279693485
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-sequant/8f61a17d-1af7-40ca-b23c-1a7dd952afca.jsonl"
+}
