@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "78781336ea85",
+  "session_id": "37ff7213-67d7-4b76-ba0b-27464716ae66",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-15T16:07:53.147642Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/commands/run.ts",
+    "src/lib/workflow/batch-executor.ts"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 10376,
+    "cache_creation_tokens": 65521,
+    "cache_read_tokens": 2236794,
+    "output_tokens": 12218,
+    "api_call_count": 40
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-15T16:07:52.383606Z",
+    "agent_lines": 0,
+    "human_added": 107,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 107,
+    "agent_percentage": 0
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-sequant/37ff7213-67d7-4b76-ba0b-27464716ae66.jsonl"
+}
