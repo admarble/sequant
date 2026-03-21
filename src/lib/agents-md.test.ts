@@ -208,5 +208,20 @@ describe("agents-md", () => {
 
       expect(content).toContain("Next.js");
     });
+
+    describe("snapshot per stack", () => {
+      const stacks = ["nextjs", "rust", "python", "go", "generic"];
+
+      for (const stack of stacks) {
+        it(`generates expected output for ${stack}`, async () => {
+          const content = await generateAgentsMd({
+            projectName: `test-${stack}-project`,
+            stack,
+          });
+
+          expect(content).toMatchSnapshot();
+        });
+      }
+    });
   });
 });

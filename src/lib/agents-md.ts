@@ -215,6 +215,7 @@ export async function readAgentsMd(): Promise<string | null> {
   try {
     return await readFile(AGENTS_MD_PATH);
   } catch {
+    // File read failed — treat as missing (non-blocking)
     return null;
   }
 }
@@ -240,6 +241,7 @@ async function getConventionsSection(): Promise<string> {
     }
     return lines.join("\n");
   } catch {
+    // Convention loading failed — fall back to generic guidance (non-blocking)
     return "Follow existing project patterns and naming conventions.";
   }
 }
@@ -253,6 +255,7 @@ async function getPortableInstructions(): Promise<string> {
 
     return `## Project-Specific Instructions\n\n${portable}`;
   } catch {
+    // CLAUDE.md read/parse failed — skip portable instructions (non-blocking)
     return "";
   }
 }
