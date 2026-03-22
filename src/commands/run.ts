@@ -298,6 +298,8 @@ export async function runCommand(
     noSmartTests: mergedOptions.noSmartTests ?? false,
     mcp: mcpEnabled,
     retry: retryEnabled,
+    agent: mergedOptions.agent,
+    platform: mergedOptions.platform,
   };
 
   // Propagate verbose mode to UI config so spinners use text-only mode.

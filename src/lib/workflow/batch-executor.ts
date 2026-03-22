@@ -108,6 +108,16 @@ export interface RunOptions {
    * actionable suggestions after the summary output.
    */
   reflect?: boolean;
+  /**
+   * Agent driver for phase execution.
+   * Default: "claude-code"
+   */
+  agent?: string;
+  /**
+   * Platform provider for issue/PR operations.
+   * Default: "github"
+   */
+  platform?: string;
 }
 
 export async function getIssueInfo(
