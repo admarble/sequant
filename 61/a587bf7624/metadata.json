@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61a587bf7624",
+  "strategy": "manual-commit",
+  "branch": "feature/368-extract-agentdriver-interface-from-phase-executor-",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "src/commands/doctor.ts",
+    "src/lib/system.ts",
+    "src/lib/workflow/phase-detection.ts",
+    "src/lib/workflow/platforms/github.ts",
+    "src/lib/workflow/platforms/index.ts",
+    "src/lib/workflow/pr-status.ts",
+    "src/lib/workflow/worktree-manager.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/61/a587bf7624/0/metadata.json",
+      "transcript": "/61/a587bf7624/0/full.jsonl",
+      "context": "/61/a587bf7624/0/context.md",
+      "content_hash": "/61/a587bf7624/0/content_hash.txt",
+      "prompt": "/61/a587bf7624/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 55,
+    "cache_creation_tokens": 100531,
+    "cache_read_tokens": 4311860,
+    "output_tokens": 30721,
+    "api_call_count": 51
+  }
+}
