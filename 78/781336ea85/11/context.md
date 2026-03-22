@@ -57,3 +57,7 @@ Automates the full release workflow: version bump, git tag, GitHub release, and 
 
 proceed
 
+### Prompt 8
+
+add the colors file to git ignore. we're logged in now
+

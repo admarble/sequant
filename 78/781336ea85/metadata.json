@@ -11,6 +11,7 @@
     ".github/workflows/plugin-install-test.yml",
     ".github/workflows/release.yml",
     ".github/workflows/upstream-assessment.yml",
+    ".gitignore",
     "CHANGELOG.md",
     "Sequant.itermcolors",
     "bin/cli.ts",
@@ -24,8 +25,7 @@
     "docs/reference/run-command.md",
     "src/commands/run.test.ts",
     "src/commands/run.ts",
-    "src/lib/workflow/batch-executor.ts",
-    "src/lib/workflow/phase-executor.ts"
+    "src/lib/workflow/batch-executor.ts"
   ],
   "sessions": [
     {
@@ -114,10 +114,10 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 15171,
-    "cache_creation_tokens": 1702783,
-    "cache_read_tokens": 44142165,
-    "output_tokens": 176587,
-    "api_call_count": 630
+    "input_tokens": 14911,
+    "cache_creation_tokens": 1640089,
+    "cache_read_tokens": 43409387,
+    "output_tokens": 165216,
+    "api_call_count": 613
   }
 }
