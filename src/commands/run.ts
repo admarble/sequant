@@ -299,7 +299,6 @@ export async function runCommand(
     mcp: mcpEnabled,
     retry: retryEnabled,
     agent: mergedOptions.agent,
-    platform: mergedOptions.platform,
   };
 
   // Propagate verbose mode to UI config so spinners use text-only mode.

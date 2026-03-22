@@ -56,11 +56,6 @@ export interface ExecutionConfig {
    * Default: "claude-code"
    */
   agent?: string;
-  /**
-   * Platform provider for issue/PR operations.
-   * Default: "github"
-   */
-  platform?: string;
 }
 
 /**

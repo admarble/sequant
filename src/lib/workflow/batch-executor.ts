@@ -113,11 +113,6 @@ export interface RunOptions {
    * Default: "claude-code"
    */
   agent?: string;
-  /**
-   * Platform provider for issue/PR operations.
-   * Default: "github"
-   */
-  platform?: string;
 }
 
 export async function getIssueInfo(

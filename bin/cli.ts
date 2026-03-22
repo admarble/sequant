@@ -215,10 +215,6 @@ program
     "--agent <name>",
     'Agent driver for phase execution (default: "claude-code")',
   )
-  .option(
-    "--platform <name>",
-    'Platform provider for issue/PR operations (default: "github")',
-  )
   .action(runCommand);
 
 program

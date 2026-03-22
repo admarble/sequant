@@ -9,8 +9,7 @@
  * Async interface methods delegate to the sync implementations.
  */
 
-import { execSync } from "child_process";
-import { spawnSync } from "child_process";
+import { execSync, spawnSync } from "child_process";
 import type {
   PlatformProvider,
   Issue,
@@ -55,11 +54,21 @@ export class GitHubProvider implements PlatformProvider {
    */
   fetchIssueCommentBodiesSync(issueId: string): string[] {
     try {
-      const output = execSync(
-        `gh issue view ${issueId} --json comments --jq '[.comments[].body]'`,
-        { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] },
+      const result = spawnSync(
+        "gh",
+        [
+          "issue",
+          "view",
+          issueId,
+          "--json",
+          "comments",
+          "--jq",
+          "[.comments[].body]",
+        ],
+        { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"], timeout: 15000 },
       );
-      return JSON.parse(output) as string[];
+      if (result.status !== 0 || !result.stdout) return [];
+      return JSON.parse(result.stdout) as string[];
     } catch {
       return [];
     }
@@ -109,11 +118,22 @@ export class GitHubProvider implements PlatformProvider {
    */
   listClosedIssuesSync(limit: number = 100): ClosedIssueRaw[] {
     try {
-      const output = execSync(
-        `gh issue list --state closed --json number,title,closedAt,labels --limit ${limit}`,
-        { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] },
+      const result = spawnSync(
+        "gh",
+        [
+          "issue",
+          "list",
+          "--state",
+          "closed",
+          "--json",
+          "number,title,closedAt,labels",
+          "--limit",
+          String(limit),
+        ],
+        { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"], timeout: 15000 },
       );
-      return JSON.parse(output) as ClosedIssueRaw[];
+      if (result.status !== 0 || !result.stdout) return [];
+      return JSON.parse(result.stdout) as ClosedIssueRaw[];
     } catch {
       return [];
     }
@@ -173,11 +193,15 @@ export class GitHubProvider implements PlatformProvider {
   // ─── Async interface methods (PlatformProvider) ────────────────────
 
   async fetchIssue(id: string): Promise<Issue> {
-    const output = execSync(
-      `gh issue view ${id} --json number,title,body,labels,state`,
-      { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] },
+    const result = spawnSync(
+      "gh",
+      ["issue", "view", id, "--json", "number,title,body,labels,state"],
+      { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"], timeout: 15000 },
     );
-    const data = JSON.parse(output);
+    if (result.status !== 0 || !result.stdout) {
+      throw new Error(`Failed to fetch issue ${id}`);
+    }
+    const data = JSON.parse(result.stdout);
     return {
       id: String(data.number),
       number: data.number,
@@ -254,11 +278,21 @@ export class GitHubProvider implements PlatformProvider {
 
   async getIssueComments(issueId: string): Promise<Comment[]> {
     try {
-      const output = execSync(
-        `gh issue view ${issueId} --json comments --jq '[.comments[] | {body: .body, createdAt: .createdAt}]'`,
-        { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] },
+      const result = spawnSync(
+        "gh",
+        [
+          "issue",
+          "view",
+          issueId,
+          "--json",
+          "comments",
+          "--jq",
+          "[.comments[] | {body: .body, createdAt: .createdAt}]",
+        ],
+        { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"], timeout: 15000 },
       );
-      const data = JSON.parse(output) as Array<{
+      if (result.status !== 0 || !result.stdout) return [];
+      const data = JSON.parse(result.stdout) as Array<{
         body: string;
         createdAt: string;
       }>;
