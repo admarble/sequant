@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "f4f792a7219d",
+  "strategy": "manual-commit",
+  "branch": "feature/388-mcp-server-replace-spawnsync-with-async-spawn-for-",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "__tests__/mcp-run-async.test.ts",
+    "src/mcp/tools/run.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f4/f792a7219d/0/metadata.json",
+      "transcript": "/f4/f792a7219d/0/full.jsonl",
+      "context": "/f4/f792a7219d/0/context.md",
+      "content_hash": "/f4/f792a7219d/0/content_hash.txt",
+      "prompt": "/f4/f792a7219d/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 74,
+    "cache_creation_tokens": 60615,
+    "cache_read_tokens": 3122600,
+    "output_tokens": 18004,
+    "api_call_count": 68
+  }
+}
