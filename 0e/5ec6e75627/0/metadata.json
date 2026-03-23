@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "0e5ec6e75627",
+  "session_id": "a1d91fa0-3392-4741-a2cf-9d687eb1a699",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-23T14:29:38.64871Z",
+  "branch": "feature/388-mcp-server-replace-spawnsync-with-async-spawn-for-",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "__tests__/integration/mcp-serve-async-refactor.integration.test.ts",
+    "__tests__/mcp-run-async.test.ts",
+    "src/mcp/tools/run.test.ts"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 23,
+    "cache_creation_tokens": 40419,
+    "cache_read_tokens": 592598,
+    "output_tokens": 5182,
+    "api_call_count": 17
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-23T14:29:38.548106Z",
+    "agent_lines": 217,
+    "human_added": 0,
+    "human_modified": 812,
+    "human_removed": 225,
+    "total_committed": 1029,
+    "agent_percentage": 21.08843537414966
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-worktrees-feature-388-mcp-server-replace-spawnsync-with-async-spawn-for-/a1d91fa0-3392-4741-a2cf-9d687eb1a699.jsonl"
+}
