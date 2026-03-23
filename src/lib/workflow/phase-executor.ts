@@ -168,19 +168,21 @@ async function executePhase(
 ): Promise<PhaseResult & { sessionId?: string }> {
   const startTime = Date.now();
 
+  const prompt = await getPhasePrompt(phase, issueNumber, config.agent);
+
   if (config.dryRun) {
-    // Dry run - just simulate
+    // Dry run - show the prompt that would be sent, then return
     if (config.verbose) {
       console.log(chalk.gray(`    Would execute: /${phase} ${issueNumber}`));
+      console.log(chalk.gray(`    Prompt: ${prompt}`));
     }
     return {
       phase,
       success: true,
       durationSeconds: 0,
+      output: prompt,
     };
   }
-
-  const prompt = await getPhasePrompt(phase, issueNumber, config.agent);
 
   if (config.verbose) {
     console.log(chalk.gray(`    Prompt: ${prompt}`));
