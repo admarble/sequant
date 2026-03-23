@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "6d31652b23fb",
+  "session_id": "87fb7a43-0707-4312-b417-3a44ec751a8c",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-23T22:39:02.605577Z",
+  "branch": "feature/394-mcp-server-real-time-progress-reporting-for-workfl",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "src/mcp/run-registry.test.ts",
+    "src/mcp/run-registry.ts",
+    "src/mcp/server-extended.test.ts",
+    "src/mcp/tools/run.ts",
+    "src/mcp/tools/status.ts"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 47,
+    "cache_creation_tokens": 65952,
+    "cache_read_tokens": 2405710,
+    "output_tokens": 14096,
+    "api_call_count": 41
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-23T22:39:02.39332Z",
+    "agent_lines": 497,
+    "human_added": 967,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1464,
+    "agent_percentage": 33.94808743169399
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-worktrees-feature-394-mcp-server-real-time-progress-reporting-for-workfl/87fb7a43-0707-4312-b417-3a44ec751a8c.jsonl"
+}

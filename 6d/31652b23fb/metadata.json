@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "6d31652b23fb",
+  "strategy": "manual-commit",
+  "branch": "feature/394-mcp-server-real-time-progress-reporting-for-workfl",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "src/mcp/run-registry.test.ts",
+    "src/mcp/run-registry.ts",
+    "src/mcp/server-extended.test.ts",
+    "src/mcp/tools/run.ts",
+    "src/mcp/tools/status.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/6d/31652b23fb/0/metadata.json",
+      "transcript": "/6d/31652b23fb/0/full.jsonl",
+      "context": "/6d/31652b23fb/0/context.md",
+      "content_hash": "/6d/31652b23fb/0/content_hash.txt",
+      "prompt": "/6d/31652b23fb/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 47,
+    "cache_creation_tokens": 65952,
+    "cache_read_tokens": 2405710,
+    "output_tokens": 14096,
+    "api_call_count": 41
+  }
+}
