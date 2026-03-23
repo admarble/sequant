@@ -3,31 +3,31 @@
   "checkpoint_id": "78781336ea85",
   "session_id": "d1a2d3cb-6075-4d8e-9272-a336ade72b6a",
   "strategy": "manual-commit",
-  "created_at": "2026-03-23T22:11:01.114103Z",
+  "created_at": "2026-03-23T22:14:15.584008Z",
   "branch": "main",
   "checkpoints_count": 1,
   "files_touched": [
-    "src/mcp/tools/run.ts"
+    "docs/features/mcp-server.md"
   ],
   "agent": "Claude Code",
-  "transcript_identifier_at_start": "35e86511-a060-4309-9817-f97cb0a361df",
-  "checkpoint_transcript_start": 169,
-  "transcript_lines_at_start": 169,
+  "transcript_identifier_at_start": "cc1b0f60-e88a-4f9e-913c-d532f0b020b5",
+  "checkpoint_transcript_start": 205,
+  "transcript_lines_at_start": 205,
   "token_usage": {
-    "input_tokens": 9,
-    "cache_creation_tokens": 5886,
-    "cache_read_tokens": 487962,
-    "output_tokens": 3917,
-    "api_call_count": 7
+    "input_tokens": 21,
+    "cache_creation_tokens": 14128,
+    "cache_read_tokens": 1214570,
+    "output_tokens": 2775,
+    "api_call_count": 15
   },
   "initial_attribution": {
-    "calculated_at": "2026-03-23T22:11:00.987904Z",
-    "agent_lines": 0,
-    "human_added": 139,
-    "human_modified": 31,
+    "calculated_at": "2026-03-23T22:14:15.389062Z",
+    "agent_lines": 6,
+    "human_added": 0,
+    "human_modified": 0,
     "human_removed": 0,
-    "total_committed": 170,
-    "agent_percentage": 0
+    "total_committed": 6,
+    "agent_percentage": 100
   },
   "transcript_path": ".claude/projects/-Users-tony-Projects-sequant/d1a2d3cb-6075-4d8e-9272-a336ade72b6a.jsonl"
 }

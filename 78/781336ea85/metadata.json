@@ -46,7 +46,6 @@
     "src/lib/workflow/platforms/github.test.ts",
     "src/lib/workflow/platforms/github.ts",
     "src/lib/workflow/types.ts",
-    "src/mcp/tools/run.ts",
     "templates/skills/qa/SKILL.md"
   ],
   "sessions": [
@@ -199,10 +198,10 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 28856,
-    "cache_creation_tokens": 3888016,
-    "cache_read_tokens": 121050218,
-    "output_tokens": 410176,
-    "api_call_count": 1250
+    "input_tokens": 28868,
+    "cache_creation_tokens": 3896258,
+    "cache_read_tokens": 121776826,
+    "output_tokens": 409034,
+    "api_call_count": 1258
   }
 }
