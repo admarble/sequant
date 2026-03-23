@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "78781336ea85",
+  "session_id": "d1a2d3cb-6075-4d8e-9272-a336ade72b6a",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-23T22:08:42.260849Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/mcp/tools/run.ts"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "e8e521a6-ef1f-4e97-851c-4182eaf77e1c",
+  "token_usage": {
+    "input_tokens": 30,
+    "cache_creation_tokens": 59718,
+    "cache_read_tokens": 1133409,
+    "output_tokens": 9029,
+    "api_call_count": 22
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-23T22:08:42.129267Z",
+    "agent_lines": 0,
+    "human_added": 1151,
+    "human_modified": 31,
+    "human_removed": 0,
+    "total_committed": 1151,
+    "agent_percentage": 0
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-sequant/d1a2d3cb-6075-4d8e-9272-a336ade72b6a.jsonl"
+}
