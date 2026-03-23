@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "642927b9261b",
+  "session_id": "21418c7e-84d2-419c-ade2-a8095b96c984",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-23T22:09:08.775869Z",
+  "branch": "feature/389-mcp-server-prevent-nested-npx-version-mismatch-in-",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "src/mcp/server-extended.test.ts",
+    "src/mcp/tools/run.ts"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 30,
+    "cache_creation_tokens": 52327,
+    "cache_read_tokens": 1257004,
+    "output_tokens": 8282,
+    "api_call_count": 26
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-23T22:09:08.599334Z",
+    "agent_lines": 185,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 185,
+    "agent_percentage": 100
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-worktrees-feature-389-mcp-server-prevent-nested-npx-version-mismatch-in-/21418c7e-84d2-419c-ade2-a8095b96c984.jsonl"
+}

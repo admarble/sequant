@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "642927b9261b",
+  "strategy": "manual-commit",
+  "branch": "feature/389-mcp-server-prevent-nested-npx-version-mismatch-in-",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "src/mcp/server-extended.test.ts",
+    "src/mcp/tools/run.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/64/2927b9261b/0/metadata.json",
+      "transcript": "/64/2927b9261b/0/full.jsonl",
+      "context": "/64/2927b9261b/0/context.md",
+      "content_hash": "/64/2927b9261b/0/content_hash.txt",
+      "prompt": "/64/2927b9261b/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 30,
+    "cache_creation_tokens": 52327,
+    "cache_read_tokens": 1257004,
+    "output_tokens": 8282,
+    "api_call_count": 26
+  }
+}
