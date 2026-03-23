@@ -3,7 +3,7 @@
   "checkpoint_id": "78781336ea85",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 20,
+  "checkpoints_count": 23,
   "files_touched": [
     ".claude-plugin/plugin.json",
     ".claude/hooks/pre-tool.sh",
@@ -20,6 +20,7 @@
     "bin/cli.ts",
     "docs/concepts/what-is-sequant.md",
     "docs/features/codebase-conventions.md",
+    "docs/features/mcp-server.md",
     "docs/features/python-stack-support.md",
     "docs/getting-started/installation.md",
     "docs/internal/what-weve-built.md",
@@ -138,13 +139,20 @@
       "context": "/78/781336ea85/13/context.md",
       "content_hash": "/78/781336ea85/13/content_hash.txt",
       "prompt": "/78/781336ea85/13/prompt.txt"
+    },
+    {
+      "metadata": "/78/781336ea85/14/metadata.json",
+      "transcript": "/78/781336ea85/14/full.jsonl",
+      "context": "/78/781336ea85/14/context.md",
+      "content_hash": "/78/781336ea85/14/content_hash.txt",
+      "prompt": "/78/781336ea85/14/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 28348,
-    "cache_creation_tokens": 2315729,
-    "cache_read_tokens": 72484303,
-    "output_tokens": 252189,
-    "api_call_count": 866
+    "input_tokens": 31079,
+    "cache_creation_tokens": 2701108,
+    "cache_read_tokens": 79262960,
+    "output_tokens": 286675,
+    "api_call_count": 945
   }
 }
