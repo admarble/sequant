@@ -3,10 +3,26 @@
   "checkpoint_id": "6ef9c1ed3a88",
   "strategy": "manual-commit",
   "branch": "feature/372-expose-sequant-workflow-as-mcp-server",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
+    "CHANGELOG.md",
     "__tests__/integration/mcp-server.integration.test.ts",
-    "__tests__/mcp-server.test.ts"
+    "__tests__/mcp-server.test.ts",
+    "bin/cli.ts",
+    "src/commands/doctor.ts",
+    "src/commands/init.test.ts",
+    "src/commands/init.ts",
+    "src/commands/serve.ts",
+    "src/lib/mcp-config.test.ts",
+    "src/lib/mcp-config.ts",
+    "src/lib/version.ts",
+    "src/mcp/index.ts",
+    "src/mcp/resources.ts",
+    "src/mcp/server.test.ts",
+    "src/mcp/server.ts",
+    "src/mcp/tools/logs.ts",
+    "src/mcp/tools/run.ts",
+    "src/mcp/tools/status.ts"
   ],
   "sessions": [
     {
@@ -15,13 +31,20 @@
       "context": "/6e/f9c1ed3a88/0/context.md",
       "content_hash": "/6e/f9c1ed3a88/0/content_hash.txt",
       "prompt": "/6e/f9c1ed3a88/0/prompt.txt"
+    },
+    {
+      "metadata": "/6e/f9c1ed3a88/1/metadata.json",
+      "transcript": "/6e/f9c1ed3a88/1/full.jsonl",
+      "context": "/6e/f9c1ed3a88/1/context.md",
+      "content_hash": "/6e/f9c1ed3a88/1/content_hash.txt",
+      "prompt": "/6e/f9c1ed3a88/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 380,
-    "cache_creation_tokens": 27952,
-    "cache_read_tokens": 434909,
-    "output_tokens": 5510,
-    "api_call_count": 15
+    "input_tokens": 474,
+    "cache_creation_tokens": 165076,
+    "cache_read_tokens": 9017306,
+    "output_tokens": 28601,
+    "api_call_count": 99
   }
 }
