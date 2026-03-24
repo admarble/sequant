@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "b8dd4b17e35f",
+  "session_id": "fe3e77e1-954e-4624-84cd-dc785e46858d",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-24T07:18:16.807154Z",
+  "branch": "feature/392-mcp-server-sequant-init-yes-should-not-auto-add-to",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "bin/cli.ts",
+    "src/commands/init.test.ts",
+    "src/commands/init.ts"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 44,
+    "cache_creation_tokens": 60644,
+    "cache_read_tokens": 1878369,
+    "output_tokens": 9164,
+    "api_call_count": 36
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-24T07:18:16.505101Z",
+    "agent_lines": 94,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 94,
+    "agent_percentage": 100
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-worktrees-feature-392-mcp-server-sequant-init-yes-should-not-auto-add-to/fe3e77e1-954e-4624-84cd-dc785e46858d.jsonl"
+}
