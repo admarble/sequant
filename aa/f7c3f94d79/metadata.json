@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "aaf7c3f94d79",
+  "strategy": "manual-commit",
+  "branch": "feature/395-mcp-server-fix-config-generation-cwd-env-per-clien",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "docs/features/mcp-server.md",
+    "src/commands/init.ts",
+    "src/lib/mcp-config.test.ts",
+    "src/lib/mcp-config.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/aa/f7c3f94d79/0/metadata.json",
+      "transcript": "/aa/f7c3f94d79/0/full.jsonl",
+      "context": "/aa/f7c3f94d79/0/context.md",
+      "content_hash": "/aa/f7c3f94d79/0/content_hash.txt",
+      "prompt": "/aa/f7c3f94d79/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 32,
+    "cache_creation_tokens": 61715,
+    "cache_read_tokens": 1592818,
+    "output_tokens": 9239,
+    "api_call_count": 28
+  }
+}
