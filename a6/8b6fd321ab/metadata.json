@@ -3,9 +3,11 @@
   "checkpoint_id": "a68b6fd321ab",
   "strategy": "manual-commit",
   "branch": "feature/390-mcp-server-sse-transport-improvements-multi-client",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
-    "__tests__/integration/mcp-serve-multi-client.integration.test.ts"
+    "CHANGELOG.md",
+    "__tests__/integration/mcp-serve-multi-client.integration.test.ts",
+    "src/commands/serve.ts"
   ],
   "sessions": [
     {
@@ -14,13 +16,20 @@
       "context": "/a6/8b6fd321ab/0/context.md",
       "content_hash": "/a6/8b6fd321ab/0/content_hash.txt",
       "prompt": "/a6/8b6fd321ab/0/prompt.txt"
+    },
+    {
+      "metadata": "/a6/8b6fd321ab/1/metadata.json",
+      "transcript": "/a6/8b6fd321ab/1/full.jsonl",
+      "context": "/a6/8b6fd321ab/1/context.md",
+      "content_hash": "/a6/8b6fd321ab/1/content_hash.txt",
+      "prompt": "/a6/8b6fd321ab/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 10,
-    "cache_creation_tokens": 27389,
-    "cache_read_tokens": 146149,
-    "output_tokens": 5476,
-    "api_call_count": 6
+    "input_tokens": 35,
+    "cache_creation_tokens": 80608,
+    "cache_read_tokens": 1220829,
+    "output_tokens": 14557,
+    "api_call_count": 27
   }
 }
