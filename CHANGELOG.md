@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add server instructions and tool annotations to MCP server for LLM discoverability (#420)
+  - Server-level instructions explaining workflow, tool relationships, and usage patterns
+  - Tool annotations (`readOnlyHint`, `idempotentHint`, `destructiveHint`, `openWorldHint`) for client approval decisions
+  - Improved tool and resource descriptions with usage guidance and cross-tool relationships
+  - `phases` parameter now enumerates valid values (`spec`, `exec`, `qa`)
 - Add parallel execution as default mode for multi-issue runs (#404)
   - Issues now run concurrently using `Promise.allSettled` + `p-limit`
   - Configurable concurrency via `--concurrency <n>` flag (default: 3)

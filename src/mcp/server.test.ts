@@ -58,6 +58,102 @@ describe.skipIf(!mcpSdkAvailable)("Sequant MCP Server", () => {
     await cleanup();
   });
 
+  // #420 AC-1: Server instructions
+  describe("#420 AC-1: server instructions", () => {
+    it("should include instructions in server capabilities", async () => {
+      const instructions = client.getInstructions();
+      expect(instructions).toBeDefined();
+      expect(instructions).toContain("Sequant orchestrates");
+      expect(instructions).toContain("sequant_status");
+      expect(instructions).toContain("sequant_run");
+      expect(instructions).toContain("sequant_logs");
+      expect(instructions).toContain("sequant://state");
+      expect(instructions).toContain("sequant://config");
+    });
+  });
+
+  // #420 AC-2, AC-3, AC-4: Tool annotations
+  describe("#420: tool annotations", () => {
+    it("sequant_status should have readOnly and idempotent annotations", async () => {
+      const result = await client.listTools();
+      const tool = result.tools.find(
+        (t: { name: string }) => t.name === "sequant_status",
+      );
+      expect(tool!.annotations).toEqual(
+        expect.objectContaining({
+          readOnlyHint: true,
+          idempotentHint: true,
+        }),
+      );
+    });
+
+    it("sequant_logs should have readOnly and idempotent annotations", async () => {
+      const result = await client.listTools();
+      const tool = result.tools.find(
+        (t: { name: string }) => t.name === "sequant_logs",
+      );
+      expect(tool!.annotations).toEqual(
+        expect.objectContaining({
+          readOnlyHint: true,
+          idempotentHint: true,
+        }),
+      );
+    });
+
+    it("sequant_run should have correct annotations for a write tool", async () => {
+      const result = await client.listTools();
+      const tool = result.tools.find(
+        (t: { name: string }) => t.name === "sequant_run",
+      );
+      expect(tool!.annotations).toEqual(
+        expect.objectContaining({
+          readOnlyHint: false,
+          destructiveHint: false,
+          idempotentHint: false,
+          openWorldHint: true,
+        }),
+      );
+    });
+  });
+
+  // #420 AC-8: phases parameter enumerates valid values
+  describe("#420 AC-8: phases parameter description", () => {
+    it("should enumerate spec, exec, qa in phases parameter description", async () => {
+      const result = await client.listTools();
+      const runTool = result.tools.find(
+        (t: { name: string }) => t.name === "sequant_run",
+      );
+      const phasesDesc =
+        runTool!.inputSchema.properties.phases.description || "";
+      expect(phasesDesc).toContain("spec");
+      expect(phasesDesc).toContain("exec");
+      expect(phasesDesc).toContain("qa");
+    });
+  });
+
+  // #420 AC-9: Resource descriptions
+  describe("#420 AC-9: resource descriptions", () => {
+    it("sequant://state description should explain purpose, not just file path", async () => {
+      const result = await client.listResources();
+      const stateResource = result.resources.find(
+        (r: { uri: string }) => r.uri === "sequant://state",
+      );
+      expect(stateResource!.description).toContain("tracked");
+      expect(stateResource!.description).not.toContain(".sequant/state.json");
+    });
+
+    it("sequant://config description should explain purpose, not just file path", async () => {
+      const result = await client.listResources();
+      const configResource = result.resources.find(
+        (r: { uri: string }) => r.uri === "sequant://config",
+      );
+      expect(configResource!.description).toContain("settings");
+      expect(configResource!.description).not.toContain(
+        ".sequant/settings.json",
+      );
+    });
+  });
+
   // AC-13: Tool schemas match specification
   describe("AC-13: tools/list", () => {
     it("should list all three tools with correct names", async () => {
