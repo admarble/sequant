@@ -7,6 +7,9 @@
 
 import * as fs from "fs";
 import * as path from "path";
+
+/** Path to the project-level MCP config file used by Claude Code */
+export const PROJECT_MCP_JSON = ".mcp.json";
 import * as os from "os";
 
 export type McpClientType = "claude-desktop" | "cursor" | "vscode-continue";
@@ -153,4 +156,60 @@ export function addSequantToMcpConfig(
 
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n");
   return true;
+}
+
+export interface ProjectMcpJsonResult {
+  created: boolean;
+  merged: boolean;
+  skipped: boolean;
+}
+
+/**
+ * Create or update .mcp.json in the project root for Claude Code.
+ *
+ * - If .mcp.json doesn't exist → create it with the sequant server entry
+ * - If .mcp.json exists with a sequant entry → skip (already configured)
+ * - If .mcp.json exists without a sequant entry → merge it in
+ *
+ * Unlike global client configs, .mcp.json does NOT include cwd or env
+ * because Claude Code runs from the project root.
+ */
+export function createProjectMcpJson(
+  projectDir?: string,
+): ProjectMcpJsonResult {
+  const mcpJsonPath = path.resolve(projectDir ?? ".", PROJECT_MCP_JSON);
+  const sequantConfig = getSequantMcpConfig(); // No clientType → no cwd/env
+
+  let config: Record<string, unknown> = {};
+  let fileExisted = false;
+
+  if (fs.existsSync(mcpJsonPath)) {
+    fileExisted = true;
+    try {
+      config = JSON.parse(fs.readFileSync(mcpJsonPath, "utf-8"));
+    } catch {
+      // Corrupt or empty file — start fresh
+      config = {};
+    }
+  }
+
+  // Initialize mcpServers if needed
+  if (!config.mcpServers || typeof config.mcpServers !== "object") {
+    config.mcpServers = {};
+  }
+
+  const servers = config.mcpServers as Record<string, unknown>;
+
+  // Already configured — skip
+  if (servers.sequant) {
+    return { created: false, merged: false, skipped: true };
+  }
+
+  servers.sequant = sequantConfig;
+  fs.writeFileSync(mcpJsonPath, JSON.stringify(config, null, 2) + "\n");
+
+  if (fileExisted) {
+    return { created: false, merged: true, skipped: false };
+  }
+  return { created: true, merged: false, skipped: false };
 }
