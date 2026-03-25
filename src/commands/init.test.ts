@@ -221,7 +221,6 @@ import inquirer from "inquirer";
 import {
   detectMcpClients,
   addSequantToMcpConfig,
-  isSequantInProjectMcpJson,
   createProjectMcpJson,
 } from "../lib/mcp-config.js";
 
@@ -240,7 +239,6 @@ const mockGetNonInteractiveReason = vi.mocked(getNonInteractiveReason);
 const mockInquirerPrompt = vi.mocked(inquirer.prompt);
 const mockDetectMcpClients = vi.mocked(detectMcpClients);
 const mockAddSequantToMcpConfig = vi.mocked(addSequantToMcpConfig);
-const mockIsSequantInProjectMcpJson = vi.mocked(isSequantInProjectMcpJson);
 const mockCreateProjectMcpJson = vi.mocked(createProjectMcpJson);
 
 describe("init command", () => {
@@ -818,26 +816,12 @@ describe("init command", () => {
       expect(mockAddSequantToMcpConfig).not.toHaveBeenCalled();
     });
 
-    it("shows .mcp.json in preview when not already configured", async () => {
-      mockIsSequantInProjectMcpJson.mockReturnValue(false);
+    it("always shows .mcp.json in preview", async () => {
       await initCommand({ yes: true, stack: "generic" });
 
       const output = consoleLogSpy.mock.calls.map((c) => c[0]).join("\n");
       expect(output).toContain(".mcp.json");
       expect(output).toContain("Claude Code MCP server config");
-    });
-
-    it("hides .mcp.json from preview when already configured", async () => {
-      mockIsSequantInProjectMcpJson.mockReturnValue(true);
-      mockCreateProjectMcpJson.mockReturnValue({
-        created: false,
-        merged: false,
-        skipped: true,
-      });
-      await initCommand({ yes: true, stack: "generic" });
-
-      const output = consoleLogSpy.mock.calls.map((c) => c[0]).join("\n");
-      expect(output).not.toContain("Claude Code MCP server config");
     });
   });
 });

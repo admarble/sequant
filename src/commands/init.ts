@@ -384,12 +384,9 @@ export async function initCommand(options: InitOptions): Promise<void> {
       chalk.gray("  AGENTS.md           (universal agent instructions)"),
     );
   }
-  const { isSequantInProjectMcpJson } = await import("../lib/mcp-config.js");
-  if (!isSequantInProjectMcpJson()) {
-    console.log(
-      chalk.gray("  .mcp.json           (Claude Code MCP server config)"),
-    );
-  }
+  console.log(
+    chalk.gray("  .mcp.json           (Claude Code MCP server config)"),
+  );
 
   if (!skipPrompts) {
     const { confirm } = await inquirer.prompt([
