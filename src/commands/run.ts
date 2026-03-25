@@ -314,11 +314,15 @@ export async function runCommand(
     ? false
     : (settings.run.retry ?? true);
 
+  const isSequential = mergedOptions.sequential ?? false;
+  const isParallel = !isSequential && issueNumbers.length > 1;
+
   const config: ExecutionConfig = {
     ...DEFAULT_CONFIG,
     phases: explicitPhases ?? DEFAULT_PHASES,
-    sequential: mergedOptions.sequential ?? false,
+    sequential: isSequential,
     concurrency: mergedOptions.concurrency ?? DEFAULT_CONFIG.concurrency,
+    parallel: isParallel,
     dryRun: mergedOptions.dryRun ?? false,
     verbose: mergedOptions.verbose ?? false,
     phaseTimeout: mergedOptions.timeout ?? DEFAULT_CONFIG.phaseTimeout,

@@ -759,6 +759,7 @@ describe("executePhaseWithRetry", () => {
     skipVerification: false,
     sequential: false,
     concurrency: 3,
+    parallel: false,
     verbose: false,
     noSmartTests: false,
     dryRun: false,

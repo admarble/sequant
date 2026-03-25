@@ -245,4 +245,18 @@ describe("Parallel Execution", () => {
       expect(DEFAULT_CONFIG.concurrency).toBe(3);
     });
   });
+
+  describe("AC-3: Output isolation — parallel flag in config", () => {
+    it("should default parallel to false in DEFAULT_CONFIG", () => {
+      expect(DEFAULT_CONFIG.parallel).toBe(false);
+    });
+
+    it("should accept parallel flag in ExecutionConfig", () => {
+      const config: ExecutionConfig = {
+        ...DEFAULT_CONFIG,
+        parallel: true,
+      };
+      expect(config.parallel).toBe(true);
+    });
+  });
 });

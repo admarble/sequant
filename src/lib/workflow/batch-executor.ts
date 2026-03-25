@@ -389,9 +389,15 @@ export async function runIssueWithLogging(
   let loopTriggered = false;
   let sessionId: string | undefined;
 
-  console.log(chalk.blue(`\n  Issue #${issueNumber}`));
+  // In parallel mode, suppress per-issue terminal output to prevent interleaving.
+  // The caller (run.ts) handles progress display via updateProgress().
+  const log = config.parallel
+    ? (..._args: unknown[]) => {}
+    : console.log.bind(console);
+
+  log(chalk.blue(`\n  Issue #${issueNumber}`));
   if (worktreePath) {
-    console.log(chalk.gray(`    Worktree: ${worktreePath}`));
+    log(chalk.gray(`    Worktree: ${worktreePath}`));
   }
 
   // Initialize state tracking for this issue
@@ -418,7 +424,7 @@ export async function runIssueWithLogging(
     } catch (error) {
       // State tracking errors shouldn't stop execution
       if (config.verbose) {
-        console.log(chalk.yellow(`    ⚠️  State tracking error: ${error}`));
+        log(chalk.yellow(`    ⚠️  State tracking error: ${error}`));
       }
     }
   }
@@ -438,19 +444,21 @@ export async function runIssueWithLogging(
     if (isSimpleBugFix) {
       // Simple bug fix: skip spec, go straight to exec → qa
       phases = ["exec", "qa"];
-      console.log(chalk.gray(`    Bug fix detected: ${phases.join(" → ")}`));
+      log(chalk.gray(`    Bug fix detected: ${phases.join(" → ")}`));
     } else {
       // Run spec first to get recommended workflow
-      console.log(chalk.gray(`    Running spec to determine workflow...`));
+      log(chalk.gray(`    Running spec to determine workflow...`));
 
-      // Create spinner for spec phase (1 of estimated 3: spec, exec, qa)
-      const specSpinner = new PhaseSpinner({
-        phase: "spec",
-        phaseIndex: 1,
-        totalPhases: 3, // Estimate; will be refined after spec
-        shutdownManager,
-      });
-      specSpinner.start();
+      // Create spinner for spec phase (suppressed in parallel mode to prevent interleaving)
+      const specSpinner = config.parallel
+        ? undefined
+        : new PhaseSpinner({
+            phase: "spec",
+            phaseIndex: 1,
+            totalPhases: 3, // Estimate; will be refined after spec
+            shutdownManager,
+          });
+      specSpinner?.start();
 
       // Track spec phase start in state
       if (stateManager) {
@@ -532,7 +540,7 @@ export async function runIssueWithLogging(
       }
 
       if (!specResult.success) {
-        specSpinner.fail(specResult.error);
+        specSpinner?.fail(specResult.error);
         const durationSeconds = (Date.now() - startTime) / 1000;
         return {
           issueNumber,
@@ -543,7 +551,7 @@ export async function runIssueWithLogging(
         };
       }
 
-      specSpinner.succeed();
+      specSpinner?.succeed();
 
       // Parse recommended workflow from spec output
       const parsedWorkflow = specResult.output
@@ -554,14 +562,14 @@ export async function runIssueWithLogging(
         // Remove spec from phases since we already ran it
         phases = parsedWorkflow.phases.filter((p) => p !== "spec");
         detectedQualityLoop = parsedWorkflow.qualityLoop;
-        console.log(
+        log(
           chalk.gray(
             `    Spec recommends: ${phases.join(" → ")}${detectedQualityLoop ? " (quality loop)" : ""}`,
           ),
         );
       } else {
         // Fall back to label-based detection
-        console.log(
+        log(
           chalk.yellow(
             `    Could not parse spec recommendation, using label-based detection`,
           ),
@@ -569,14 +577,14 @@ export async function runIssueWithLogging(
         const detected = detectPhasesFromLabels(labels);
         phases = detected.phases.filter((p) => p !== "spec");
         detectedQualityLoop = detected.qualityLoop;
-        console.log(chalk.gray(`    Fallback: ${phases.join(" → ")}`));
+        log(chalk.gray(`    Fallback: ${phases.join(" → ")}`));
       }
     }
   } else {
     // Use explicit phases with adjustments
     phases = determinePhasesForIssue(config.phases, labels, options);
     if (phases.length !== config.phases.length) {
-      console.log(chalk.gray(`    Phases adjusted: ${phases.join(" → ")}`));
+      log(chalk.gray(`    Phases adjusted: ${phases.join(" → ")}`));
     }
   }
 
@@ -584,7 +592,7 @@ export async function runIssueWithLogging(
   if (options.resume) {
     const resumeResult = filterResumedPhases(issueNumber, phases, true);
     if (resumeResult.skipped.length > 0) {
-      console.log(
+      log(
         chalk.gray(
           `    Resume: skipping completed phases: ${resumeResult.skipped.join(", ")}`,
         ),
@@ -597,7 +605,7 @@ export async function runIssueWithLogging(
       resumeResult.skipped.length === 0 &&
       resumeResult.phases.length === 0
     ) {
-      console.log(chalk.gray(`    Resume: all phases already completed`));
+      log(chalk.gray(`    Resume: all phases already completed`));
     }
   }
 
@@ -627,7 +635,7 @@ export async function runIssueWithLogging(
     iteration++;
 
     if (useQualityLoop && iteration > 1) {
-      console.log(
+      log(
         chalk.yellow(
           `    Quality loop iteration ${iteration}/${maxIterations}`,
         ),
@@ -646,15 +654,17 @@ export async function runIssueWithLogging(
       const phase = phases[phaseIdx];
       const phaseNumber = phaseIdx + 1 + phaseIndexOffset;
 
-      // Create spinner for this phase
-      const phaseSpinner = new PhaseSpinner({
-        phase,
-        phaseIndex: phaseNumber,
-        totalPhases,
-        shutdownManager,
-        iteration: useQualityLoop ? iteration : undefined,
-      });
-      phaseSpinner.start();
+      // Create spinner for this phase (suppressed in parallel mode)
+      const phaseSpinner = config.parallel
+        ? undefined
+        : new PhaseSpinner({
+            phase,
+            phaseIndex: phaseNumber,
+            totalPhases,
+            shutdownManager,
+            iteration: useQualityLoop ? iteration : undefined,
+          });
+      phaseSpinner?.start();
 
       // Track phase start in state
       if (stateManager) {
@@ -755,22 +765,24 @@ export async function runIssueWithLogging(
       }
 
       if (result.success) {
-        phaseSpinner.succeed();
+        phaseSpinner?.succeed();
       } else {
-        phaseSpinner.fail(result.error);
+        phaseSpinner?.fail(result.error);
         phasesFailed = true;
 
         // If quality loop enabled, run loop phase to fix issues
         if (useQualityLoop && iteration < maxIterations) {
-          // Create spinner for loop phase
-          const loopSpinner = new PhaseSpinner({
-            phase: "loop",
-            phaseIndex: phaseNumber,
-            totalPhases,
-            shutdownManager,
-            iteration,
-          });
-          loopSpinner.start();
+          // Create spinner for loop phase (suppressed in parallel mode)
+          const loopSpinner = config.parallel
+            ? undefined
+            : new PhaseSpinner({
+                phase: "loop",
+                phaseIndex: phaseNumber,
+                totalPhases,
+                shutdownManager,
+                iteration,
+              });
+          loopSpinner?.start();
 
           const loopResult = await executePhaseWithRetry(
             issueNumber,
@@ -788,11 +800,11 @@ export async function runIssueWithLogging(
           }
 
           if (loopResult.success) {
-            loopSpinner.succeed();
+            loopSpinner?.succeed();
             // Continue to next iteration
             break;
           } else {
-            loopSpinner.fail(loopResult.error);
+            loopSpinner?.fail(loopResult.error);
           }
         }
 
