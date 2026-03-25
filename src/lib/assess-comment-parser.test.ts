@@ -264,12 +264,12 @@ describe("assess-comment-parser", () => {
         expect(result.action).toBe("PROCEED");
       });
 
-      it("should extract issue numbers from assess header", () => {
+      it("should extract issue numbers from header", () => {
         const body =
-          "## Assess Analysis for #152\n\n→ PROCEED — Ready.\n\n<!-- assess:phases=spec,exec,qa -->";
+          "## Solve Workflow for Issues: #152, #153\n\nspec → exec → qa\n<!-- solve:phases=spec,exec,qa -->";
         const result = parseAssessWorkflow(body);
-        // Note: header parsing looks for "## Assess/Solve Workflow for Issues/Analysis" patterns
-        // The exact extraction depends on the header format matching the regex
+        expect(result.issueNumbers).toContain(152);
+        expect(result.issueNumbers).toContain(153);
       });
 
       it("should prefer assess HTML markers over arrow notation for phases", () => {
