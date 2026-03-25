@@ -1,0 +1,9 @@
+Can you help me resolve this:\
+1. build (20.x) failed: cli.integration.test.ts — version string mismatch (Package version: 1.20.3 expected  
+  but empty output). This is a CI environment issue, not our change.                                           
+  2. Plugin Structure Validation / Hooks Validation: likely cascading from the build failure.                  
+  3. build (22.x): cancelled because 20.x failed.
+
+---
+
+do we need to merge?
