@@ -782,6 +782,18 @@ describe("QACache", () => {
       expect(hash).toBeNull();
     });
 
+    it("should reject SHA with shell injection characters", () => {
+      const hash = cache.computeIncrementalDiffHash("abc123; rm -rf /");
+      expect(hash).toBeNull();
+      expect(mockedExecSync).not.toHaveBeenCalled();
+    });
+
+    it("should reject SHA that is too short", () => {
+      const hash = cache.computeIncrementalDiffHash("abc");
+      expect(hash).toBeNull();
+      expect(mockedExecSync).not.toHaveBeenCalled();
+    });
+
     it("should return consistent hash for same diff", () => {
       mockedExecSync.mockImplementation((cmd: string) => {
         if (cmd === "git diff abc123...HEAD") {
@@ -833,6 +845,18 @@ describe("QACache", () => {
 
       const files = cache.getChangedFilesSince("invalid");
       expect(files).toBeNull();
+    });
+
+    it("should reject SHA with shell injection characters", () => {
+      const files = cache.getChangedFilesSince("abc123; rm -rf /");
+      expect(files).toBeNull();
+      expect(mockedExecSync).not.toHaveBeenCalled();
+    });
+
+    it("should reject SHA that is too short", () => {
+      const files = cache.getChangedFilesSince("abc");
+      expect(files).toBeNull();
+      expect(mockedExecSync).not.toHaveBeenCalled();
     });
   });
 });

@@ -514,6 +514,10 @@ export class QACache {
    * @returns Hash of the diff, or null if the commit is invalid/missing
    */
   computeIncrementalDiffHash(sinceCommit: string): string | null {
+    if (!/^[a-f0-9]{4,40}$/.test(sinceCommit)) {
+      this.log(`Invalid commit SHA format: ${sinceCommit}`);
+      return null;
+    }
     try {
       const diff = execSync(`git diff ${sinceCommit}...HEAD`, {
         encoding: "utf-8",
@@ -539,6 +543,10 @@ export class QACache {
    * @returns Array of changed file paths, or null if the commit is invalid
    */
   getChangedFilesSince(sinceCommit: string): string[] | null {
+    if (!/^[a-f0-9]{4,40}$/.test(sinceCommit)) {
+      this.log(`Invalid commit SHA format: ${sinceCommit}`);
+      return null;
+    }
     try {
       const output = execSync(`git diff ${sinceCommit}...HEAD --name-only`, {
         encoding: "utf-8",
