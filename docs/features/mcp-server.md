@@ -19,7 +19,24 @@ Use Sequant from Claude Desktop, Cursor, VS Code, or any MCP-compatible AI tool.
 
 ### Add the MCP config
 
-Pick your client and add the config. Each client is slightly different.
+**Claude Code** — `.mcp.json` in your project root:
+
+`sequant init` creates this automatically. If you already ran init, the file is ready — no manual setup needed. The config is project-scoped and version-controlled, so team members get it automatically.
+
+```json
+{
+  "mcpServers": {
+    "sequant": {
+      "command": "npx",
+      "args": ["sequant@latest", "serve"]
+    }
+  }
+}
+```
+
+No `cwd` or `env` needed — Claude Code runs from the project root and inherits your shell environment.
+
+**Other clients** — pick your client and add the config manually. Each is slightly different.
 
 **Claude Desktop** — `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS):
 
@@ -103,10 +120,22 @@ npx @modelcontextprotocol/inspector npx sequant serve
 
 ### Automatic setup
 
-If you'd rather not edit config files, `sequant init` detects installed clients and offers to configure them:
+`sequant init` creates `.mcp.json` automatically — no flags needed:
 
 ```
 $ npx sequant init
+Will create:
+  .mcp.json           (Claude Code MCP server config)
+  ...
+✔ Created .mcp.json (Claude Code MCP config)
+```
+
+If `.mcp.json` already exists with a `sequant` entry, init skips it. If `.mcp.json` exists with other servers but no `sequant` entry, init merges sequant in without touching your existing servers.
+
+**Global client configs (Claude Desktop, Cursor, VS Code):** Use the `--mcp` flag to also write to global client config files:
+
+```
+$ npx sequant init --mcp
 ...
 Detected 2 MCP-compatible client(s):
    • Claude Desktop
@@ -116,16 +145,10 @@ Add Sequant MCP server to detected clients? (Y/n)
 
 Sequant detects each client type and generates the appropriate config — including `cwd` for Claude Desktop and VS Code + Continue, and `env.ANTHROPIC_API_KEY` only when the key is set in your environment.
 
-**Non-interactive mode:** `sequant init --yes` skips MCP configuration by default to avoid silently writing to client configs. To opt in:
+**Non-interactive mode:** `sequant init --yes` creates `.mcp.json` but skips global client configs to avoid silently writing to user-level files. To opt in to global configs:
 
 ```bash
-sequant init --yes --mcp   # auto-add MCP config to all detected clients
-```
-
-Without `--mcp`, you'll see:
-
-```
-Skipping MCP config (use --mcp to auto-add in non-interactive mode)
+sequant init --yes --mcp   # .mcp.json + global client configs
 ```
 
 ## What You Can Ask
@@ -159,6 +182,24 @@ Once set up, talk to your AI assistant naturally:
 - **A PR is created automatically** after the exec phase completes. Check your GitHub repo.
 - **Run QA separately if needed:** "Use sequant to QA issue #42"
 - **Merge when ready** through your normal review process.
+
+## How Your AI Discovers Sequant
+
+When your MCP client connects, Sequant provides metadata that helps the LLM decide when and how to use each tool — without explicit prompting.
+
+**Server instructions** describe the recommended workflow: check `sequant_status` first, then `sequant_run` if needed, poll status during runs, and review `sequant_logs` on failure. This means the LLM follows the correct tool sequence even if you just say "handle issue #42."
+
+**Tool annotations** tell clients about each tool's behavior:
+
+| Tool | Read-only | Idempotent | Destructive | Open-world |
+|------|-----------|------------|-------------|------------|
+| `sequant_status` | Yes | Yes | — | — |
+| `sequant_logs` | Yes | Yes | — | — |
+| `sequant_run` | No | No | No | Yes |
+
+What this means in practice:
+- **`sequant_status` and `sequant_logs`** are marked read-only and idempotent — your client may auto-approve these calls without prompting you.
+- **`sequant_run`** is marked as non-destructive (it creates worktrees and PRs, doesn't delete anything) but not idempotent (running twice creates duplicate work). Most clients will ask for confirmation before executing it.
 
 ## MCP vs CLI
 
@@ -240,15 +281,15 @@ Get structured run logs for recent executions.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `runId` | `string` | No | latest | Specific run ID |
-| `limit` | `number` | No | `5` | Number of runs to return |
+| `runId` | `string` | No | latest | Run ID prefix to filter by (e.g. `run-2026-03-24`) |
+| `limit` | `number` | No | `5` | Number of recent runs to return |
 
 ### Resources
 
 | Resource | URI | Description |
 |----------|-----|-------------|
-| State | `sequant://state` | All tracked issues, phase progress, AC status |
-| Config | `sequant://config` | Project settings and configuration |
+| State | `sequant://state` | Dashboard view of all tracked issues and their workflow progress — phase status, worktree paths, PR links, QA verdicts |
+| Config | `sequant://config` | Current workflow settings — default phases, timeout limits, quality loop configuration, agent preferences |
 
 ## SSE Transport
 
@@ -351,4 +392,4 @@ Only one SSE client can connect at a time. If you see `409 Conflict`:
 2. Disconnect the existing client, or wait for it to time out
 3. Verify with `GET /health` — `connected: false` means the slot is free
 
-*Generated for Issue #372 / PR #387 on 2026-03-23. Updated for #396 (optional SDK), #388 (async execution, cancellation), #389 (version consistency), #391 (structured response format), #394 (real-time progress reporting), #390 (SSE multi-client rejection, health connection status), #392 (non-interactive MCP opt-in), #395 (per-client config generation) on 2026-03-24. Updated for #421 (progress notifications for sequant_run) on 2026-03-25.*
+*Generated for Issue #372 / PR #387 on 2026-03-23. Updated for #396 (optional SDK), #388 (async execution, cancellation), #389 (version consistency), #391 (structured response format), #394 (real-time progress reporting), #390 (SSE multi-client rejection, health connection status), #392 (non-interactive MCP opt-in), #395 (per-client config generation) on 2026-03-24. Updated for #420 (server instructions, tool annotations, improved descriptions), #421 (progress notifications for sequant_run) on 2026-03-25.*
