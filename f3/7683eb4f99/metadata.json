@@ -3,7 +3,7 @@
   "checkpoint_id": "f37683eb4f99",
   "strategy": "manual-commit",
   "branch": "feature/413-spec-skill-add-design-review-section-before-implem",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
     ".claude/skills/spec/SKILL.md"
   ],
@@ -14,13 +14,20 @@
       "context": "/f3/7683eb4f99/0/context.md",
       "content_hash": "/f3/7683eb4f99/0/content_hash.txt",
       "prompt": "/f3/7683eb4f99/0/prompt.txt"
+    },
+    {
+      "metadata": "/f3/7683eb4f99/1/metadata.json",
+      "transcript": "/f3/7683eb4f99/1/full.jsonl",
+      "context": "/f3/7683eb4f99/1/context.md",
+      "content_hash": "/f3/7683eb4f99/1/content_hash.txt",
+      "prompt": "/f3/7683eb4f99/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 13,
-    "cache_creation_tokens": 64042,
-    "cache_read_tokens": 426827,
-    "output_tokens": 6182,
-    "api_call_count": 9
+    "input_tokens": 27,
+    "cache_creation_tokens": 126998,
+    "cache_read_tokens": 918447,
+    "output_tokens": 15855,
+    "api_call_count": 19
   }
 }
