@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "024228ab788c",
+  "strategy": "manual-commit",
+  "branch": "feature/422-ac-parser-handle-bold-wrapped-id-format-ac-1-descr",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "src/lib/ac-parser.test.ts",
+    "src/lib/ac-parser.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/02/4228ab788c/0/metadata.json",
+      "transcript": "/02/4228ab788c/0/full.jsonl",
+      "context": "/02/4228ab788c/0/context.md",
+      "content_hash": "/02/4228ab788c/0/content_hash.txt",
+      "prompt": "/02/4228ab788c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 26,
+    "cache_creation_tokens": 53163,
+    "cache_read_tokens": 1039177,
+    "output_tokens": 8969,
+    "api_call_count": 22
+  }
+}
