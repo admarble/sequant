@@ -1,0 +1,29 @@
+can you run this via the sequant mcp?\
+npx sequant run 325 377 384 378 -q
+
+---
+
+cnacel it
+
+---
+
+<task-notification>
+<task-id>b663tmot8</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-502/-Users-tony-Projects-sequant/6104068c-de7e-4112-a8b1-dcb6016de5cf/tasks/b663tmot8.output</output-file>
+<status>failed</status>
+<summary>Background command "Run sequant for issues 325, 377, 384, 378 with quality loop" failed with exit code 144</summary>
+</task-notification>
+Read the output file to retrieve the result: /private/tmp/claude-502/-Users-tony-Projects-sequant/6104068c-de7e-4112-a8b1-dcb6016de5cf/tasks/b663tmot8.output
+
+---
+
+I want to get the mcp working correctly. let's focus on getting it running the right way first
+
+---
+
+getting mcp server failed after restarting
+
+---
+
+is there a way to report phase updates? what would be best practice and ux for the user?
