@@ -384,18 +384,8 @@ export async function initCommand(options: InitOptions): Promise<void> {
       chalk.gray("  AGENTS.md           (universal agent instructions)"),
     );
   }
-  // Only show .mcp.json in preview if sequant isn't already configured there
-  const mcpJsonExists = await fileExists(".mcp.json");
-  let mcpJsonAlreadyConfigured = false;
-  if (mcpJsonExists) {
-    try {
-      const mcpContent = JSON.parse(await readFile(".mcp.json"));
-      mcpJsonAlreadyConfigured = !!mcpContent?.mcpServers?.sequant;
-    } catch {
-      // Corrupt file — will be recreated, show in preview
-    }
-  }
-  if (!mcpJsonAlreadyConfigured) {
+  const { isSequantInProjectMcpJson } = await import("../lib/mcp-config.js");
+  if (!isSequantInProjectMcpJson()) {
     console.log(
       chalk.gray("  .mcp.json           (Claude Code MCP server config)"),
     );

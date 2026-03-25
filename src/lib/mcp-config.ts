@@ -163,6 +163,20 @@ export function addSequantToMcpConfig(
   return true;
 }
 
+/**
+ * Check whether .mcp.json already has a sequant server entry.
+ */
+export function isSequantInProjectMcpJson(projectDir?: string): boolean {
+  const mcpJsonPath = path.resolve(projectDir ?? ".", PROJECT_MCP_JSON);
+  if (!fs.existsSync(mcpJsonPath)) return false;
+  try {
+    const config = JSON.parse(fs.readFileSync(mcpJsonPath, "utf-8"));
+    return !!config?.mcpServers?.sequant;
+  } catch {
+    return false;
+  }
+}
+
 export interface ProjectMcpJsonResult {
   created: boolean;
   merged: boolean;
