@@ -191,7 +191,7 @@ Each issue gets its own worktree, phases, and PR.
 ## What to Expect
 
 - **Duration:** 10-30 minutes per issue depending on complexity and phases
-- **Labels change during the run:** `sequant:assess` is replaced by `sequant:assessing`, then `sequant:done` or `sequant:failed`
+- **Labels change during the run:** `sequant:assess` is replaced by `sequant:solving`, then `sequant:done` or `sequant:failed`
 - **Results are posted as issue comments** with a summary table showing phases, duration, and outcome
 - **Run logs are uploaded as artifacts** (retained for 30 days) — find them in the Actions run details under "Artifacts"
 - **Concurrency is enforced** — only one Sequant run per issue at a time; additional runs queue
@@ -239,7 +239,7 @@ Use outputs in downstream steps:
 sequant:assess (trigger)
     |
     v
-sequant:assessing (in progress)
+sequant:solving (in progress)
     |
     +---> sequant:done (success, PR created)
     |
