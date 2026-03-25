@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "66f4e1170119",
+  "session_id": "93e235bb-625d-4a45-a6b4-af9695d61d86",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-25T02:08:53.442225Z",
+  "branch": "feature/418-sequant-init-create-mcp-json-by-default-for-claude",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/lib/mcp-config.test.ts",
+    "src/lib/mcp-config.ts"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 16,
+    "cache_creation_tokens": 19068,
+    "cache_read_tokens": 336068,
+    "output_tokens": 4273,
+    "api_call_count": 12
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-25T02:08:53.348565Z",
+    "agent_lines": 32,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 32,
+    "agent_percentage": 100
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-worktrees-feature-418-sequant-init-create-mcp-json-by-default-for-claude/93e235bb-625d-4a45-a6b4-af9695d61d86.jsonl"
+}

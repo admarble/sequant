@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "66f4e1170119",
+  "strategy": "manual-commit",
+  "branch": "feature/418-sequant-init-create-mcp-json-by-default-for-claude",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/lib/mcp-config.test.ts",
+    "src/lib/mcp-config.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/66/f4e1170119/0/metadata.json",
+      "transcript": "/66/f4e1170119/0/full.jsonl",
+      "context": "/66/f4e1170119/0/context.md",
+      "content_hash": "/66/f4e1170119/0/content_hash.txt",
+      "prompt": "/66/f4e1170119/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 16,
+    "cache_creation_tokens": 19068,
+    "cache_read_tokens": 336068,
+    "output_tokens": 4273,
+    "api_call_count": 12
+  }
+}
