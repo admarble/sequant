@@ -68,9 +68,9 @@ describe("mcp-config", () => {
         }
       });
 
-      it("should include env when ANTHROPIC_API_KEY is set", () => {
+      it("should include env when ANTHROPIC_API_KEY is set and clientType is given", () => {
         process.env.ANTHROPIC_API_KEY = "sk-ant-test-key";
-        const config = getSequantMcpConfig();
+        const config = getSequantMcpConfig({ clientType: "claude-desktop" });
         expect(config.env).toEqual({
           ANTHROPIC_API_KEY: "sk-ant-test-key",
         });
@@ -78,6 +78,12 @@ describe("mcp-config", () => {
 
       it("should omit env when ANTHROPIC_API_KEY is not set", () => {
         delete process.env.ANTHROPIC_API_KEY;
+        const config = getSequantMcpConfig({ clientType: "claude-desktop" });
+        expect(config.env).toBeUndefined();
+      });
+
+      it("should omit env when no clientType is given even if ANTHROPIC_API_KEY is set", () => {
+        process.env.ANTHROPIC_API_KEY = "sk-ant-test-key";
         const config = getSequantMcpConfig();
         expect(config.env).toBeUndefined();
       });
@@ -265,6 +271,26 @@ describe("mcp-config", () => {
       });
       // Sequant added
       expect(content.mcpServers.sequant.command).toBe("npx");
+    });
+
+    it("should NOT leak ANTHROPIC_API_KEY into .mcp.json", () => {
+      const originalKey = process.env.ANTHROPIC_API_KEY;
+      try {
+        process.env.ANTHROPIC_API_KEY = "sk-ant-secret-key-should-not-leak";
+        createProjectMcpJson(tmpDir);
+
+        const content = JSON.parse(
+          fs.readFileSync(path.join(tmpDir, ".mcp.json"), "utf-8"),
+        );
+        expect(content.mcpServers.sequant.env).toBeUndefined();
+        expect(JSON.stringify(content)).not.toContain("sk-ant-secret-key");
+      } finally {
+        if (originalKey !== undefined) {
+          process.env.ANTHROPIC_API_KEY = originalKey;
+        } else {
+          delete process.env.ANTHROPIC_API_KEY;
+        }
+      }
     });
 
     it("should handle corrupt .mcp.json gracefully", () => {

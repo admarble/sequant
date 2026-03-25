@@ -6,11 +6,11 @@
  */
 
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 
 /** Path to the project-level MCP config file used by Claude Code */
 export const PROJECT_MCP_JSON = ".mcp.json";
-import * as os from "os";
 
 export type McpClientType = "claude-desktop" | "cursor" | "vscode-continue";
 
@@ -49,8 +49,9 @@ export function getSequantMcpConfig(options?: {
     config.cwd = options.projectDir ?? process.cwd();
   }
 
-  // Only include ANTHROPIC_API_KEY when it is actually set
-  if (process.env.ANTHROPIC_API_KEY) {
+  // Only include ANTHROPIC_API_KEY for global client configs (not .mcp.json,
+  // which is committed to git and must never contain secrets).
+  if (options?.clientType && process.env.ANTHROPIC_API_KEY) {
     config.env = { ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY };
   }
 
