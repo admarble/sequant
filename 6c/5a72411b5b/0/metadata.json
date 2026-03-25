@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "6c5a72411b5b",
+  "session_id": "24f2fa0a-b201-4c8a-b8f4-495f4193bfe4",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-25T01:12:54.905862Z",
+  "branch": "feature/420-mcp-server-add-server-instructions-and-improve-too",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "src/mcp/resources.ts",
+    "src/mcp/server-extended.test.ts",
+    "src/mcp/server.test.ts",
+    "src/mcp/server.ts",
+    "src/mcp/tools/logs.ts",
+    "src/mcp/tools/run.ts",
+    "src/mcp/tools/status.ts"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 68,
+    "cache_creation_tokens": 86344,
+    "cache_read_tokens": 4734392,
+    "output_tokens": 17476,
+    "api_call_count": 62
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-25T01:12:54.646361Z",
+    "agent_lines": 175,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 175,
+    "agent_percentage": 100
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-worktrees-feature-420-mcp-server-add-server-instructions-and-improve-too/24f2fa0a-b201-4c8a-b8f4-495f4193bfe4.jsonl"
+}

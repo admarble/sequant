@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "6c5a72411b5b",
+  "strategy": "manual-commit",
+  "branch": "feature/420-mcp-server-add-server-instructions-and-improve-too",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "src/mcp/resources.ts",
+    "src/mcp/server-extended.test.ts",
+    "src/mcp/server.test.ts",
+    "src/mcp/server.ts",
+    "src/mcp/tools/logs.ts",
+    "src/mcp/tools/run.ts",
+    "src/mcp/tools/status.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/6c/5a72411b5b/0/metadata.json",
+      "transcript": "/6c/5a72411b5b/0/full.jsonl",
+      "context": "/6c/5a72411b5b/0/context.md",
+      "content_hash": "/6c/5a72411b5b/0/content_hash.txt",
+      "prompt": "/6c/5a72411b5b/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 68,
+    "cache_creation_tokens": 86344,
+    "cache_read_tokens": 4734392,
+    "output_tokens": 17476,
+    "api_call_count": 62
+  }
+}
