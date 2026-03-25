@@ -14,16 +14,18 @@ describe("getStartLabels", () => {
 });
 
 describe("getStartRemoveLabels", () => {
-  it("removes sequant:assess trigger label and stale outcome labels", () => {
+  it("removes sequant:assess trigger label, its alias, and stale outcome labels", () => {
     const labels = getStartRemoveLabels("sequant:assess");
     expect(labels).toContain("sequant:assess");
+    expect(labels).toContain("sequant:solve");
     expect(labels).toContain("sequant:done");
     expect(labels).toContain("sequant:failed");
   });
 
-  it("removes sequant:solve trigger label (backward compat)", () => {
+  it("removes sequant:solve trigger label, its alias, and stale outcome labels (backward compat)", () => {
     const labels = getStartRemoveLabels("sequant:solve");
     expect(labels).toContain("sequant:solve");
+    expect(labels).toContain("sequant:assess");
     expect(labels).toContain("sequant:done");
     expect(labels).toContain("sequant:failed");
   });
@@ -59,7 +61,7 @@ describe("getFailureLabels", () => {
 });
 
 describe("labelCommands", () => {
-  it("generates start commands with sequant:assess trigger label", () => {
+  it("generates start commands with sequant:assess trigger label and removes alias", () => {
     const cmds = labelCommands(42, "start", "sequant:assess");
     expect(cmds).toContainEqual(
       expect.stringContaining('--add-label "sequant:solving"'),
@@ -67,15 +69,21 @@ describe("labelCommands", () => {
     expect(cmds).toContainEqual(
       expect.stringContaining('--remove-label "sequant:assess"'),
     );
+    expect(cmds).toContainEqual(
+      expect.stringContaining('--remove-label "sequant:solve"'),
+    );
   });
 
-  it("generates start commands with sequant:solve trigger label (backward compat)", () => {
+  it("generates start commands with sequant:solve trigger label and removes alias (backward compat)", () => {
     const cmds = labelCommands(42, "start", "sequant:solve");
     expect(cmds).toContainEqual(
       expect.stringContaining('--add-label "sequant:solving"'),
     );
     expect(cmds).toContainEqual(
       expect.stringContaining('--remove-label "sequant:solve"'),
+    );
+    expect(cmds).toContainEqual(
+      expect.stringContaining('--remove-label "sequant:assess"'),
     );
   });
 
