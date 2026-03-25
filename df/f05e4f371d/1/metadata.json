@@ -1,0 +1,38 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "dff05e4f371d",
+  "session_id": "59e64c97-e329-46cb-8824-6144f02328dc",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-25T01:42:06.551277Z",
+  "branch": "feature/423-sequant-status-reconcile-on-read-with-github-as-so",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CHANGELOG.md",
+    "bin/cli.ts",
+    "src/commands/status.ts",
+    "src/lib/workflow/platforms/github.ts",
+    "src/lib/workflow/reconcile.test.ts",
+    "src/lib/workflow/reconcile.ts",
+    "src/lib/workflow/state-schema.ts",
+    "src/lib/workflow/state-utils.ts",
+    "src/mcp/tools/status.ts"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 626,
+    "cache_creation_tokens": 153622,
+    "cache_read_tokens": 6976647,
+    "output_tokens": 40274,
+    "api_call_count": 64
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-25T01:42:06.116022Z",
+    "agent_lines": 175,
+    "human_added": 696,
+    "human_modified": 336,
+    "human_removed": 0,
+    "total_committed": 1207,
+    "agent_percentage": 14.498757249378624
+  },
+  "transcript_path": ".claude/projects/-Users-tony-Projects-worktrees-feature-423-sequant-status-reconcile-on-read-with-github-as-so/59e64c97-e329-46cb-8824-6144f02328dc.jsonl"
+}

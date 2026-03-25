@@ -3,10 +3,18 @@
   "checkpoint_id": "dff05e4f371d",
   "strategy": "manual-commit",
   "branch": "feature/423-sequant-status-reconcile-on-read-with-github-as-so",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
+    "CHANGELOG.md",
     "__tests__/integration/status-reconcile.integration.test.ts",
-    "src/lib/workflow/reconcile.test.ts"
+    "bin/cli.ts",
+    "src/commands/status.ts",
+    "src/lib/workflow/platforms/github.ts",
+    "src/lib/workflow/reconcile.test.ts",
+    "src/lib/workflow/reconcile.ts",
+    "src/lib/workflow/state-schema.ts",
+    "src/lib/workflow/state-utils.ts",
+    "src/mcp/tools/status.ts"
   ],
   "sessions": [
     {
@@ -15,13 +23,20 @@
       "context": "/df/f05e4f371d/0/context.md",
       "content_hash": "/df/f05e4f371d/0/content_hash.txt",
       "prompt": "/df/f05e4f371d/0/prompt.txt"
+    },
+    {
+      "metadata": "/df/f05e4f371d/1/metadata.json",
+      "transcript": "/df/f05e4f371d/1/full.jsonl",
+      "context": "/df/f05e4f371d/1/context.md",
+      "content_hash": "/df/f05e4f371d/1/content_hash.txt",
+      "prompt": "/df/f05e4f371d/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 16,
-    "cache_creation_tokens": 36472,
-    "cache_read_tokens": 354742,
-    "output_tokens": 10873,
-    "api_call_count": 12
+    "input_tokens": 642,
+    "cache_creation_tokens": 190094,
+    "cache_read_tokens": 7331389,
+    "output_tokens": 51147,
+    "api_call_count": 76
   }
 }
