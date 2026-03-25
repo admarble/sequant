@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "46b569dad6e6",
+  "strategy": "manual-commit",
+  "branch": "feature/435-clean",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "CHANGELOG.md",
+    "__tests__/integration/mcp-progress-notifications.integration.test.ts",
+    "__tests__/mcp-progress-notifications.test.ts",
+    "docs/features/mcp-server.md",
+    "src/lib/workflow/batch-executor.ts",
+    "src/mcp/tools/run.test.ts",
+    "src/mcp/tools/run.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/46/b569dad6e6/0/metadata.json",
+      "transcript": "/46/b569dad6e6/0/full.jsonl",
+      "content_hash": "/46/b569dad6e6/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  }
+}
