@@ -12,6 +12,7 @@ import chalk from "chalk";
 import { spawnSync } from "child_process";
 import pLimit from "p-limit";
 import { getManifest } from "../lib/manifest.js";
+import { formatElapsedTime } from "../lib/phase-spinner.js";
 import { getSettings } from "../lib/settings.js";
 import { LogWriter } from "../lib/workflow/log-writer.js";
 import type { RunConfig } from "../lib/workflow/run-log-schema.js";
@@ -740,23 +741,60 @@ export async function runCommand(
       const limit = pLimit(config.concurrency);
 
       // Track progress for concurrent issues
-      const issueStatus = new Map<number, "running" | "done" | "failed">();
+      const issueStatus = new Map<
+        number,
+        {
+          state: "running" | "done" | "failed";
+          durationSeconds?: number;
+          error?: string;
+        }
+      >();
       for (const num of issueNumbers) {
-        issueStatus.set(num, "running");
+        issueStatus.set(num, { state: "running" });
       }
 
-      const updateProgress = () => {
-        if (mergedOptions.quiet) return;
+      const renderProgressLine = () => {
         const parts = issueNumbers.map((num) => {
-          const status = issueStatus.get(num);
-          if (status === "done") return colors.success(`#${num} ✓`);
-          if (status === "failed") return colors.error(`#${num} ✗`);
+          const info = issueStatus.get(num)!;
+          if (info.state === "done") return colors.success(`#${num} ✓`);
+          if (info.state === "failed") return colors.error(`#${num} ✗`);
           return colors.warning(`#${num} ⏳`);
         });
-        // Use carriage return to update in place on TTY
-        const line = `  Progress: ${parts.join("  ")}`;
+        return `  Progress: ${parts.join("  ")}`;
+      };
+
+      const updateProgress = (completedIssue?: number) => {
+        if (mergedOptions.quiet) return;
+
         if (process.stdout.isTTY) {
-          process.stdout.write(`\r${line}`);
+          // TTY: overwrite the progress line in place
+          process.stdout.write(`\r${renderProgressLine()}`);
+        }
+
+        // Print a per-issue completion summary (works on both TTY and non-TTY)
+        if (completedIssue != null) {
+          const info = issueStatus.get(completedIssue)!;
+          const duration =
+            info.durationSeconds != null
+              ? ` (${formatElapsedTime(info.durationSeconds)})`
+              : "";
+          if (info.state === "done") {
+            const line = `  ${colors.success("✓")} Issue #${completedIssue} completed${duration}`;
+            if (process.stdout.isTTY) {
+              // Move to a new line before printing the summary, then re-render progress
+              process.stdout.write(`\n${line}\n${renderProgressLine()}`);
+            } else {
+              console.log(line);
+            }
+          } else {
+            const errorSuffix = info.error ? `: ${info.error}` : "";
+            const line = `  ${colors.error("✗")} Issue #${completedIssue} failed${duration}${errorSuffix}`;
+            if (process.stdout.isTTY) {
+              process.stdout.write(`\n${line}\n${renderProgressLine()}`);
+            } else {
+              console.log(line);
+            }
+          }
         }
       };
 
@@ -818,9 +856,13 @@ export async function runCommand(
               logWriter.completeIssue(issueNumber);
             }
 
-            // Update progress
-            issueStatus.set(issueNumber, result.success ? "done" : "failed");
-            updateProgress();
+            // Update progress with completion details
+            issueStatus.set(issueNumber, {
+              state: result.success ? "done" : "failed",
+              durationSeconds: result.durationSeconds,
+              error: result.phaseResults.find((p) => !p.success)?.error,
+            });
+            updateProgress(issueNumber);
 
             return result;
           }),
@@ -833,14 +875,15 @@ export async function runCommand(
       }
 
       // Collect results from settled promises
-      for (const settled of settledResults) {
+      for (let i = 0; i < settledResults.length; i++) {
+        const settled = settledResults[i];
         if (settled.status === "fulfilled") {
           results.push(settled.value);
         } else {
-          // This shouldn't happen since runIssueWithLogging catches errors,
-          // but handle it gracefully
+          // Defensive fallback — runIssueWithLogging catches errors internally,
+          // so this path is unreachable in normal operation.
           results.push({
-            issueNumber: 0,
+            issueNumber: issueNumbers[i],
             success: false,
             phaseResults: [],
             durationSeconds: 0,
