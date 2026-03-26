@@ -148,6 +148,21 @@ describe("runIssueWithLogging — label-based phase shortcuts", () => {
       const calledPhases = mockExecutePhase.mock.calls.map((c) => c[1]);
       expect(calledPhases).toEqual(["exec", "qa"]);
     });
+
+    it("skips spec for 'patch' label", async () => {
+      await runIssueWithLogging(
+        45,
+        makeConfig(),
+        null,
+        null,
+        "Patch release",
+        ["patch"],
+        makeOptions(),
+      );
+
+      const calledPhases = mockExecutePhase.mock.calls.map((c) => c[1]);
+      expect(calledPhases).toEqual(["exec", "qa"]);
+    });
   });
 
   describe("AC-1: isDocs shortcut", () => {
@@ -174,6 +189,21 @@ describe("runIssueWithLogging — label-based phase shortcuts", () => {
         null,
         "Add docs",
         ["documentation"],
+        makeOptions(),
+      );
+
+      const calledPhases = mockExecutePhase.mock.calls.map((c) => c[1]);
+      expect(calledPhases).toEqual(["exec", "qa"]);
+    });
+
+    it("skips spec for 'readme' label", async () => {
+      await runIssueWithLogging(
+        52,
+        makeConfig(),
+        null,
+        null,
+        "Update README",
+        ["readme"],
         makeOptions(),
       );
 
@@ -382,11 +412,51 @@ describe("runIssueWithLogging — label-based phase shortcuts", () => {
     });
   });
 
+  describe("substring matching (documents current includes() behavior for #461)", () => {
+    it("'dispatch' label triggers bug shortcut via substring match on 'patch'", async () => {
+      await runIssueWithLogging(
+        110,
+        makeConfig(),
+        null,
+        null,
+        "Dispatch event",
+        ["dispatch"],
+        makeOptions(),
+      );
+
+      // "dispatch".includes("patch") === true — current (broken) behavior
+      // #461 will switch to exact match, at which point this test should
+      // be updated to expect spec to run (no shortcut)
+      const calledPhases = mockExecutePhase.mock.calls.map((c) => c[1]);
+      expect(calledPhases).toEqual(["exec", "qa"]);
+    });
+
+    it("'redocs-system' label triggers docs shortcut via substring match on 'doc'", async () => {
+      await runIssueWithLogging(
+        111,
+        makeConfig(),
+        null,
+        null,
+        "Redocs system",
+        ["redocs-system"],
+        makeOptions(),
+      );
+
+      // "redocs-system".includes("doc") === true — current (broken) behavior
+      // #461 will switch to exact match, at which point this test should
+      // be updated to expect spec to run (no shortcut)
+      const calledPhases = mockExecutePhase.mock.calls.map((c) => c[1]);
+      expect(calledPhases).toEqual(["exec", "qa"]);
+    });
+  });
+
   describe("AC-6 (derived): autoDetectPhases = false skips label shortcuts", () => {
     it("uses explicit phases when autoDetectPhases is false", async () => {
+      // Use ["qa"] only — bug shortcut would produce ["exec", "qa"],
+      // so this distinguishes explicit phases from shortcut
       await runIssueWithLogging(
         100,
-        makeConfig({ phases: ["exec", "qa"] }),
+        makeConfig({ phases: ["qa"] }),
         null,
         null,
         "Bug fix",
@@ -394,9 +464,8 @@ describe("runIssueWithLogging — label-based phase shortcuts", () => {
         makeOptions({ autoDetectPhases: false }),
       );
 
-      // Should use the config's explicit phases, not detect from labels
       const calledPhases = mockExecutePhase.mock.calls.map((c) => c[1]);
-      expect(calledPhases).toEqual(["exec", "qa"]);
+      expect(calledPhases).toEqual(["qa"]);
     });
 
     it("runs spec when autoDetectPhases is false even with bug label", async () => {
