@@ -116,6 +116,7 @@ export class AiderDriver implements AgentDriver {
               : `Process killed by signal: ${signal}`,
             stderrTail: stderrBuffer.getLines(),
             stdoutTail: stdoutBuffer.getLines(),
+            exitCode: code ?? undefined,
           });
           return;
         }
@@ -126,6 +127,7 @@ export class AiderDriver implements AgentDriver {
             output: capturedOutput,
             stderrTail: stderrBuffer.getLines(),
             stdoutTail: stdoutBuffer.getLines(),
+            exitCode: 0,
           });
         } else {
           const stderrSuffix = capturedStderr
@@ -137,6 +139,7 @@ export class AiderDriver implements AgentDriver {
             error: `Aider exited with code ${code}${stderrSuffix}`,
             stderrTail: stderrBuffer.getLines(),
             stdoutTail: stdoutBuffer.getLines(),
+            exitCode: code ?? undefined,
           });
         }
       });

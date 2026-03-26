@@ -38,6 +38,8 @@ export interface AgentPhaseResult {
   stderrTail?: string[];
   /** Last N lines of stdout captured via RingBuffer (#447) */
   stdoutTail?: string[];
+  /** Process exit code (undefined for SDK-based drivers) (#447) */
+  exitCode?: number;
 }
 
 /**

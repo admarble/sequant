@@ -555,6 +555,7 @@ export async function runIssueWithLogging(
           specErrorContext = {
             stderrTail: specResult.stderrTail ?? [],
             stdoutTail: specResult.stdoutTail ?? [],
+            exitCode: specResult.exitCode,
             category: classifyError(specResult.stderrTail ?? []),
           };
         }
@@ -794,6 +795,7 @@ export async function runIssueWithLogging(
           errorContext = {
             stderrTail: result.stderrTail ?? [],
             stdoutTail: result.stdoutTail ?? [],
+            exitCode: result.exitCode,
             category: classifyError(result.stderrTail ?? []),
           };
         }

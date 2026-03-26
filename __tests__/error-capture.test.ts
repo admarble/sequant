@@ -150,6 +150,45 @@ describe("ErrorContext in PhaseLog", () => {
       expect(validated.errorContext!.category).toBe("unknown");
     });
 
+    it("should round-trip exitCode through createPhaseLogFromTiming and schema", () => {
+      const startTime = new Date("2026-01-01T00:00:00Z");
+      const endTime = new Date("2026-01-01T00:05:00Z");
+
+      const phaseLog = createPhaseLogFromTiming(
+        "exec",
+        123,
+        startTime,
+        endTime,
+        "failure",
+        {
+          error: "Aider exited with code 2",
+          errorContext: {
+            stderrTail: ["some error"],
+            stdoutTail: [],
+            exitCode: 2,
+            category: "unknown",
+          },
+        },
+      );
+
+      expect(phaseLog.errorContext!.exitCode).toBe(2);
+
+      // Round-trip through JSON + schema validation
+      const json = JSON.stringify(phaseLog);
+      const parsed = PhaseLogSchema.parse(JSON.parse(json));
+      expect(parsed.errorContext!.exitCode).toBe(2);
+    });
+
+    it("should allow errorContext without exitCode (SDK-based drivers)", () => {
+      const ctx = {
+        stderrTail: ["error"],
+        stdoutTail: [],
+        category: "unknown" as const,
+      };
+      const result = ErrorContextSchema.parse(ctx);
+      expect(result.exitCode).toBeUndefined();
+    });
+
     // === FAILURE PATHS ===
     describe("error handling", () => {
       it("should allow PhaseLog without errorContext (backward compat)", () => {
@@ -224,6 +263,12 @@ describe("Error Classifier", () => {
     describe("error handling", () => {
       it("should handle empty stderr array", () => {
         expect(classifyError([])).toBe("unknown");
+      });
+
+      it("should NOT classify HTTP codes embedded in larger numbers", () => {
+        expect(classifyError(["connecting on port 50200"])).toBe("unknown");
+        expect(classifyError(["processed batch 4290 records"])).toBe("unknown");
+        expect(classifyError(["reference ID 15029"])).toBe("unknown");
       });
 
       it("should handle stderr with multiple matching patterns (first wins)", () => {

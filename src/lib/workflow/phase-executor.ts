@@ -329,6 +329,7 @@ async function executePhase(
   const tails = {
     stderrTail: agentResult.stderrTail,
     stdoutTail: agentResult.stdoutTail,
+    exitCode: agentResult.exitCode,
   };
 
   if (agentResult.success) {
