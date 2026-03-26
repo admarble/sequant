@@ -3,7 +3,7 @@
   "checkpoint_id": "372c9c4e609f",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 4,
+  "checkpoints_count": 6,
   "files_touched": [
     ".claude/skills/assess/SKILL.md",
     ".claude/skills/spec/SKILL.md",
@@ -39,13 +39,19 @@
       "transcript": "/37/2c9c4e609f/3/full.jsonl",
       "content_hash": "/37/2c9c4e609f/3/content_hash.txt",
       "prompt": "/37/2c9c4e609f/3/prompt.txt"
+    },
+    {
+      "metadata": "/37/2c9c4e609f/4/metadata.json",
+      "transcript": "/37/2c9c4e609f/4/full.jsonl",
+      "content_hash": "/37/2c9c4e609f/4/content_hash.txt",
+      "prompt": "/37/2c9c4e609f/4/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 635,
-    "cache_creation_tokens": 157124,
-    "cache_read_tokens": 1489271,
-    "output_tokens": 16404,
-    "api_call_count": 44
+    "input_tokens": 696,
+    "cache_creation_tokens": 249833,
+    "cache_read_tokens": 4032720,
+    "output_tokens": 30351,
+    "api_call_count": 91
   }
 }
