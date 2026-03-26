@@ -396,9 +396,9 @@ gh issue edit <N> --add-label <label>
 
 After providing the assessment, briefly note:
 
-- **Confidence Level:** How certain are you about the recommendation? (High/Medium/Low)
-- **Information Gaps:** What information would improve this assessment?
-- **Alternative Interpretations:** Are there other ways to interpret the current state?
+- **Confidence Level:** How certain are you about the recommendation? (High/Medium/Low) — **For PROCEED:** omit when High with no information gaps (per template conditional)
+- **Information Gaps:** What information would improve this assessment? — omit when none
+- **Alternative Interpretations:** Are there other ways to interpret the current state? — omit when none
 
 ## Persist Analysis to Issue Comments
 
