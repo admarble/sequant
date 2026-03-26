@@ -163,4 +163,5 @@ sequant run 42 --no-retry
 
 ---
 
+*Updated for Issue #452 on 2026-03-26 (parallel vs chain decision framework, spec retry)*
 *Generated for Issue #404 on 2026-03-24*
