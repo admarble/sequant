@@ -1,0 +1,6 @@
+I keep seeing issues where the merge fails and the worktree is cleaned or deleted before we finish. can you 
+  investigate? look at recent .entire logs for ref
+
+---
+
+yes but plan it out first. Didn't we fix similar worktree issue before?
