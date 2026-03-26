@@ -412,8 +412,8 @@ describe("runIssueWithLogging — label-based phase shortcuts", () => {
     });
   });
 
-  describe("substring matching (documents current includes() behavior for #461)", () => {
-    it("'dispatch' label triggers bug shortcut via substring match on 'patch'", async () => {
+  describe("exact matching (#461): substring labels do NOT trigger shortcuts", () => {
+    it("'dispatch' label does not trigger bug shortcut despite containing 'patch'", async () => {
       await runIssueWithLogging(
         110,
         makeConfig(),
@@ -424,14 +424,13 @@ describe("runIssueWithLogging — label-based phase shortcuts", () => {
         makeOptions(),
       );
 
-      // "dispatch".includes("patch") === true — current (broken) behavior
-      // #461 will switch to exact match, at which point this test should
-      // be updated to expect spec to run (no shortcut)
+      // #461 switched to exact match — "dispatch" no longer matches "patch"
+      // Spec runs because no shortcut fires, then fallback detection runs
       const calledPhases = mockExecutePhase.mock.calls.map((c) => c[1]);
-      expect(calledPhases).toEqual(["exec", "qa"]);
+      expect(calledPhases).toContain("spec");
     });
 
-    it("'redocs-system' label triggers docs shortcut via substring match on 'doc'", async () => {
+    it("'redocs-system' label does not trigger docs shortcut despite containing 'doc'", async () => {
       await runIssueWithLogging(
         111,
         makeConfig(),
@@ -442,11 +441,9 @@ describe("runIssueWithLogging — label-based phase shortcuts", () => {
         makeOptions(),
       );
 
-      // "redocs-system".includes("doc") === true — current (broken) behavior
-      // #461 will switch to exact match, at which point this test should
-      // be updated to expect spec to run (no shortcut)
+      // #461 switched to exact match — "redocs-system" no longer matches "doc"
       const calledPhases = mockExecutePhase.mock.calls.map((c) => c[1]);
-      expect(calledPhases).toEqual(["exec", "qa"]);
+      expect(calledPhases).toContain("spec");
     });
   });
 
