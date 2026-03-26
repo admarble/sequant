@@ -1,0 +1,9 @@
+/reflect
+
+---
+
+proceed with action items
+
+---
+
+check if any flags arent beings used. we may need a full flag and skill audit for assess. Use sub agents if needed
