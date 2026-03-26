@@ -2,9 +2,7 @@
  * Tests for the main assessment module
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { spawn } from "node:child_process";
-import { EventEmitter } from "node:events";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   validateVersion,
   checkGhCliAvailable,
@@ -13,10 +11,28 @@ import {
 } from "../assessment.js";
 import { readFile, access } from "node:fs/promises";
 
-// Mock node:child_process
-vi.mock("node:child_process", () => ({
-  spawn: vi.fn(),
+// Mock GitHubProvider as a class constructor — required because both assessment.ts
+// and issues.ts call `new GitHubProvider()` at module scope.
+// vi.hoisted() ensures these are available when the hoisted vi.mock factory runs.
+const { mockCheckGhInstalledSync, mockCheckAuthSync } = vi.hoisted(() => ({
+  mockCheckGhInstalledSync: vi.fn().mockReturnValue(true),
+  mockCheckAuthSync: vi.fn().mockReturnValue(true),
 }));
+
+vi.mock("../../workflow/platforms/github.js", () => {
+  function MockGitHubProvider() {
+    return {
+      checkGhInstalledSync: mockCheckGhInstalledSync,
+      checkAuthSync: mockCheckAuthSync,
+      fetchReleaseSync: vi.fn().mockReturnValue(null),
+      listReleasesSync: vi.fn().mockReturnValue([]),
+      searchIssuesSync: vi.fn().mockReturnValue([]),
+      createIssueWithBodyFileSync: vi.fn().mockReturnValue(null),
+      commentOnIssueWithBodyFileSync: vi.fn().mockReturnValue(false),
+    };
+  }
+  return { GitHubProvider: MockGitHubProvider };
+});
 
 // Mock node:fs/promises
 vi.mock("node:fs/promises", () => ({
@@ -25,31 +41,6 @@ vi.mock("node:fs/promises", () => ({
   access: vi.fn(),
   mkdir: vi.fn(),
 }));
-
-/**
- * Helper to create a mock spawn process
- */
-function createMockProcess(
-  stdout: string,
-  stderr: string,
-  exitCode: number,
-): EventEmitter & { stdout: EventEmitter; stderr: EventEmitter } {
-  const proc = new EventEmitter() as EventEmitter & {
-    stdout: EventEmitter;
-    stderr: EventEmitter;
-  };
-  proc.stdout = new EventEmitter();
-  proc.stderr = new EventEmitter();
-
-  // Simulate async process completion
-  setTimeout(() => {
-    if (stdout) proc.stdout.emit("data", Buffer.from(stdout));
-    if (stderr) proc.stderr.emit("data", Buffer.from(stderr));
-    proc.emit("close", exitCode);
-  }, 0);
-
-  return proc;
-}
 
 describe("validateVersion", () => {
   it("accepts valid semver versions", () => {
@@ -88,17 +79,12 @@ describe("validateVersion", () => {
 describe("checkGhCliAvailable", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset to defaults (installed + authenticated)
+    mockCheckGhInstalledSync.mockReturnValue(true);
+    mockCheckAuthSync.mockReturnValue(true);
   });
 
   it("returns available and authenticated when gh works", async () => {
-    const mockSpawn = vi.mocked(spawn);
-
-    // First call: gh --version (success)
-    // Second call: gh auth status (success)
-    mockSpawn
-      .mockReturnValueOnce(createMockProcess("gh version 2.40.0", "", 0) as ReturnType<typeof spawn>)
-      .mockReturnValueOnce(createMockProcess("Logged in to github.com", "", 0) as ReturnType<typeof spawn>);
-
     const result = await checkGhCliAvailable();
 
     expect(result.available).toBe(true);
@@ -107,18 +93,7 @@ describe("checkGhCliAvailable", () => {
   });
 
   it("returns not available when gh is not installed", async () => {
-    const mockSpawn = vi.mocked(spawn);
-
-    // gh --version fails (not installed)
-    const proc = new EventEmitter() as EventEmitter & {
-      stdout: EventEmitter;
-      stderr: EventEmitter;
-    };
-    proc.stdout = new EventEmitter();
-    proc.stderr = new EventEmitter();
-    setTimeout(() => proc.emit("error", new Error("ENOENT")), 0);
-
-    mockSpawn.mockReturnValueOnce(proc as ReturnType<typeof spawn>);
+    mockCheckGhInstalledSync.mockReturnValue(false);
 
     const result = await checkGhCliAvailable();
 
@@ -128,17 +103,7 @@ describe("checkGhCliAvailable", () => {
   });
 
   it("returns not authenticated when gh auth fails", async () => {
-    const mockSpawn = vi.mocked(spawn);
-
-    // gh --version succeeds
-    mockSpawn.mockReturnValueOnce(
-      createMockProcess("gh version 2.40.0", "", 0) as ReturnType<typeof spawn>,
-    );
-
-    // gh auth status fails
-    mockSpawn.mockReturnValueOnce(
-      createMockProcess("", "You are not logged in", 1) as ReturnType<typeof spawn>,
-    );
+    mockCheckAuthSync.mockReturnValue(false);
 
     const result = await checkGhCliAvailable();
 
