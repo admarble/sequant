@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "f7450c494650",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 0,
+  "files_touched": [
+    ".claude/skills/assess/SKILL.md",
+    "skills/assess/SKILL.md",
+    "src/lib/assess-comment-parser.test.ts",
+    "src/lib/assess-comment-parser.ts",
+    "src/lib/solve-comment-parser.test.ts",
+    "templates/skills/assess/SKILL.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f7/450c494650/0/metadata.json",
+      "transcript": "/f7/450c494650/0/full.jsonl",
+      "content_hash": "/f7/450c494650/0/content_hash.txt",
+      "prompt": "/f7/450c494650/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 149,
+    "cache_creation_tokens": 190055,
+    "cache_read_tokens": 16763162,
+    "output_tokens": 49320,
+    "api_call_count": 140
+  }
+}
