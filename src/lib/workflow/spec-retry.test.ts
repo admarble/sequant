@@ -110,6 +110,33 @@ describe("Spec Phase Retry Logic (#452)", () => {
       expect(executePhaseFn).toHaveBeenCalledTimes(2);
     });
 
+    it("should recover via spec retry after cold-start retries are exhausted", async () => {
+      // durationSeconds: 30 is below COLD_START_THRESHOLD_SECONDS (60),
+      // so all 3 cold-start attempts run and fail, then Phase 3 (spec retry) succeeds
+      const executePhaseFn = vi
+        .fn()
+        .mockResolvedValueOnce(makeResult({ durationSeconds: 30 })) // cold-start attempt 1
+        .mockResolvedValueOnce(makeResult({ durationSeconds: 30 })) // cold-start attempt 2
+        .mockResolvedValueOnce(makeResult({ durationSeconds: 30 })) // cold-start attempt 3
+        .mockResolvedValueOnce(makeResult({ success: true, error: undefined })); // spec retry
+
+      const result = await executePhaseWithRetry(
+        42,
+        "spec",
+        baseConfig,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        executePhaseFn,
+        noDelay,
+      );
+
+      expect(result.success).toBe(true);
+      // 3 cold-start + 1 spec retry = 4 calls (mcp: false skips Phase 2)
+      expect(executePhaseFn).toHaveBeenCalledTimes(4);
+    });
+
     it("should NOT apply spec retry to non-spec phases", async () => {
       const executePhaseFn = vi
         .fn()
