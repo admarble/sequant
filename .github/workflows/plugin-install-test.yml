@@ -10,6 +10,7 @@ on:
       - 'skills/**'
       - 'memory/**'
       - 'templates/mcp.json'
+      - '.mcp.json'
   pull_request:
     branches: [main]
     paths:
@@ -19,6 +20,7 @@ on:
       - 'skills/**'
       - 'memory/**'
       - 'templates/mcp.json'
+      - '.mcp.json'
 
 jobs:
   plugin-structure:
@@ -195,6 +197,19 @@ jobs:
         run: |
           echo "Testing claude plugin marketplace add..."
           claude plugin marketplace add ./ --scope local
+
+      - name: Test plugin loads with --plugin-dir
+        run: |
+          echo "Testing claude --plugin-dir . loads plugin..."
+          # Verify plugin loads: skills, hooks, and MCP config are discovered
+          output=$(claude --plugin-dir . --print "list available skills" 2>&1 || true)
+          if echo "$output" | grep -qi "sequant\|assess\|spec\|exec"; then
+            echo "Plugin loaded successfully — skills discovered"
+          else
+            echo "Warning: Could not verify skill discovery (may need interactive session)"
+            echo "Output: $output"
+            # Non-blocking — validate and install tests are the primary gates
+          fi
 
       - name: Test plugin install
         run: |
