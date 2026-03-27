@@ -69,6 +69,7 @@ import {
 import type {
   RunOptions,
   ProgressCallback,
+  IssueExecutionContext,
 } from "../lib/workflow/batch-executor.js";
 
 // Re-export public API for backwards compatibility
@@ -113,6 +114,114 @@ export {
 export type { RunOptions } from "../lib/workflow/batch-executor.js";
 
 /**
+ * Commander.js flag mapping for --no-X flags.
+ * Commander converts `--no-X` to `{ X: false }` instead of `{ noX: true }`.
+ * This interface types the raw Commander output for safe normalization.
+ */
+interface CommanderRawOptions extends RunOptions {
+  log?: boolean;
+  smartTests?: boolean;
+  mcp?: boolean;
+  retry?: boolean;
+  rebase?: boolean;
+  pr?: boolean;
+}
+
+/**
+ * Normalize Commander.js --no-X flags into typed RunOptions fields.
+ * Replaces the `as any` cast (#402 AC-4).
+ */
+export function normalizeCommanderOptions(options: RunOptions): RunOptions {
+  const raw = options as CommanderRawOptions;
+  return {
+    ...options,
+    ...(raw.log === false && { noLog: true }),
+    ...(raw.smartTests === false && { noSmartTests: true }),
+    ...(raw.mcp === false && { noMcp: true }),
+    ...(raw.retry === false && { noRetry: true }),
+    ...(raw.rebase === false && { noRebase: true }),
+    ...(raw.pr === false && { noPr: true }),
+  };
+}
+
+/**
+ * Execute a single issue with log bookkeeping (start/complete/PR info).
+ * Replaces the duplicated per-issue wrapper in sequential and parallel loops (#402 AC-1).
+ */
+async function executeOneIssue(args: {
+  issueNumber: number;
+  config: ExecutionConfig;
+  mergedOptions: RunOptions;
+  issueInfoMap: Map<number, { title: string; labels: string[] }>;
+  worktreeMap: Map<number, WorktreeInfo>;
+  logWriter: LogWriter | null;
+  stateManager: StateManager | null;
+  shutdown: ShutdownManager;
+  packageManager?: string;
+  baseBranch?: string;
+  chain?: { enabled: boolean; isLast: boolean };
+  onProgress?: ProgressCallback;
+  /** When set, pass issueNumber to logWriter.setPRInfo/completeIssue (parallel mode) */
+  parallelIssueNumber?: number;
+}): Promise<IssueResult> {
+  const {
+    issueNumber,
+    config,
+    mergedOptions,
+    issueInfoMap,
+    worktreeMap,
+    logWriter,
+    stateManager,
+    shutdown,
+    packageManager,
+    baseBranch,
+    chain,
+    onProgress,
+    parallelIssueNumber,
+  } = args;
+
+  const issueInfo = issueInfoMap.get(issueNumber) ?? {
+    title: `Issue #${issueNumber}`,
+    labels: [],
+  };
+  const worktreeInfo = worktreeMap.get(issueNumber);
+
+  // Start issue logging
+  if (logWriter) {
+    logWriter.startIssue(issueNumber, issueInfo.title, issueInfo.labels);
+  }
+
+  const ctx: IssueExecutionContext = {
+    issueNumber,
+    title: issueInfo.title,
+    labels: issueInfo.labels,
+    config,
+    options: mergedOptions,
+    services: { logWriter, stateManager, shutdownManager: shutdown },
+    worktree: worktreeInfo
+      ? { path: worktreeInfo.path, branch: worktreeInfo.branch }
+      : undefined,
+    chain,
+    packageManager,
+    baseBranch,
+    onProgress,
+  };
+  const result = await runIssueWithLogging(ctx);
+
+  // Record PR info in log before completing issue
+  if (logWriter && result.prNumber && result.prUrl) {
+    logWriter.setPRInfo(result.prNumber, result.prUrl, parallelIssueNumber);
+  }
+
+  // Complete issue logging
+  if (logWriter) {
+    logWriter.completeIssue(parallelIssueNumber);
+  }
+
+  return result;
+}
+
+/**
  * Main run command
  */
 export async function runCommand(
@@ -153,19 +262,7 @@ export async function runCommand(
 
   // Settings provide defaults, env overrides settings, CLI overrides all
   // Note: phases are auto-detected per-issue unless --phases is explicitly set
-  // Commander.js converts --no-X to { X: false }, not { noX: true }.
-  // Normalize these so RunOptions fields (noLog, noMcp, etc.) work correctly.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const cliOpts = options as any;
-  const normalizedOptions: RunOptions = {
-    ...options,
-    ...(cliOpts.log === false && { noLog: true }),
-    ...(cliOpts.smartTests === false && { noSmartTests: true }),
-    ...(cliOpts.mcp === false && { noMcp: true }),
-    ...(cliOpts.retry === false && { noRetry: true }),
-    ...(cliOpts.rebase === false && { noRebase: true }),
-    ...(cliOpts.pr === false && { noPr: true }),
-  };
+  const normalizedOptions = normalizeCommanderOptions(options);
 
   const mergedOptions: RunOptions = {
     // Settings defaults (phases removed - now auto-detected)
@@ -650,45 +747,23 @@ export async function runCommand(
       // Sequential execution
       for (let i = 0; i < issueNumbers.length; i++) {
         const issueNumber = issueNumbers[i];
-        const issueInfo = issueInfoMap.get(issueNumber) ?? {
-          title: `Issue #${issueNumber}`,
-          labels: [],
-        };
-        const worktreeInfo = worktreeMap.get(issueNumber);
 
-        // Start issue logging
-        if (logWriter) {
-          logWriter.startIssue(issueNumber, issueInfo.title, issueInfo.labels);
-        }
-
-        const result = await runIssueWithLogging(
+        const result = await executeOneIssue({
           issueNumber,
           config,
+          mergedOptions,
+          issueInfoMap,
+          worktreeMap,
           logWriter,
           stateManager,
-          issueInfo.title,
-          issueInfo.labels,
-          mergedOptions,
-          worktreeInfo?.path,
-          worktreeInfo?.branch,
           shutdown,
-          mergedOptions.chain, // Enable checkpoint commits in chain mode
-          manifest.packageManager,
-          // In chain mode, only the last issue should trigger pre-PR rebase
-          mergedOptions.chain ? i === issueNumbers.length - 1 : undefined,
-          resolvedBaseBranch,
-        );
+          packageManager: manifest.packageManager,
+          baseBranch: resolvedBaseBranch,
+          chain: mergedOptions.chain
+            ? { enabled: true, isLast: i === issueNumbers.length - 1 }
+            : undefined,
+        });
         results.push(result);
-
-        // Record PR info in log before completing issue
-        if (logWriter && result.prNumber && result.prUrl) {
-          logWriter.setPRInfo(result.prNumber, result.prUrl);
-        }
-
-        // Complete issue logging
-        if (logWriter) {
-          logWriter.completeIssue();
-        }
 
         // Check if shutdown was triggered
         if (shutdown.shuttingDown) {
@@ -851,48 +926,20 @@ export async function runCommand(
               } as IssueResult;
             }
 
-            const issueInfo = issueInfoMap.get(issueNumber) ?? {
-              title: `Issue #${issueNumber}`,
-              labels: [],
-            };
-            const worktreeInfo = worktreeMap.get(issueNumber);
-
-            // Start issue logging
-            if (logWriter) {
-              logWriter.startIssue(
-                issueNumber,
-                issueInfo.title,
-                issueInfo.labels,
-              );
-            }
-
-            const result = await runIssueWithLogging(
+            const result = await executeOneIssue({
               issueNumber,
               config,
+              mergedOptions,
+              issueInfoMap,
+              worktreeMap,
               logWriter,
               stateManager,
-              issueInfo.title,
-              issueInfo.labels,
-              mergedOptions,
-              worktreeInfo?.path,
-              worktreeInfo?.branch,
               shutdown,
-              false, // Parallel mode doesn't support chain
-              manifest.packageManager,
-              undefined,
-              resolvedBaseBranch,
-              onPhaseProgress,
-            );
-
-            // Record PR info in log before completing issue
-            if (logWriter && result.prNumber && result.prUrl) {
-              logWriter.setPRInfo(result.prNumber, result.prUrl, issueNumber);
-            }
-
-            // Complete issue logging
-            if (logWriter) {
-              logWriter.completeIssue(issueNumber);
-            }
+              packageManager: manifest.packageManager,
+              baseBranch: resolvedBaseBranch,
+              onProgress: onPhaseProgress,
+              parallelIssueNumber: issueNumber,
+            });
 
             // Update progress with completion details
             issueStatus.set(issueNumber, {
