@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "96bf18b8b990",
+  "session_id": "60dc4be1-4498-4ebc-80a4-c7f996400216",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-27T21:33:20.552473Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs/features/plugin-distribution.md"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "57a560454c53",
+  "token_usage": {
+    "input_tokens": 236,
+    "cache_creation_tokens": 811617,
+    "cache_read_tokens": 23205297,
+    "output_tokens": 69637,
+    "api_call_count": 165
+  },
+  "session_metrics": {
+    "turn_count": 6
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-27T21:33:19.860767Z",
+    "agent_lines": 149,
+    "human_added": 1960,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 2109,
+    "agent_percentage": 7.064959696538644
+  }
+}
