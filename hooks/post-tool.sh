@@ -38,14 +38,15 @@ else
     TOOL_OUTPUT=$(echo "$INPUT_JSON" | grep -oE '"tool_response"\s*:\s*\{[^}]+\}' | head -1)
 fi
 
-TIMING_LOG="/tmp/claude-timing.log"
-QUALITY_LOG="/tmp/claude-quality.log"
-TESTS_LOG="/tmp/claude-tests.log"
-PARALLEL_MARKER_PREFIX="/tmp/claude-parallel-"
+_TMPDIR="${TMPDIR:-/tmp}"
+TIMING_LOG="${_TMPDIR}/claude-timing.log"
+QUALITY_LOG="${_TMPDIR}/claude-quality.log"
+TESTS_LOG="${_TMPDIR}/claude-tests.log"
+PARALLEL_MARKER_PREFIX="${_TMPDIR}/claude-parallel-"
 
 # === AGENT ID DETECTION ===
 # For parallel agents, detect group ID from marker files
-# Format: /tmp/claude-parallel-<group-id>.marker
+# Format: ${_TMPDIR}/claude-parallel-<group-id>.marker
 AGENT_ID=""
 IS_PARALLEL_AGENT="false"
 # Find marker files using find (works in both bash and zsh)
@@ -56,7 +57,7 @@ while IFS= read -r marker; do
         IS_PARALLEL_AGENT="true"
         break
     fi
-done < <(find /tmp -maxdepth 1 -name "claude-parallel-*.marker" 2>/dev/null)
+done < <(find "${_TMPDIR}" -maxdepth 1 -name "claude-parallel-*.marker" 2>/dev/null)
 
 # === TIMING END ===
 # Include agent ID in log format if available (AC-4)
