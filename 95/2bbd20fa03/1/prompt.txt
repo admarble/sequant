@@ -1,0 +1,8 @@
+Hooks Validation    
+Plugin Installation Test / Hooks Validation
+Failed in 7 seconds
+
+annotations for Plugin Installation Test / Hooks Validation 1
+Plugin Structure Validation    
+Plugin Installation Test / Plugin Structure Validation
+Failed in 10 seconds
