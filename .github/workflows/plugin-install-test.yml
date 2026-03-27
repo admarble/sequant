@@ -93,9 +93,10 @@ jobs:
 
           node -e "
             const mcp = JSON.parse(require('fs').readFileSync('templates/mcp.json', 'utf8'));
-            const server = mcp.mcpServers?.sequant;
+            // Plugin .mcp.json uses flat format (server name as top-level key)
+            const server = mcp.sequant;
             if (!server) {
-              console.error('Missing mcpServers.sequant entry');
+              console.error('Missing sequant server entry');
               process.exit(1);
             }
             if (server.command !== 'npx') {

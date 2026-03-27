@@ -1,8 +1,6 @@
 {
-  "mcpServers": {
-    "sequant": {
-      "command": "npx",
-      "args": ["-y", "sequant@latest", "serve"]
-    }
+  "sequant": {
+    "command": "npx",
+    "args": ["-y", "sequant@latest", "serve"]
   }
 }

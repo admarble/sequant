@@ -196,9 +196,10 @@ function validate(): void {
   const outputMcpJson = join(OUTPUT_DIR, ".mcp.json");
   if (existsSync(outputMcpJson)) {
     const mcpConfig = JSON.parse(readFileSync(outputMcpJson, "utf8"));
-    const sequantServer = mcpConfig?.mcpServers?.sequant;
+    // Plugin .mcp.json uses flat format (server name as top-level key)
+    const sequantServer = mcpConfig?.sequant;
     if (!sequantServer) {
-      console.error("  ❌ .mcp.json missing mcpServers.sequant entry");
+      console.error("  ❌ .mcp.json missing sequant server entry");
       errors++;
     } else if (sequantServer.command !== "npx") {
       console.error(
