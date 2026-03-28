@@ -18,6 +18,7 @@
 
 import { spawnSync } from "child_process";
 import { StateManager } from "./state-manager.js";
+import { isTerminalStatus } from "./state-schema.js";
 import { checkPRMergeStatus, isIssueMergedIntoMain } from "./pr-status.js";
 
 export interface CleanupOptions {
@@ -196,6 +197,24 @@ export async function cleanupStaleEntries(
           if (!options.dryRun) {
             delete state.issues[issueNumStr];
           }
+        }
+        continue;
+      }
+
+      // Force-clean: remove ALL resolved entries regardless of worktree/TTL
+      if (isTerminalStatus(issueState.status)) {
+        if (options.verbose) {
+          console.log(`🧹 Resolved: #${issueNum} (${issueState.status})`);
+        }
+
+        if (issueState.status === "merged") {
+          merged.push(issueNum);
+        }
+
+        removed.push(issueNum);
+
+        if (!options.dryRun) {
+          delete state.issues[issueNumStr];
         }
       }
     }
