@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "312247b8093c",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "docs/features/run-pipeline-integration-tests.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/31/2247b8093c/0/metadata.json",
+      "transcript": "/31/2247b8093c/0/full.jsonl",
+      "content_hash": "/31/2247b8093c/0/content_hash.txt",
+      "prompt": "/31/2247b8093c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 44,
+    "cache_creation_tokens": 48997,
+    "cache_read_tokens": 691793,
+    "output_tokens": 3899,
+    "api_call_count": 26
+  }
+}
