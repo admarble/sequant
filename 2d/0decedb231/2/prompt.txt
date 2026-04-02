@@ -1,0 +1,21 @@
+fullsolve 478
+
+---
+
+any gaps?
+
+---
+
+any other gaps?
+
+---
+
+fix all gaps. plan
+
+---
+
+commit push
+
+---
+
+merge
