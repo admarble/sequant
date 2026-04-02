@@ -1,0 +1,272 @@
+how do I test the plugin?
+
+---
+
+tony@Tambras-MacBook-Air sequant % claude plugin install sequant@sequant-io/sequant
+Installing plugin "sequant@sequant-io/sequant"...
+✘ Failed to install plugin "sequant@sequant-io/sequant": Plugin "sequant" not found in marketplace "sequant-io/sequant"
+
+---
+
+tony@Tambras-MacBook-Air sequant % claude plugin marketplace add sequant-io/sequant --scope local
+Adding marketplace...
+SSH not configured, cloning via HTTPS: https://github.com/sequant-io/sequant.git
+Refreshing marketplace cache (timeout: 120s)…
+Cloning repository (timeout: 120s): https://github.com/sequant-io/sequant.git
+Clone complete, validating marketplace…
+Cleaning up old marketplace cache…
+✔ Successfully added marketplace: sequant (declared in local settings)
+
+---
+
+claude plugin install sequant@sequant 
+Installing plugin "sequant@sequant"...
+✔ Successfully installed plugin: sequant@sequant (scope: user)
+
+---
+
+How do we know this is powered by the plugin and not local sequant?\
+tony@Tambras-MacBook-Air sequant % claude --print "what skills do you have from sequant?"
+Here are the Sequant skills available:
+
+| Skill | Description |
+|-------|-------------|
+| `/assess` | Issue triage and status assessment — analyze state, detect health signals, recommend next action |
+| `/spec` | Plan review vs Acceptance Criteria for a GitHub issue, plus issue comment draft |
+| `/exec` | Implementation loop for a single issue until ACs are satisfied |
+| `/test` | Browser-based testing for admin features |
+| `/verify` | Execution verification for CLI/script features — runs commands, captures output |
+| `/qa` | Code review + QA vs Acceptance Criteria, including A+ suggestions and review comment draft |
+| `/docs` | Generate admin-facing documentation before merging |
+| `/fullsolve` | Complete issue resolution: spec → exec → test → qa with auto-fix iterations |
+| `/merger` | Multi-issue integration and merge for completed worktrees |
+| `/testgen` | Generate test stubs from /spec verificatia |
+| `/loop` | Quality loop — parse test/QA findings and iterate until gates pass |
+| `/clean` | Repository cleanup |
+| `/reflect` | Strategic reflection on workflow effectiveness |
+| `/improve` | Codebase analysis, improvement discovery, issue creation, and execution |
+| `/security-review` | Deep security analysis for sensitive features |
+| `/upstream` | Monitor Claude Code releases for breaking changes |
+| `/setup` | Initialize Sequant in your project |
+| `/release` | Automates version bump, git tag, GitHub release, and npm publish |
+
+The typical workflow is: `/assess` → `/spec` → `/exec` → `/verify` or `/test` → `/qa` → `/docs` → `/merger`. Use `/fullsolve` to run the full pipeline in one shot.
+
+---
+
+Is it bad to install the plugin in this dir? would iconflict with our local dev version?\
+❯ /sequant:setup                                                                                                                                                                                                  
+
+⏺ Running Sequant setup for this project. Let me check prerequisites and detect project configuration.
+
+⏺ Bash(echo "=== Sequant Prerequisites Check ==="…)
+  ⎿  Running…
+
+⏺ Bash(cd /Users/tony/Projects/sequant…)
+  ⎿  Waiting…
+
+⏺ Bash(cd /Users/tony/Projects/sequant…)
+  ⎿  Waiting…
+
+⏺ Bash(cd /Users/tony/Projects/sequant…)
+  ⎿  Waiting…
+
+⏺ Bash(cd /Users/tony/Projects/sequant…)
+  ⎿  Waiting…
+
+⏺ Bash(mkdir -p /Users/tony/Projects/worktrees/feature && echo "✅ Created ../worktrees/feature/")
+  ⎿  Waiting…
+
+─────────────────────────────────────────────────────────────────────────────────�-version >/dev/null 2>&1; then
+     echo "✅ git: $(git --version | head -1)"
+   else
+     echo "❌ git: not found — install from https://git-scm.com"
+     PREREQ_FAIL=true
+   fi
+
+   # 2. GitHub CLI
+   if gh --version >/dev/null 2>&1; then
+     echo "✅ gh: $(gh --version | head -1)"
+     if gh auth status >/dev/null 2>&1; then
+       echo "✅ gh auth: authenticated"
+     else
+       echo "❌ gh auth: not authenticated — run 'gh auth login'"
+       PREREQ_FAIL=true
+     fi
+   else
+     echo "❌ gh: not found — install from https://cli.github.com"
+     PREREQ_FAIL=true
+   fi
+
+   # 3. Node.js 20+
+   if node --version >/dev/null 2>&1; then
+     NODE_VER=$(node --version | sed 's/v//' | cut -d. -f1)
+     if [ "$NODE_VER" -ge 20 ] 2>/dev/null; then
+       echo "✅ node: $(node --version) (>= 20)"
+     else
+       echo "⚠️   node: $(node --version) — MCP server requires Node.js 20+. Upgrade recommended."
+     fi
+   else
+     echo "⚠️   node: not found — MCP server (npx sequant serve) requires Node.js 20+"
+   fi
+
+   if [ "$PREREQ_FAIL" = "true" ]; then
+     echo ""
+     echo "Fix the issues above, then re-run /sequant:setup"
+   fi
+   Check prerequisites (git, gh, node)
+
+ Command contains $() command substitution
+
+ Do you want to proceed?
+ ❯ 1. Yes
+   2. No
+
+---
+
+/sequant:setup                                                                                                                                                                                                  
+
+⏺ Running Sequant setup for this project. Let me check prerequisites and detect project configuration.
+
+⏺ Bash(echo "=== Sequant Prerequisites Check ==="…)
+  ⎿  === Sequant Prerequisites Check ===
+     ✅ git: git version 2.47.1
+     ✅ gh: gh version 2.66.1 (2025-01-31)
+     … +2 lines (ctrl+o to expand)
+
+⏺ Bash(cd /Users/tony/Projects/sequant…)
+  ⎿  sequant
+
+⏺ Bash(cd /Users/tony/Projects/sequant…)
+  ⎿  npm run
+
+⏺ Bash(cd /Users/tony/Projects/sequant…)
+  ⎿  node
+
+⏺ Bash(cd /Users/tony/Projects/sequant…)
+  ⎿  http://localhost:3000
+
+⏺ Bash(mkdir -p /Users/tony/Projects/worktrees/feature && echo "✅ Created ../worktrees/feature/")
+  ⎿  ✅ Created ../worktrees/feature/
+
+⏺ All prerequisites pass. Project detected as sequant, Node.js stack, npm, dev serveriles.                                                                        
+             
+⏺ Bash(mkdir -p /Users/tony/Projects/sequant/.sequant)                                                                                                                                                            
+  ⎿  Done                                                                                    
+                                                                                                                                                                                                                  
+⏺ Write(.sequant/settings.json)                                                                                                                                                                                   
+  ⎿  Error writing file                                                                                                                                                                                   
+                                                                                                                                                                                                                  
+⏺ Write(.sequant-manifest.json)                                                                                                                                                                                   
+  ⎿  Error writing file                                                                                                                                                                                           
+                                                                                                                                                                                                                  
+  Read 1 file (ctrl+o to expand)                                                                                                                                                                              
+                                                                                                                                                                                                                  
+⏺ Both files already exist. Let me read them to see if they need updating.                                                                                                                                        
+                                                                                                                                                                                                                  
+  Read 2 files (ctrl+o to expand)                                                                                                                                                                                 
+                                                                                                                                                                                                                
+⏺ Files already exist with project-specific configuration. The settings.json is missing pmRun and devUrl — let me add those and check the constitution.
+                                                                                                                                                                                                                  
+⏺ Update(.sequant/settings.json)   
+⏺                                                                                                                                                                                                                 
+  ⎿  Added13flines,cremovedo1elined)                                                                                                                                                                              
+      16      }, t                  nt/.claude/memory/constitution.md 2>/dev/null && echo "EXISTS" || echo "MISSING"                                                                                    
+      17      "mcp": true,                                                                                                                                                                                        
+✳ Gro 18      "retry": true,kens)                                                                                                                                                                                 
+      19 -    "staleBranchThreshold": 5                                                                                                                                                                           
+───── 19 +    "staleBranchThreshold": 5,                                                                                                                                                                   ───────
+      20 +    "pmRun": "npm run",                                                                                                                                                       
+   ── 21 +    "devUrl": "http://localhost:3000"                                                                                                                                                            ───────
+      22    },                                                                                                                                                                                                    
+      23    "agents": {                                                                                                                                                                                           
+      24      "parallel": false,
+                                                                                                                                                                                                                  
+  Read 1 fand)                                                                                                                                                                                  
+                                                                                                                                                                                                                  
+⏺ Constitution already exists. Let me verify it has the project name filled in.                                                                                                                                   
+                                                                                                                                                                                                                  
+  Searched for 1 pattern (ctrl+o to expand)                                                                                                                                                                     
+                                                                                                                                                                                                                  
+⏺ No unresolved placeholders. Everything is already configured.                                                                                                                                                   
+                                                                                                                                                                                                                  
+  Sequant Setup Complete                                                                                                                                                                                          
+                                                                                                                                                                                                                
+  ┌─────────────────┬───────────────────────────────────────────────────────────────────┐                                                                                                                         
+  │      Item       │                              Status                               │                                                                                                                         
+  ├─────────────────┼───────────────────────────────────────────────────────────────────┤                                                                                                                                                           │                                                                                                                         
+  ├─────────────────┼───────────────────────────────────────────────────────────────────┤
+  │ Project name    │ sequant                                                           │                                                                                                                         
+  ├─────────────────┼───────────────────────────────────────────────────────────────────┤                                                                                                                                                           │                                                                                                                       
+  ├─────────────────┼───────────────────────────────────────────────────────────────────┤                                                                                                                         
+  │ Dev server      │ http://localhost:3000                                             │                                                                                                                       
+  ├─────────────────┼───────────────────────────────────────────────────────────────────� (already existed, no placeholders) │
+  └─────────────────┴───────────────────────────────────────────────────────────────────┘                                                                                                                         
+                  
+  MCP Tools Available                                                                                                                                                                                             
+   
+  ┌────────────────┬────────────────────────────────────────────┐                                                                                                                                                 
+  │      Tool      │  │                                                                                                                                                 
+  ├────────────────┼────────────────────────────────────────────┤                                                                                                                                                 
+  │ sequant_logs   │ Review past run results and debug failures │                                                                                                                                                 
+  └────────────────┴────────────────────────────────────────────┘                                                                                                                                      
+  Run /assess <issue> to start working on a GitHub issue.                                                                                                                                                         
+                  
+  - /assess 123 — Analyze issue, get recommended workflow                                                                                                                                                         
+  - /fullsolve 123 — End-to-end: spec -> exec -> qa -> PR
+  - /spec 123 — Plan implementation only                                                                                                                                                                          
+  - /exec 123 — Implement only
+
+---
+
+Here's the Sequant dashboard:
+
+| # | Issue | Status | Phase | PR |
+|---|-------|--------|-------|----|
+| **402** | Simplify run command execution path | **ready_for_merge** | qa ✅ | [#475](https://github.com/sequant-io/sequant/pull/475) |
+| **476** | Plugin distribution as first-class | **ready_for_merge** | qa ✅ | — |
+| **405** | run.test.ts over-mocking | not_started | — | — |
+| **462** | Track docs pipeline success rate | not_started | — | — |
+| **443** | Consolidate gh CLI into GitHubProvider | merged | qa ✅ | [#470](https://github.com/sequant-io/sequant/pull/470) |
+| **458** | Parallel run UX freeze + race condition | merged | qa ✅ | [#466](https://github.com/sequant-io/sequant/pull/466) |
+| **460** | Batch-executor unit tests | merged | qa ✅ | — |
+| **465** | QA small-diff fast path | merged | qa ✅ | [#469](https://github.com/sequant-io/sequant/pull/469) |
+| **467** | Prevent skill/CLI drift | merged | qa ✅ | [#468](https://github.com/sequant-io/sequant/pull/468) |
+
+**Sor merge (#402, #476), 2 not started (#405, #462), 5 already merged.
+
+---
+
+❯ run status again using sequant plugin                                                                                                                                                                           
+                                                                                                                                                                                                                  
+⏺ sequant - sequant_status (MCP)(issue: 402)                                                                                                                                                                      
+  ⎿  {                                                                                                                                                                                                      
+       "issue": 402,                                                                                                                                                                                              
+       "title": "Simplify run command execution path and parameter passing",
+     … +31 lines (ctrl+o to expand)                                                                                                                                                                               
+                  
+⏺ sequant - sequant_status (MCP)(issue: 476)
+  ⎿  {                                                                                                                                                                                                            
+       "issue": 476,                                                                                                                                                                                                "title": "feat: fix plugin distribution as first-class alternate to npm+MCP",                                                                                                                              
+     … +26 lines (ctrl+o to expand)                                                                                                                                                                               
+                                                                                                                                                                                                                  
+⏺ Updated status after GitHub reconciliation:
+                                                                                                                                                                                                                  
+  ┌─────┬───────────────────────────────────                                                                              
+  │  #  │                Issue                │  Status   │       Next Action        │
+  ├─────┼─────────────────────────────────────┼───────────┼──────────────────────────┤                                                                                                                            
+  │ 402 │ Simplify run command execution path │ merged    │ sequant status --cleanup │
+  ├─────┼─────────────────────────────────────┼───────────┼──────────────────────────┤
+  │ 476 │ Plugin distribution as first-class  │ abandoned │ reopen issue or cleanup  │                                                        
+  Both have changed since the cached state — #402 is now merged (was ready_for_merge), and #476 is abandoned (was ready_for_merge).
+
+---
+
+Do we need a follow up. Should we have an automatic state clean? whats best pract? if the session used the mcp, how do we know the plugin works
+
+---
+
+proceed with 1. create a comprehensive issue.\
+\
+for 2. How do we know when to clear? If the user just merged some recent issues, it might be nice to see it in status. I would nt want to see super old issues though. whats the best pattern here?\
+\
