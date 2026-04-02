@@ -339,7 +339,7 @@ export function createPhaseLogFromTiming(
       | "testsRun"
       | "testsPassed"
       | "verdict"
-      | "qaSummary"
+      | "summary"
       | "commitHash"
       | "fileDiffStats"
       | "cacheMetrics"

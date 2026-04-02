@@ -139,68 +139,99 @@ export function parseQaVerdict(output: string): QaVerdict | null {
 /**
  * Parse condensed QA summary from QA phase output (#434).
  *
- * Extracts AC coverage counts, gaps (from "Issues" section),
- * and suggestions from the structured QA review markdown.
+ * Handles multiple AC table formats produced by the QA skill:
+ * - 5-column: | AC-N | source | desc | STATUS | notes |
+ * - 4-column: | AC-N | desc | STATUS | notes |
+ * - 3-column: | AC-N | desc | STATUS |
+ *
+ * Status cells may contain emoji prefixes (✅ MET), shorthand
+ * (PARTIAL), or trailing text (MET — explanation).
  *
  * @internal Exported for testing only
  */
 export function parseQaSummary(output: string): QaSummary | null {
   if (!output) return null;
 
-  // Parse AC statuses from the AC Coverage table rows
-  // Format: | AC-N | ... | MET/NOT_MET/PARTIALLY_MET/PENDING/N/A | ... |
-  const acStatusPattern =
-    /\|\s*AC-\d+\s*\|[^|]*\|[^|]*\|\s*(MET|NOT_MET|PARTIALLY_MET|PENDING|N\/A)\s*\|/gi;
-  const acMatches = [...output.matchAll(acStatusPattern)];
+  // Anchored pattern: cell content starts with optional emoji, then status keyword
+  // Uses alternation (not character class) to avoid ESLint no-misleading-character-class
+  const STATUS_CELL =
+    /^(?:\u2705|\u274C|\u26A0\uFE0F|\u2B50|\u2139\uFE0F|\u2753|\u2757)?\s*(MET|NOT_MET|PARTIALLY_MET|PARTIAL|PENDING|N\/A)\b/i;
 
-  if (acMatches.length === 0) {
-    // Try the compact table format: | AC-N | description | MET | notes |
-    const compactPattern =
-      /\|\s*AC-\d+\s*\|[^|]*\|\s*(MET|NOT_MET|PARTIALLY_MET|PENDING|N\/A)\s*\|/gi;
-    const compactMatches = [...output.matchAll(compactPattern)];
-    if (compactMatches.length === 0) return null;
-    return buildSummary(compactMatches, output);
-  }
+  const lines = output.split("\n");
+  const acRows = lines.filter((line) => /^\s*\|\s*\*?\*?AC-\d+/.test(line));
 
-  return buildSummary(acMatches, output);
-}
+  if (acRows.length === 0) return null;
 
-function buildSummary(
-  acMatches: RegExpMatchArray[],
-  output: string,
-): QaSummary {
-  const acTotal = acMatches.length;
-  const acMet = acMatches.filter((m) => m[1].toUpperCase() === "MET").length;
+  let acMet = 0;
+  let acTotal = 0;
 
-  // Extract gaps from "**Issues:**" section (bulleted list items)
-  const gaps: string[] = [];
-  const issuesMatch = output.match(/\*\*Issues:\*\*\s*\n((?:\s*-\s+.+\n?)*)/);
-  if (issuesMatch) {
-    const lines = issuesMatch[1].trim().split("\n");
-    for (const line of lines) {
-      const trimmed = line.replace(/^\s*-\s+/, "").trim();
-      if (trimmed && trimmed !== "None") {
-        gaps.push(trimmed);
+  for (const row of acRows) {
+    const cells = row
+      .split("|")
+      .map((c) => c.trim())
+      .filter(Boolean);
+
+    // Scan cells right-to-left to find the status cell
+    let found = false;
+    for (let i = cells.length - 1; i >= 1; i--) {
+      const match = cells[i].match(STATUS_CELL);
+      if (match) {
+        const status = match[1].toUpperCase();
+        acTotal++;
+        if (status === "MET") acMet++;
+        found = true;
+        break;
       }
     }
+    // Row with AC-N but no parseable status is skipped
+    if (!found) continue;
   }
 
-  // Extract suggestions from "**Suggestions:**" section (bulleted list items)
-  const suggestions: string[] = [];
-  const suggestionsMatch = output.match(
-    /\*\*Suggestions:\*\*\s*\n((?:\s*-\s+.+\n?)*)/,
-  );
-  if (suggestionsMatch) {
-    const lines = suggestionsMatch[1].trim().split("\n");
-    for (const line of lines) {
-      const trimmed = line.replace(/^\s*-\s+/, "").trim();
-      if (trimmed && trimmed !== "None") {
-        suggestions.push(trimmed);
-      }
-    }
-  }
+  if (acTotal === 0) return null;
+
+  const gaps = parseListSection(output, /\*\*(?:Issues|Gaps)/);
+  const suggestions = parseListSection(output, /\*\*Suggestions/);
 
   return { acMet, acTotal, gaps, suggestions };
+}
+
+/**
+ * Parse a markdown bullet list section, filtering out "None" variants.
+ */
+function parseListSection(output: string, headerPattern: RegExp): string[] {
+  const items: string[] = [];
+  const lines = output.split("\n");
+
+  let inSection = false;
+  for (const line of lines) {
+    if (headerPattern.test(line)) {
+      // If the header line itself contains a bullet (inline), capture it
+      inSection = true;
+      continue;
+    }
+
+    if (inSection) {
+      // Section ends at next markdown header or bold label
+      if (/^#{1,4}\s/.test(line) || /^\*\*[^*]+\*\*:/.test(line)) {
+        break;
+      }
+
+      const bulletMatch = line.match(/^\s*[-*]\s+(.+)/);
+      if (bulletMatch) {
+        const trimmed = bulletMatch[1].trim();
+        // Filter "None", "None found", "None — text", etc.
+        if (trimmed && !/^None\b/i.test(trimmed)) {
+          items.push(trimmed);
+        }
+      } else if (line.trim() === "") {
+        continue;
+      } else {
+        break;
+      }
+    }
+  }
+
+  return items;
 }
 
 /**
@@ -421,7 +452,7 @@ async function executePhase(
     // Agent "success" just means the execution completed — we need to parse the verdict
     if (phase === "qa" && agentResult.output) {
       const verdict = parseQaVerdict(agentResult.output);
-      const qaSummary = parseQaSummary(agentResult.output) ?? undefined;
+      const summary = parseQaSummary(agentResult.output) ?? undefined;
       if (
         verdict &&
         verdict !== "READY_FOR_MERGE" &&
@@ -435,7 +466,7 @@ async function executePhase(
           sessionId: agentResult.sessionId,
           output: agentResult.output,
           verdict,
-          qaSummary,
+          summary,
           ...tails,
         };
       }
@@ -446,7 +477,7 @@ async function executePhase(
         sessionId: agentResult.sessionId,
         output: agentResult.output,
         verdict: verdict ?? undefined,
-        qaSummary,
+        summary,
         ...tails,
       };
     }

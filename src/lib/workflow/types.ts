@@ -123,7 +123,7 @@ export interface PhaseResult {
   /** Parsed QA verdict (only for qa phase) */
   verdict?: QaVerdict;
   /** Condensed QA summary with AC coverage (#434) */
-  qaSummary?: QaSummary;
+  summary?: QaSummary;
   /** Last N lines of stderr captured from the agent process (#447) */
   stderrTail?: string[];
   /** Last N lines of stdout captured from the agent process (#447) */

@@ -114,7 +114,7 @@ describe("parseQaSummary", () => {
 | AC | Source | Description | Status | Notes |
 |----|--------|-------------|--------|-------|
 | AC-1 | Original | Expose verdict | MET | Works correctly |
-| AC-2 | Original | Add qaSummary | MET | Schema added |
+| AC-2 | Original | Add summary | MET | Schema added |
 | AC-3 | Original | Parse AC data | NOT_MET | Missing parser |
 
 **Coverage:** 2/3 AC items fully met`;
@@ -129,14 +129,8 @@ describe("parseQaSummary", () => {
   });
 
   it("parses compact AC table (4-column format)", () => {
-    const output = `### AC Coverage
-
-| AC | Description | Status | Notes |
-|----|-------------|--------|-------|
-| AC-1 | Feature works | MET | Done |
-| AC-2 | Tests pass | MET | All green |
-
-**Coverage:** 2/2 AC items fully met`;
+    const output = `| AC-1 | Feature works | MET | Done |
+| AC-2 | Tests pass | MET | All green |`;
 
     const result = parseQaSummary(output);
     expect(result).toEqual({
@@ -145,6 +139,54 @@ describe("parseQaSummary", () => {
       gaps: [],
       suggestions: [],
     });
+  });
+
+  it("parses 3-column table (from /fullsolve summaries)", () => {
+    const output = `| AC-1 | Record resolvedAt timestamp | MET |
+| AC-2 | Auto-prune on read | MET |
+| AC-3 | CLI flag | NOT_MET |`;
+
+    const result = parseQaSummary(output);
+    expect(result).toEqual({
+      acMet: 2,
+      acTotal: 3,
+      gaps: [],
+      suggestions: [],
+    });
+  });
+
+  it("handles emoji-prefixed statuses", () => {
+    const output = `| AC-1 | Feature works | ✅ MET | Good |
+| AC-2 | Error handling | ❌ NOT_MET | Missing |
+| AC-3 | Partial work | ⚠️ PARTIAL | Needs more |`;
+
+    const result = parseQaSummary(output);
+    expect(result).not.toBeNull();
+    expect(result!.acMet).toBe(1);
+    expect(result!.acTotal).toBe(3);
+  });
+
+  it("handles PARTIAL shorthand (counts as non-MET)", () => {
+    const output = `| AC-1 | Desc | MET | OK |
+| AC-2 | Desc | PARTIAL | Needs work |`;
+
+    const result = parseQaSummary(output);
+    expect(result).toEqual({
+      acMet: 1,
+      acTotal: 2,
+      gaps: [],
+      suggestions: [],
+    });
+  });
+
+  it("handles status with trailing text in same cell", () => {
+    const output = `| AC-1 | Plugin bundles MCP | ✅ MET — flat format | Verified |
+| AC-6 | Marketplace submission | ⚠️ PARTIAL — requires manual step | Noted |`;
+
+    const result = parseQaSummary(output);
+    expect(result).not.toBeNull();
+    expect(result!.acMet).toBe(1);
+    expect(result!.acTotal).toBe(2);
   });
 
   it("counts PARTIALLY_MET and PENDING as not met", () => {
@@ -157,6 +199,20 @@ describe("parseQaSummary", () => {
     expect(result).toEqual({
       acMet: 1,
       acTotal: 4,
+      gaps: [],
+      suggestions: [],
+    });
+  });
+
+  it("skips Derived ACs header row", () => {
+    const output = `| AC-1 | Original | Feature | MET | Done |
+| **Derived ACs** | | | | |
+| AC-6 | Derived (Error) | Handle errors | MET | OK |`;
+
+    const result = parseQaSummary(output);
+    expect(result).toEqual({
+      acMet: 2,
+      acTotal: 2,
       gaps: [],
       suggestions: [],
     });
@@ -184,39 +240,36 @@ describe("parseQaSummary", () => {
     });
   });
 
-  it("extracts suggestions from Suggestions section", () => {
-    const output = `| AC-1 | Desc | MET | Done |
-
-**Suggestions:**
-- Add SHA format regex validation
-- Consider caching parsed results`;
-
-    const result = parseQaSummary(output);
-    expect(result).toEqual({
-      acMet: 1,
-      acTotal: 1,
-      gaps: [],
-      suggestions: [
-        "Add SHA format regex validation",
-        "Consider caching parsed results",
-      ],
-    });
-  });
-
-  it("skips 'None' entries in Issues and Suggestions", () => {
+  it("filters all None variants from Issues and Suggestions", () => {
     const output = `| AC-1 | Original | Feature | MET | Done |
 
 **Issues:**
 - None
 
 **Suggestions:**
-- None`;
+- None found`;
 
     const result = parseQaSummary(output);
     expect(result).toEqual({
       acMet: 1,
       acTotal: 1,
       gaps: [],
+      suggestions: [],
+    });
+  });
+
+  it("filters 'None — description' but keeps 'Nonetheless...'", () => {
+    const output = `| AC-1 | Desc | MET | OK |
+
+**Issues:**
+- None — test file is focused
+- Nonetheless, check edge cases`;
+
+    const result = parseQaSummary(output);
+    expect(result).toEqual({
+      acMet: 1,
+      acTotal: 1,
+      gaps: ["Nonetheless, check edge cases"],
       suggestions: [],
     });
   });
@@ -229,7 +282,7 @@ describe("parseQaSummary", () => {
 | AC | Source | Description | Status | Notes |
 |----|--------|-------------|--------|-------|
 | AC-1 | Original | Expose verdict field | MET | Already stored, now exposed |
-| AC-2 | Original | Add qaSummary schema | MET | Schema added to run-log-schema.ts |
+| AC-2 | Original | Add summary schema | MET | Schema added to run-log-schema.ts |
 | AC-3 | Original | Parse AC data from output | MET | parseQaSummary function added |
 | AC-4 | Derived | Backward compatibility | MET | Old logs parse fine |
 
@@ -260,6 +313,30 @@ describe("parseQaSummary", () => {
       "Consider adding debug logging for parse failures",
       "Extract regex patterns to named constants",
     ]);
+  });
+
+  it("handles real QA output from issue #478", () => {
+    const output = `### AC Coverage
+
+| AC | Description | Status |
+|----|------------|--------|
+| AC-1 | Record resolvedAt timestamp | ✅ MET |
+| AC-2 | Auto-prune on read (in-memory TTL) | ✅ MET |
+| AC-3 | TTL configurable via settings | ✅ MET |
+
+**Issues:**
+- None found
+
+**Suggestions:**
+- None — implementation is clean`;
+
+    const result = parseQaSummary(output);
+    expect(result).toEqual({
+      acMet: 3,
+      acTotal: 3,
+      gaps: [],
+      suggestions: [],
+    });
   });
 });
 

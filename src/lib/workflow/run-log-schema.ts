@@ -160,7 +160,7 @@ export const PhaseLogSchema = z.object({
   /** Parsed QA verdict (only for qa phase) */
   verdict: QaVerdictSchema.optional(),
   /** Condensed QA summary with AC coverage (#434) */
-  qaSummary: QaSummarySchema.optional(),
+  summary: QaSummarySchema.optional(),
   /** Git commit SHA after phase completes (AC-2) */
   commitHash: z.string().optional(),
   /** Per-file diff statistics (AC-3) */
@@ -351,7 +351,7 @@ export function completePhaseLog(
       | "testsRun"
       | "testsPassed"
       | "verdict"
-      | "qaSummary"
+      | "summary"
       | "commitHash"
       | "fileDiffStats"
       | "cacheMetrics"

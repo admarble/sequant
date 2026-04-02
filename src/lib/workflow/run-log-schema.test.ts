@@ -124,29 +124,29 @@ describe("Zod Schemas", () => {
       ).toThrow();
     });
 
-    it("accepts phase log with qaSummary (#434)", () => {
-      const withQaSummary = {
+    it("accepts phase log with summary (#434)", () => {
+      const withSummary = {
         ...validPhaseLog,
         phase: "qa",
         verdict: "READY_FOR_MERGE",
-        qaSummary: {
+        summary: {
           acMet: 3,
           acTotal: 3,
           gaps: [],
           suggestions: ["Consider adding SHA format regex validation"],
         },
       };
-      expect(() => PhaseLogSchema.parse(withQaSummary)).not.toThrow();
+      expect(() => PhaseLogSchema.parse(withSummary)).not.toThrow();
     });
 
-    it("accepts phase log without qaSummary (backward compat, #434)", () => {
-      const withoutQaSummary = {
+    it("accepts phase log without summary (backward compat, #434)", () => {
+      const withoutSummary = {
         ...validPhaseLog,
         phase: "qa",
         verdict: "READY_FOR_MERGE",
       };
-      const parsed = PhaseLogSchema.parse(withoutQaSummary);
-      expect(parsed.qaSummary).toBeUndefined();
+      const parsed = PhaseLogSchema.parse(withoutSummary);
+      expect(parsed.summary).toBeUndefined();
     });
   });
 
