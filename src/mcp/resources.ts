@@ -44,10 +44,7 @@ export function registerResources(server: McpServer): void {
           lastUpdated: state.lastUpdated,
           lastSynced: state.lastSynced,
           issues: Object.fromEntries(
-            Object.entries(filteredIssues).map(([k, v]) => [
-              String(v.number),
-              v,
-            ]),
+            Object.values(filteredIssues).map((v) => [String(v.number), v]),
           ),
         };
         return {

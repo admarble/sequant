@@ -19,7 +19,6 @@ import {
   type ReconcileResult,
 } from "../lib/workflow/reconcile.js";
 import {
-  isTerminalStatus,
   type IssueState,
   type IssueStatus,
   type Phase,
@@ -313,7 +312,7 @@ export async function statusCommand(
   }
 
   // If --issues or --issue flag, focus on issue state
-  if (options.issues || options.issue !== undefined) {
+  if (options.issues || options.issue !== undefined || options.all) {
     await displayIssueState(options);
     return;
   }
