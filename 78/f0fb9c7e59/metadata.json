@@ -1,0 +1,34 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "78f0fb9c7e59",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "__tests__/integration/mcp-e2e.integration.test.ts",
+    "__tests__/integration/mcp-serve-multi-client.integration.test.ts",
+    "__tests__/integration/mcp-serve.integration.test.ts",
+    "src/commands/cli.integration.test.ts",
+    "src/commands/doctor.integration.test.ts",
+    "src/commands/state.test.ts",
+    "src/lib/workflow/state-utils.test.ts",
+    "src/mcp/tools/run.test.ts",
+    "vitest.config.ts",
+    "vitest.global-setup.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/78/f0fb9c7e59/0/metadata.json",
+      "transcript": "/78/f0fb9c7e59/0/full.jsonl",
+      "content_hash": "/78/f0fb9c7e59/0/content_hash.txt",
+      "prompt": "/78/f0fb9c7e59/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 113,
+    "cache_creation_tokens": 70038,
+    "cache_read_tokens": 4835850,
+    "output_tokens": 21532,
+    "api_call_count": 93
+  }
+}

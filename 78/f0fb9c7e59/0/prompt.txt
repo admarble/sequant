@@ -1,0 +1,57 @@
+whats left before the 2.0 launch
+
+---
+
+<task-notification>
+<task-id>b0pxsi10t</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-502/-Users-tony-Projects-sequant/d2c49ad5-88ab-41e8-b866-d80a6dc17b35/tasks/b0pxsi10t.output</output-file>
+<status>completed</status>
+<summary>Background command "Quick test status check" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+yes
+
+---
+
+2 then investigate the best practic for the tests
+
+---
+
+<task-notification>
+<task-id>bf11uc7m9</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-502/-Users-tony-Projects-sequant/d2c49ad5-88ab-41e8-b866-d80a6dc17b35/tasks/bf11uc7m9.output</output-file>
+<status>completed</status>
+<summary>Background command "Run tests serially to confirm clean pass" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b57ghlue5</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-502/-Users-tony-Projects-sequant/d2c49ad5-88ab-41e8-b866-d80a6dc17b35/tasks/b57ghlue5.output</output-file>
+<status>completed</status>
+<summary>Background command "Run tests serially (correct flag)" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+yes
+
+---
+
+proceed
+
+---
+
+<task-notification>
+<task-id>bgs4t6qjv</task-id>
+<tool-use-id>toolu_01AkpfMsn1NdCY1jpgC6inxZ</tool-use-id>
+<output-file>/private/tmp/claude-502/-Users-tony-Projects-sequant/d2c49ad5-88ab-41e8-b866-d80a6dc17b35/tasks/bgs4t6qjv.output</output-file>
+<status>completed</status>
+<summary>Background command "Full suite run 7" completed (exit code 0)</summary>
+</task-notification>
