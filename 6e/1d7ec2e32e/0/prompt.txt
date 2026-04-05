@@ -1,0 +1,1 @@
+We need an audit centered around agents use for sequant. We'll need some research for best practices in our desired use case. We'll need to review .entire logs for sequant and our local repos to see whats worked and doesnt
