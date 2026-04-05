@@ -1,0 +1,13 @@
+do we need further testing before the 2.0 release?
+
+---
+
+I've had a few sessions that claimed to fix the flaky tests. whats really going on?
+
+---
+
+is this good design and best practice in this scenario?
+
+---
+
+can you do it in this session or do we need a well designed issues?
