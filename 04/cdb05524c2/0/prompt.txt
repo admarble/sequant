@@ -1,0 +1,11 @@
+tony@Tambras-MacBook-Air workout % npm update sequant
+npm error Cannot read properties of null (reading 'matches')
+npm error A complete log of this run can be found in: /Users/tony/.npm/_logs/2026-04-05T16_40_28_236Z-debug-0.log
+
+---
+
+DO we need to address this for sequant users? How does it affect them?
+
+---
+
+My concern is that we say "npm" for everything especially on sequant.io. whats best practice for this?
