@@ -1,0 +1,36 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "00a98ce12944",
+  "session_id": "979301ee-0d4c-4fc4-a62f-fb85818c4947",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-06T06:01:01.96524Z",
+  "branch": "feature/488-quality-loop-retry-misclassification",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "CHANGELOG.md",
+    "src/lib/workflow/batch-executor.test.ts",
+    "src/lib/workflow/batch-executor.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "d43c3e42d92f",
+  "token_usage": {
+    "input_tokens": 87,
+    "cache_creation_tokens": 145017,
+    "cache_read_tokens": 6846134,
+    "output_tokens": 24545,
+    "api_call_count": 70
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-06T06:01:01.701324Z",
+    "agent_lines": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 1173,
+    "total_committed": 78,
+    "agent_percentage": 0
+  }
+}
