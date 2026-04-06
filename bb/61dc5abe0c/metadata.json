@@ -14,13 +14,19 @@
       "transcript": "/bb/61dc5abe0c/0/full.jsonl",
       "content_hash": "/bb/61dc5abe0c/0/content_hash.txt",
       "prompt": "/bb/61dc5abe0c/0/prompt.txt"
+    },
+    {
+      "metadata": "/bb/61dc5abe0c/1/metadata.json",
+      "transcript": "/bb/61dc5abe0c/1/full.jsonl",
+      "content_hash": "/bb/61dc5abe0c/1/content_hash.txt",
+      "prompt": "/bb/61dc5abe0c/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 26,
-    "cache_creation_tokens": 39667,
-    "cache_read_tokens": 812251,
-    "output_tokens": 7488,
-    "api_call_count": 20
+    "input_tokens": 30,
+    "cache_creation_tokens": 55194,
+    "cache_read_tokens": 847299,
+    "output_tokens": 9448,
+    "api_call_count": 22
   }
 }
