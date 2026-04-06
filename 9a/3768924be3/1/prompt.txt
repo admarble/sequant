@@ -1,0 +1,18 @@
+should we change pigeon holed language like this?\
+What Is Sequant
+Sequant is workflow automation for Claude Code. It turns GitHub issues into merge-ready pull requests through structured phases and quality gates.
+
+You write issues. Sequant plans, builds, tests, and reviews them — each step with guardrails that catch problems before they reach your codebase.
+
+---
+
+look at our 2.0 release for reference
+
+---
+
+is this old then?\
+https://sequant.io/docs/
+
+---
+
+yes
