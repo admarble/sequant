@@ -63,8 +63,10 @@ export type {
  * Build enriched prompt context for the /loop phase from a failed phase result (#488).
  * Passes QA verdict, failed ACs, and error directly so the /loop skill doesn't need
  * to reconstruct context from GitHub comments (which fails in subprocess).
+ *
+ * @internal Exported for testing only
  */
-function buildLoopContext(failedResult: PhaseResult): string {
+export function buildLoopContext(failedResult: PhaseResult): string {
   const parts: string[] = [`Previous phase "${failedResult.phase}" failed.`];
 
   if (failedResult.verdict) {
