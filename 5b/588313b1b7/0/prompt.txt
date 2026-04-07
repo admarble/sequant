@@ -1,0 +1,15 @@
+should updating this be part of our release skill or is there another best practice for making it dynamic?
+
+---
+
+option b
+
+---
+
+<task-notification>
+<task-id>b8a9zx89a</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-502/-Users-tony-Projects-sequant/26b2b792-6197-4ae0-838f-e47f9ec26679/tasks/b8a9zx89a.output</output-file>
+<status>completed</status>
+<summary>Background command "Run tests" completed (exit code 0)</summary>
+</task-notification>
