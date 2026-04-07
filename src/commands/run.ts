@@ -1065,7 +1065,7 @@ export async function runCommand(
 
         if (config.verbose) {
           console.log(
-            chalk.gray(`  Metrics: Metrics recorded to .sequant/metrics.json`),
+            chalk.gray(`  Metrics recorded to .sequant/metrics.json`),
           );
         }
       } catch (metricsError) {

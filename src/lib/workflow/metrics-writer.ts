@@ -165,7 +165,7 @@ export class MetricsWriter {
 
     if (this.verbose) {
       console.log(
-        `Metrics: Recorded run: ${run.id.slice(0, 8)}... (${run.outcome})`,
+        `Metrics recorded: ${run.id.slice(0, 8)}... (${run.outcome})`,
       );
     }
 
@@ -216,7 +216,7 @@ export class MetricsWriter {
       this.cachedMetrics = null;
 
       if (this.verbose) {
-        console.log(`Metrics: Metrics deleted: ${this.metricsPath}`);
+        console.log(`Metrics deleted: ${this.metricsPath}`);
       }
     }
   }
