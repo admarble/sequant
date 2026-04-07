@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Worktree isolation for parallel agent groups** — each parallel `/exec` agent gets its own sub-worktree, eliminating file conflicts structurally (#485)
+  - New `agents.isolateParallel` setting (default: `false`, opt-in for v1)
+  - New `--isolate-parallel` CLI flag for `sequant run`
+  - Sub-worktree creation with node_modules symlink (~550ms per agent)
+  - Merge-back via `git merge --no-ff` with conflict detection and reporting
+  - Automatic cleanup of sub-worktrees after merge-back or on failure
+  - Orphaned sub-worktree cleanup in `scripts/cleanup-worktree.sh`
+
 ### Changed
 
 - Upgrade TypeScript from 5.x to 6.0, ESLint from 9.x to 10.x, and typescript-eslint to 8.58.0 (#490)

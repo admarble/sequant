@@ -1507,9 +1507,43 @@ Look in the issue comments (especially from `/spec`) for:
 
 **If Parallel Groups exist:**
 
+0. **Check isolation mode (AC-20):**
+   ```bash
+   # Check CLI flag or setting
+   ISOLATE=$(cat .sequant/settings.json 2>/dev/null | grep -o '"isolateParallel":[^,}]*' | grep -o 'true\|false' || echo "false")
+   echo "Parallel isolation mode: ${ISOLATE}"
+   ```
+
+   **If isolation is enabled (`isolateParallel: true` or `--isolate-parallel`):**
+   - Create sub-worktrees BEFORE spawning agents (see step 1b below)
+   - Each agent gets its own working directory
+   - After agents complete, merge changes back (see step 5b below)
+
+   **If isolation is disabled (default):**
+   - All agents share the issue worktree (current behavior)
+   - Skip steps 1b and 5b
+
 1. **Create group marker before spawning agents:**
    ```bash
    touch /tmp/claude-parallel-group-1.marker
+   ```
+
+1b. **Create sub-worktrees (isolation mode only):**
+   ```bash
+   # For each agent in the group, create an isolated sub-worktree
+   WORKTREE_PATH="[issue worktree path]"
+   for i in 0 1 2; do  # adjust for number of agents
+     BRANCH="exec-agent-[issue]-${i}"
+     AGENT_PATH="${WORKTREE_PATH}/.exec-agents/agent-${i}"
+     mkdir -p "${WORKTREE_PATH}/.exec-agents"
+     git worktree add "${AGENT_PATH}" -b "${BRANCH}"
+     # Symlink node_modules for speed (~13ms vs ~30s npm install)
+     ln -sf "${WORKTREE_PATH}/node_modules" "${AGENT_PATH}/node_modules"
+     # Copy env files
+     for f in .env .env.local .env.development; do
+       [ -f "${WORKTREE_PATH}/${f}" ] && cp "${WORKTREE_PATH}/${f}" "${AGENT_PATH}/${f}"
+     done
+   done
    ```
 
 2. **Determine model for each task:**
@@ -1522,14 +1556,22 @@ Look in the issue comments (especially from `/spec`) for:
    3. Default to `haiku` if no annotation
 
 3. **Spawn parallel agents with the appropriate model in a SINGLE message:**
+
+   **Working directory:** Use the sub-worktree path when isolation is enabled,
+   otherwise use the issue worktree path.
+
    ```
-   Task(subagent_type="general-purpose",
+   # Isolation mode: each agent gets its own sub-worktree
+   Agent(subagent_type="sequant-implementer",
         model="haiku",
         run_in_background=true,
         prompt="Implement: Create types/metrics.ts with MetricEvent interface.
-                Working directory: [worktree path]
-                After completion, report what files were created/modified.")
+                Working directory: [sub-worktree path or issue worktree path]
+                After completion, commit your changes and report what files were created/modified.")
    ```
+
+   **Important (isolation mode):** Tell agents to commit their changes in the
+   sub-worktree. This is required for merge-back to work.
 
 4. **Wait for all agents to complete:**
    ```
@@ -1541,6 +1583,46 @@ Look in the issue comments (especially from `/spec`) for:
    rm /tmp/claude-parallel-group-1.marker
    npx prettier --write [files modified by agents]
    ```
+
+5b. **Merge back sub-worktrees (isolation mode only):**
+   ```bash
+   WORKTREE_PATH="[issue worktree path]"
+
+   # Merge each agent's branch back into the issue branch
+   for i in 0 1 2; do
+     BRANCH="exec-agent-[issue]-${i}"
+     AGENT_PATH="${WORKTREE_PATH}/.exec-agents/agent-${i}"
+
+     # Check if agent has commits
+     CHANGES=$(git -C "${WORKTREE_PATH}" log "${BRANCH}" --not HEAD --oneline 2>/dev/null || true)
+     if [ -z "$CHANGES" ]; then
+       echo "Agent ${i}: no changes to merge"
+       continue
+     fi
+
+     # Attempt merge
+     if git -C "${WORKTREE_PATH}" merge --no-ff "${BRANCH}" -m "Merge exec-agent-${i}"; then
+       echo "Agent ${i}: merged successfully"
+     else
+       # Conflict detected — abort and report
+       CONFLICTS=$(git -C "${WORKTREE_PATH}" diff --name-only --diff-filter=U || true)
+       echo "Agent ${i}: CONFLICT in: ${CONFLICTS}"
+       git -C "${WORKTREE_PATH}" merge --abort
+       echo "⚠️ Agent ${i} changes not merged — flagged for next iteration"
+     fi
+
+     # Clean up sub-worktree
+     git worktree remove "${AGENT_PATH}" --force 2>/dev/null || true
+     git branch -D "${BRANCH}" 2>/dev/null || true
+   done
+
+   # Remove .exec-agents directory
+   rmdir "${WORKTREE_PATH}/.exec-agents" 2>/dev/null || true
+   ```
+
+   **If all merges succeed:** Proceed normally.
+   **If conflicts occur:** Report conflicting files. The next `/exec` iteration
+   can resolve them. Non-conflicting agents' changes are preserved.
 
 6. **Proceed to next group or sequential tasks**
 
@@ -1680,6 +1762,22 @@ When retrying a failed agent, use the error recovery template from [prompt-templ
 ## Implementation Quality Standards
 
 Before each commit, self-check against these standards:
+
+### 0. Branch Verification
+
+**CRITICAL:** Verify you are on the correct feature branch, not main/master.
+
+```bash
+CURRENT_BRANCH=$(git branch --show-current)
+if [[ "$CURRENT_BRANCH" == "main" || "$CURRENT_BRANCH" == "master" ]]; then
+  echo "❌ ERROR: On $CURRENT_BRANCH — do NOT commit here."
+  echo "   Navigate to the feature worktree or create a branch first."
+  exit 1
+fi
+echo "✓ On branch: $CURRENT_BRANCH"
+```
+
+**Why:** Sub-agents and shell context resets can silently switch the working directory back to main. Without this check, commits land on main instead of the feature branch.
 
 ### 1. Scope Check
 Does this change directly address an AC item?

@@ -253,6 +253,12 @@ export interface RunOptions {
    * Default: "claude-code"
    */
   agent?: string;
+  /**
+   * Isolate parallel agent groups in separate worktrees.
+   * When true, each agent in a parallel group gets its own sub-worktree.
+   * Resolution priority: CLI flag → settings.agents.isolateParallel → false
+   */
+  isolateParallel?: boolean;
 }
 
 /**

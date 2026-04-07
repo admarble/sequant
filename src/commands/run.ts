@@ -264,6 +264,9 @@ export async function runCommand(
     maxIterations:
       normalizedOptions.maxIterations ?? settings.run.maxIterations,
     noSmartTests: normalizedOptions.noSmartTests ?? !settings.run.smartTests,
+    // Agent settings (from agents section, not run section)
+    isolateParallel:
+      normalizedOptions.isolateParallel ?? settings.agents.isolateParallel,
     // Env overrides
     ...envConfig,
     // CLI explicit options override all
