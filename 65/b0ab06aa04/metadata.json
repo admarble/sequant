@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "65b0ab06aa04",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 6,
+  "files_touched": [
+    ".claude/skills/release/SKILL.md",
+    "src/lib/workflow/platforms/github.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/65/b0ab06aa04/0/metadata.json",
+      "transcript": "/65/b0ab06aa04/0/full.jsonl",
+      "content_hash": "/65/b0ab06aa04/0/content_hash.txt",
+      "prompt": "/65/b0ab06aa04/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2103,
+    "cache_creation_tokens": 92573,
+    "cache_read_tokens": 3670334,
+    "output_tokens": 13908,
+    "api_call_count": 71
+  }
+}

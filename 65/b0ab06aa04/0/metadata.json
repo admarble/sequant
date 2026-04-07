@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "65b0ab06aa04",
+  "session_id": "26b2b792-6197-4ae0-838f-e47f9ec26679",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-07T14:32:06.85224Z",
+  "branch": "main",
+  "checkpoints_count": 6,
+  "files_touched": [
+    ".claude/skills/release/SKILL.md",
+    "src/lib/workflow/platforms/github.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "c6362a150531",
+  "token_usage": {
+    "input_tokens": 2103,
+    "cache_creation_tokens": 92573,
+    "cache_read_tokens": 3670334,
+    "output_tokens": 13908,
+    "api_call_count": 71
+  },
+  "session_metrics": {
+    "turn_count": 14
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-07T14:32:06.498577Z",
+    "agent_lines": 7,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 7,
+    "agent_percentage": 100
+  }
+}
