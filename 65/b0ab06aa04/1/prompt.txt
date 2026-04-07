@@ -1,0 +1,5 @@
+fullsolve 495
+
+---
+
+proceed
