@@ -1,0 +1,30 @@
+Is this a sequant issue or repo specific edge case?
+
+---
+
+Is this a sequant issue or repo specific edge case?\
+https://github.com/admarble/workout-tracker/issues/165
+
+---
+
+yes
+
+---
+
+can this be done in this session or should we create a issue?
+
+---
+
+yes
+
+---
+
+proceed
+
+---
+
+yes
+
+---
+
+yes
