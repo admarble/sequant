@@ -24,7 +24,3 @@ proceed
 ---
 
 yes
-
----
-
-yes
