@@ -1,0 +1,1 @@
+assume the role of prompt engineer. can you evaluate the spec skill? Look at recent .entire logs here, sequant-landing, workout and matcha-maps. Are there any optimizations we could make that would make the most impact portable to all sequant users? we need to think about all of our supported platforms and plugin and mcp users. are we efficient
