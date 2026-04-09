@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Configuration schema validation** — Zod schema for `.sequant/settings.json` with clear warnings for misspelled keys and type mismatches (#507)
+- **Structured error types** — `SequantError` base class with 6 typed subclasses (`ApiError`, `BuildError`, `TimeoutError`, etc.) replacing string-based error classification (#507)
+
 ## [2.1.1] - 2026-04-07
 
 ### Fixed
