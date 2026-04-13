@@ -6,7 +6,6 @@ import chalk from "chalk";
 import { diffLines } from "diff";
 import inquirer from "inquirer";
 import { join, dirname } from "path";
-import { fileURLToPath } from "url";
 import { readdir } from "fs/promises";
 import { ui, colors } from "../lib/cli-ui.js";
 import {
@@ -681,15 +680,8 @@ async function upgradeSkills(): Promise<void> {
   }
 
   // Resolve the package's templates/skills directory
-  const __dirname = dirname(fileURLToPath(import.meta.url));
-  const templateSkillsDir = join(
-    __dirname,
-    "..",
-    "..",
-    "..",
-    "templates",
-    "skills",
-  );
+  const { getTemplatesDir } = await import("../lib/templates.js");
+  const templateSkillsDir = join(getTemplatesDir(), "skills");
 
   // Collect all files from both directories
   const changes: { path: string; installed: string; template: string }[] = [];
