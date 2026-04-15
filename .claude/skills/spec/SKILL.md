@@ -2,9 +2,9 @@
 name: spec
 description: "Plan review vs Acceptance Criteria for a single GitHub issue, plus issue comment draft."
 license: MIT
-version: "2.1"
 metadata:
   author: sequant
+  version: "2.1"
 allowed-tools:
   - Bash(npm test:*)
   - Bash(gh issue view:*)
