@@ -1,0 +1,9 @@
+fullsolve 534
+
+---
+
+any gaps?
+
+---
+
+Fix gap 1. create a comprehensive follow up issue for gap 2
