@@ -1070,6 +1070,19 @@ describe("resolveBaseRef", () => {
     mockExecSync.mockReturnValueOnce(Buffer.from("\n"));
     expect(resolveBaseRef("/tmp/wt")).toBe("origin/main");
   });
+
+  it("falls back to origin/main when the recorded value contains shell metacharacters", () => {
+    // The recorded base is interpolated into a shell-executed git command;
+    // reject anything that could alter the shell parse.
+    mockExecSync.mockReturnValueOnce(Buffer.from("feature/537-foo\n"));
+    mockExecSync.mockReturnValueOnce(Buffer.from("main; rm -rf /\n"));
+    expect(resolveBaseRef("/tmp/wt")).toBe("origin/main");
+  });
+
+  it("falls back to origin/main when the branch name contains shell metacharacters", () => {
+    mockExecSync.mockReturnValueOnce(Buffer.from("evil;echo hacked\n"));
+    expect(resolveBaseRef("/tmp/wt")).toBe("origin/main");
+  });
 });
 
 describe("hasExecChanges", () => {

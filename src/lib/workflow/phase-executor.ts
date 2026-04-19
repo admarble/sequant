@@ -268,6 +268,11 @@ export function formatDuration(seconds: number): string {
  */
 export function resolveBaseRef(cwd: string): string {
   const fallback = "origin/main";
+  // Conservative subset of refname-legal characters. The resolved value is
+  // interpolated into a shell-executed command below, and the recorded value
+  // originates from the `--base` CLI flag (user input). Reject anything that
+  // could alter the shell parse or the git command shape — fall back to main.
+  const SAFE_REF = /^[A-Za-z0-9._/-]+$/;
   let branch: string;
   try {
     branch = execSync("git rev-parse --abbrev-ref HEAD", { cwd, stdio: "pipe" })
@@ -276,7 +281,7 @@ export function resolveBaseRef(cwd: string): string {
   } catch {
     return fallback;
   }
-  if (!branch || branch === "HEAD") return fallback;
+  if (!branch || branch === "HEAD" || !SAFE_REF.test(branch)) return fallback;
   let recorded: string;
   try {
     recorded = execSync(`git config --get branch.${branch}.sequantBase`, {
@@ -288,7 +293,7 @@ export function resolveBaseRef(cwd: string): string {
   } catch {
     return fallback;
   }
-  if (!recorded) return fallback;
+  if (!recorded || !SAFE_REF.test(recorded)) return fallback;
   return recorded.startsWith("origin/") ? recorded : `origin/${recorded}`;
 }
 
