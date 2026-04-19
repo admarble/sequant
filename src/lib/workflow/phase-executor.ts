@@ -9,7 +9,7 @@
  */
 
 import chalk from "chalk";
-import { execSync } from "child_process";
+import { execSync, execFileSync } from "child_process";
 import { ShutdownManager } from "../shutdown.js";
 import { PhaseSpinner } from "../phase-spinner.js";
 import { Phase, ExecutionConfig, PhaseResult, QaVerdict } from "./types.js";
@@ -264,27 +264,20 @@ export function formatDuration(seconds: number): string {
  * for worktrees that predate this change or are managed outside
  * `new-feature.sh`.
  *
+ * Uses `execFileSync` (not `execSync`) so argv is passed directly to
+ * `execve` without shell interpretation — the recorded value originates
+ * from the user-supplied `--base` CLI flag, and shell-interpolating it
+ * would open a shell-injection vector. With `execFileSync`, a malicious
+ * value is at worst treated as an invalid revspec by git (triggering
+ * the fail-open path), never executed as shell.
+ *
  * @internal Exported for testing only.
  */
 export function resolveBaseRef(cwd: string): string {
   const fallback = "origin/main";
-  // Conservative subset of refname-legal characters. The resolved value is
-  // interpolated into a shell-executed command below, and the recorded value
-  // originates from the `--base` CLI flag (user input). Reject anything that
-  // could alter the shell parse or the git command shape — fall back to main.
-  const SAFE_REF = /^[A-Za-z0-9._/-]+$/;
   let branch: string;
   try {
-    branch = execSync("git rev-parse --abbrev-ref HEAD", { cwd, stdio: "pipe" })
-      .toString()
-      .trim();
-  } catch {
-    return fallback;
-  }
-  if (!branch || branch === "HEAD" || !SAFE_REF.test(branch)) return fallback;
-  let recorded: string;
-  try {
-    recorded = execSync(`git config --get branch.${branch}.sequantBase`, {
+    branch = execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
       cwd,
       stdio: "pipe",
     })
@@ -293,7 +286,22 @@ export function resolveBaseRef(cwd: string): string {
   } catch {
     return fallback;
   }
-  if (!recorded || !SAFE_REF.test(recorded)) return fallback;
+  // Guard against multi-line output (paranoid — should never happen) and
+  // the detached-HEAD case where we have no recorded base to look up.
+  if (!branch || branch === "HEAD" || branch.includes("\n")) return fallback;
+  let recorded: string;
+  try {
+    recorded = execFileSync(
+      "git",
+      ["config", "--get", `branch.${branch}.sequantBase`],
+      { cwd, stdio: "pipe" },
+    )
+      .toString()
+      .trim();
+  } catch {
+    return fallback;
+  }
+  if (!recorded || recorded.includes("\n")) return fallback;
   return recorded.startsWith("origin/") ? recorded : `origin/${recorded}`;
 }
 
@@ -321,10 +329,11 @@ export function hasExecChanges(cwd: string): boolean {
   const baseRef = resolveBaseRef(cwd);
   let commitsAhead: boolean;
   try {
-    const count = execSync(`git rev-list --count ${baseRef}..HEAD`, {
-      cwd,
-      stdio: "pipe",
-    })
+    const count = execFileSync(
+      "git",
+      ["rev-list", "--count", `${baseRef}..HEAD`],
+      { cwd, stdio: "pipe" },
+    )
       .toString()
       .trim();
     commitsAhead = Number.parseInt(count, 10) > 0;
@@ -333,7 +342,10 @@ export function hasExecChanges(cwd: string): boolean {
   }
   if (commitsAhead) return true;
   try {
-    const porcelain = execSync("git status --porcelain", { cwd, stdio: "pipe" })
+    const porcelain = execFileSync("git", ["status", "--porcelain"], {
+      cwd,
+      stdio: "pipe",
+    })
       .toString()
       .trim();
     return porcelain.length > 0;
