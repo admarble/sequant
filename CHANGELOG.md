@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **QA short-circuit on unchanged commit** — `/qa` now skips the full sub-agent pipeline when the latest `qa:completed` phase marker's `commitSHA` matches current `HEAD`. Bypass with `/qa <N> --force` or `/qa <N> --no-cache`. Failed prior runs (status=`failed`) never short-circuit. (#530)
+
 ## [2.2.0] - 2026-04-18
 
 ### Added
