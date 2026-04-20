@@ -107,8 +107,10 @@ COMMIT_SHA=$(git rev-parse HEAD)
 ```
 
 ```markdown
-<!-- SEQUANT_PHASE: {"phase":"qa","status":"completed","timestamp":"<ISO-8601>","commitSHA":"<HEAD-SHA>"} -->
+<!-- SEQUANT_PHASE: {"phase":"qa","status":"completed","timestamp":"<ISO-8601>","commitSHA":"<HEAD-SHA>","verdict":"<READY_FOR_MERGE|AC_MET_BUT_NOT_A_PLUS|NEEDS_VERIFICATION>"} -->
 ```
+
+**Note:** The `verdict` field is required on `status:"completed"` markers so the Phase 0a short-circuit can surface the prior verdict without re-reading the comment body. Older markers without this field are still accepted — Phase 0a falls back to `(see prior QA comment)`.
 
 If QA determines AC_NOT_MET, emit:
 ```markdown
@@ -521,12 +523,13 @@ latest_qa_marker=$(gh issue view <issue-number> --json comments --jq '[.comments
   grep -o '<!-- SEQUANT_PHASE: {[^}]*"phase":"qa"[^}]*} -->' | \
   tail -1 || true)
 
-# 3. Extract status and commitSHA from the marker
+# 3. Extract status, commitSHA, verdict, and timestamp from the marker
 if [[ -n "$latest_qa_marker" ]]; then
   marker_json=$(echo "$latest_qa_marker" | grep -o '{[^}]*}')
   marker_status=$(echo "$marker_json" | jq -r '.status // empty' 2>/dev/null || true)
   marker_sha=$(echo "$marker_json" | jq -r '.commitSHA // empty' 2>/dev/null || true)
   marker_timestamp=$(echo "$marker_json" | jq -r '.timestamp // empty' 2>/dev/null || true)
+  marker_verdict=$(echo "$marker_json" | jq -r '.verdict // empty' 2>/dev/null || true)
 fi
 ```
 
@@ -548,6 +551,8 @@ fi
 
 **Short-Circuit Output Template:**
 
+Populate `**Prior Verdict:**` from `$marker_verdict` when non-empty. When empty (legacy marker without the field), substitute the literal string `(see prior QA comment)`.
+
 ```markdown
 ## QA Review for Issue #<N>
 
@@ -556,7 +561,7 @@ fi
 QA already completed at commit `<SHA>` on <timestamp> — no changes since last run.
 Current HEAD (`<current_sha>`) matches the previously reviewed commit.
 
-**Prior Verdict:** [READY_FOR_MERGE / AC_MET_BUT_NOT_A_PLUS / etc.]
+**Prior Verdict:** <$marker_verdict OR "(see prior QA comment)" if empty>
 
 To force a full re-run, use: `/qa <N> --force` or `/qa <N> --no-cache`
 
@@ -565,7 +570,14 @@ To force a full re-run, use: `/qa <N> --force` or `/qa <N> --no-cache`
 *QA short-circuited: prior run at same SHA is still valid*
 ```
 
-**If the prior verdict was recorded in the marker** (e.g., as an `error` field for failed runs), include it. Otherwise, note that the prior QA comment on the issue contains the full details.
+**Verdict field handling:**
+
+| `$marker_verdict` | Action |
+|-------------------|--------|
+| Non-empty (new markers) | Emit literally: `**Prior Verdict:** READY_FOR_MERGE` (etc.) |
+| Empty (legacy markers) | Emit: `**Prior Verdict:** (see prior QA comment)` — the prior comment body contains the full verdict |
+
+The short-circuit itself still triggers in both cases — only the displayed verdict text differs.
 
 ---
 
