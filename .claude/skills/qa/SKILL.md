@@ -519,7 +519,10 @@ fi
 current_sha=$(git rev-parse HEAD)
 
 # 2. Fetch the latest qa:completed or qa:failed phase marker from issue comments
-latest_qa_marker=$(gh issue view <issue-number> --json comments --jq '[.comments[].body]' | \
+# NOTE: Use `.comments[].body` (NOT `[.comments[].body]`). The array form JSON-encodes
+# each body, escaping internal quotes (`"phase":"qa"` → `\"phase\":\"qa\"`) and `<` →
+# `\u003c`, which defeats the grep pattern below. The streaming form outputs raw bodies.
+latest_qa_marker=$(gh issue view <issue-number> --json comments --jq '.comments[].body' | \
   grep -o '<!-- SEQUANT_PHASE: {[^}]*"phase":"qa"[^}]*} -->' | \
   tail -1 || true)
 
