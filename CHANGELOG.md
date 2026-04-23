@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`/assess` default: spec phase ON for all workflows** — the "skip spec when (bug/docs label AND no domain labels)" rule has been removed. Spec is now always included unless a prior `spec` phase marker already exists on the issue. Real-world batches showed that bug and docs issues frequently contain design decisions (scope boundaries, edge cases, test-strategy shifts) that benefit from a spec pass, and post-#515 the per-phase cost is small enough to justify universal inclusion. The Labels → Workflow table, Run Column Symbols, and all batch/single examples have been updated to reflect the new default. (#533)
+
 ### Added
 
 - **Experimental multi-issue TUI dashboard** — `sequant run --experimental-tui` renders a live, ink-based dashboard with one box per issue (header / context / activity cells), rotating border colors, per-phase progression row, and a 1 Hz elapsed timer. Auto-falls back to the existing linear output when stdout is not a TTY (#540)
