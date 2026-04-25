@@ -1,0 +1,49 @@
+qa 529 531
+
+---
+
+can you veerify?
+
+---
+
+any gaps?
+
+---
+
+could it be fixed in this session?
+
+---
+
+yes
+
+---
+
+can you fix the 531 gaps?
+
+---
+
+any other gaps?
+
+---
+
+yes
+
+---
+
+any other gaps?
+
+---
+
+yes
+
+---
+
+lets merge
+
+---
+
+yes
+
+---
+
+reflect
