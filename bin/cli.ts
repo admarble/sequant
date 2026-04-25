@@ -11,7 +11,11 @@ import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 import { readFileSync } from "fs";
 import { initCommand } from "../src/commands/init.js";
-import { isLocalNodeModulesInstall } from "../src/lib/version-check.js";
+import {
+  getInstallRoot,
+  isHomeStrayInstall,
+  isLocalNodeModulesInstall,
+} from "../src/lib/version-check.js";
 import { configureUI, banner } from "../src/lib/cli-ui.js";
 import { isCI, isStdoutTTY } from "../src/lib/tty.js";
 import {
@@ -74,17 +78,33 @@ configureUI({
   minimal: process.env.SEQUANT_MINIMAL === "1",
 });
 
-// Warn if running from local node_modules (not npx cache or global)
-// This helps users who accidentally have a stale local install
-if (!process.argv.includes("--quiet") && isLocalNodeModulesInstall()) {
-  const pmCommands = getPackageManagerCommands(detectPackageManagerSync());
-  console.warn(
-    chalk.yellow(
-      "!  Running sequant from local node_modules\n" +
-        "   For latest version: npx sequant@latest\n" +
-        `   To remove local: ${pmCommands.removePkg} sequant\n`,
-    ),
-  );
+// Warn if running from a problematic install location.
+// The home-stray case ($HOME/node_modules/sequant) gets a distinct warning
+// because it pollutes resolution for every subdirectory of $HOME, which the
+// generic "local node_modules" message doesn't communicate.
+if (!process.argv.includes("--quiet")) {
+  if (isHomeStrayInstall()) {
+    const installRoot = getInstallRoot();
+    console.warn(
+      chalk.yellow(
+        `!  Sequant is running from ${installRoot} — this pollutes\n` +
+          `   resolution for every subdirectory of your home directory.\n\n` +
+          `   If accidental (usually is — one stray \`npm install sequant\` from ~ does it):\n` +
+          `       remove ${installRoot?.replace(/\/sequant$/, "") ?? "$HOME/node_modules"}\n` +
+          `       remove $HOME/package.json and $HOME/package-lock.json\n\n` +
+          `   If intentional: use \`npm install -g sequant\` or the Claude Code plugin.\n`,
+      ),
+    );
+  } else if (isLocalNodeModulesInstall()) {
+    const pmCommands = getPackageManagerCommands(detectPackageManagerSync());
+    console.warn(
+      chalk.yellow(
+        "!  Running sequant from local node_modules\n" +
+          "   For latest version: npx sequant@latest\n" +
+          `   To remove local: ${pmCommands.removePkg} sequant\n`,
+      ),
+    );
+  }
 }
 
 program

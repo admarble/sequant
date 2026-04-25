@@ -6,6 +6,7 @@
  */
 
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
 import {
@@ -97,6 +98,55 @@ export function isLocalNodeModulesInstall(): boolean {
     normalizedPath.includes("\\.npm\\_npx\\");
 
   return inNodeModules && !inNpxCache;
+}
+
+/**
+ * Walk up from the given directory to find the directory containing
+ * sequant's package.json. Returns null if not found.
+ *
+ * Mirrors the walk-up in getCurrentVersion() so callers can reason about
+ * the install root (the directory that actually holds sequant's package.json),
+ * which is needed to distinguish between e.g. project-local installs and the
+ * pathological $HOME/node_modules/sequant case.
+ */
+export function getInstallRoot(startDir: string = __dirname): string | null {
+  let dir = startDir;
+  while (dir !== path.dirname(dir)) {
+    const candidate = path.resolve(dir, "package.json");
+    try {
+      const content = fs.readFileSync(candidate, "utf8");
+      const pkg = JSON.parse(content);
+      if (pkg.name === "sequant") {
+        return dir;
+      }
+    } catch {
+      // Not found, continue searching
+    }
+    dir = path.dirname(dir);
+  }
+  return null;
+}
+
+/**
+ * Check whether sequant is installed in $HOME/node_modules/sequant exactly.
+ *
+ * This is a known footgun: a stray `npm install sequant` run from $HOME
+ * leaves a package.json + node_modules/ at the home root, and Node's module
+ * resolution then walks up from any home subdirectory to that stale install
+ * before falling back to the npx cache. The result is that `npx sequant`
+ * silently runs the home-stray copy instead of the latest version.
+ *
+ * Project-local installs (anywhere else under node_modules/), global installs,
+ * and the npx cache all return false.
+ *
+ * `installRoot` is accepted as a parameter for testability.
+ */
+export function isHomeStrayInstall(
+  installRoot: string | null = getInstallRoot(),
+): boolean {
+  if (!installRoot) return false;
+  const expected = path.join(os.homedir(), "node_modules", "sequant");
+  return path.resolve(installRoot) === path.resolve(expected);
 }
 
 /**

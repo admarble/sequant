@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Stray `$HOME/node_modules/sequant` detection** — CLI startup now resolves its own install root and emits a distinct warning when sequant is running from `$HOME/node_modules/sequant` exactly. The warning names the resolved path and lists the cleanup commands (`remove $HOME/node_modules`, `remove $HOME/package.json` and `package-lock.json`) plus the legitimate alternatives (`npm install -g sequant`, Claude Code plugin). Project-local installs continue to receive the existing generic warning unchanged; global and npx-cache installs are not flagged. New exports: `getInstallRoot()`, `isHomeStrayInstall()` in `src/lib/version-check.ts`. (#539)
+
 ### Changed
 
 - **/docs skill classifier** routes infra/scaffold paths (`package.json`, `*.config.*`, `.env.example`, layout/page files, middleware) to the `developer-tool` template instead of falling through to `admin`. Default fallback is now `developer-tool`; `admin` template is opt-in via `/admin/` path only (#531)

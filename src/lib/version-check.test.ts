@@ -16,6 +16,21 @@ vi.mock("fs", () => ({
   existsSync: mockExistsSync,
 }));
 
+// Mock os.homedir() so isHomeStrayInstall can be tested deterministically.
+// process.env.HOME is set in beforeEach, but os.homedir() reads the OS-level
+// home on macOS regardless, so we mock the module to honor the env value.
+vi.mock("os", async () => {
+  const actual = await vi.importActual<typeof import("os")>("os");
+  return {
+    ...actual,
+    default: {
+      ...actual,
+      homedir: () => process.env.HOME || "/home/user",
+    },
+    homedir: () => process.env.HOME || "/home/user",
+  };
+});
+
 // Mock global fetch
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
@@ -31,6 +46,7 @@ import {
   isCacheFresh,
   getCurrentVersion,
   isLocalNodeModulesInstall,
+  isHomeStrayInstall,
   fetchLatestVersion,
   checkVersionThorough,
   checkVersionCached,
@@ -133,6 +149,37 @@ describe("version-check utilities", () => {
       // Just verify it returns a boolean without throwing
       const result = isLocalNodeModulesInstall();
       expect(typeof result).toBe("boolean");
+    });
+  });
+
+  describe("isHomeStrayInstall", () => {
+    // process.env.HOME is set to "/home/user" in beforeEach, so
+    // os.homedir() resolves to "/home/user" inside the function.
+
+    it("returns true when install root equals $HOME/node_modules/sequant", () => {
+      expect(isHomeStrayInstall("/home/user/node_modules/sequant")).toBe(true);
+    });
+
+    it("returns false for project-local installs", () => {
+      expect(
+        isHomeStrayInstall("/home/user/projects/foo/node_modules/sequant"),
+      ).toBe(false);
+    });
+
+    it("returns false for global installs", () => {
+      expect(isHomeStrayInstall("/usr/local/lib/node_modules/sequant")).toBe(
+        false,
+      );
+    });
+
+    it("returns false for npx cache installs", () => {
+      expect(
+        isHomeStrayInstall("/home/user/.npm/_npx/abc123/node_modules/sequant"),
+      ).toBe(false);
+    });
+
+    it("returns false when install root cannot be resolved", () => {
+      expect(isHomeStrayInstall(null)).toBe(false);
     });
   });
 
