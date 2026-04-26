@@ -12,6 +12,7 @@ import { dirname, resolve } from "path";
 import { readFileSync } from "fs";
 import { initCommand } from "../src/commands/init.js";
 import {
+  buildHomeStrayWarning,
   getInstallRoot,
   isHomeStrayInstall,
   isLocalNodeModulesInstall,
@@ -81,20 +82,12 @@ configureUI({
 // Warn if running from a problematic install location.
 // The home-stray case ($HOME/node_modules/sequant) gets a distinct warning
 // because it pollutes resolution for every subdirectory of $HOME, which the
-// generic "local node_modules" message doesn't communicate.
+// generic "local node_modules" message doesn't communicate. Resolve the
+// install root once and pass it to both predicates to avoid a second walk.
 if (!process.argv.includes("--quiet")) {
-  if (isHomeStrayInstall()) {
-    const installRoot = getInstallRoot();
-    console.warn(
-      chalk.yellow(
-        `!  Sequant is running from ${installRoot} — this pollutes\n` +
-          `   resolution for every subdirectory of your home directory.\n\n` +
-          `   If accidental (usually is — one stray \`npm install sequant\` from ~ does it):\n` +
-          `       remove ${installRoot?.replace(/\/sequant$/, "") ?? "$HOME/node_modules"}\n` +
-          `       remove $HOME/package.json and $HOME/package-lock.json\n\n` +
-          `   If intentional: use \`npm install -g sequant\` or the Claude Code plugin.\n`,
-      ),
-    );
+  const installRoot = getInstallRoot();
+  if (isHomeStrayInstall(installRoot)) {
+    console.warn(chalk.yellow(buildHomeStrayWarning(installRoot!)));
   } else if (isLocalNodeModulesInstall()) {
     const pmCommands = getPackageManagerCommands(detectPackageManagerSync());
     console.warn(
