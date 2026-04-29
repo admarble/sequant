@@ -59,6 +59,37 @@ describe("findAllAssessComments", () => {
       findAllAssessComments([regularComment("2026-04-26T00:00:00Z")]),
     ).toEqual([]);
   });
+
+  // Verbatim production dashboard format from issue #532's real assess
+  // comments — no `## Assess Analysis` prose header, only the HTML action
+  // marker. The motivating example from the #555 issue body MUST detect
+  // these as priors. See dogfood run before merge.
+  it("detects production dashboard-format comments via HTML marker", () => {
+    const dashboardBody = [
+      "→ **PROCEED** — Document force-push handoff pattern",
+      "",
+      "**Workflow:** `spec → exec → qa` · 5 ACs",
+      "",
+      "```",
+      "npx sequant run 532",
+      "```",
+      "",
+      "<!-- assess:action=PROCEED -->",
+      "<!-- assess:phases=spec,exec,qa -->",
+      "<!-- assess:quality-loop=false -->",
+    ].join("\n");
+
+    const comments: IssueComment[] = [
+      { body: dashboardBody, createdAt: "2026-04-17T02:43:28Z" },
+      { body: dashboardBody, createdAt: "2026-04-23T06:34:06Z" },
+      { body: dashboardBody, createdAt: "2026-04-26T16:06:05Z" },
+    ];
+
+    const priors = findAllAssessComments(comments);
+
+    expect(priors).toHaveLength(3);
+    expect(priors[0].createdAt).toBe("2026-04-17T02:43:28Z");
+  });
 });
 
 describe("buildSupersessionHeader (AC-1, AC-2)", () => {

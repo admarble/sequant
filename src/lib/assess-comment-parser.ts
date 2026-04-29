@@ -127,6 +127,13 @@ const HTML_MARKER_PATTERN =
 const ASSESS_HTML_MARKER_PATTERN = /<!--\s*assess:(\w[\w-]*)=([\w,.-]*)\s*-->/g;
 
 /**
+ * Non-global pattern for `.test()` checks. Matches any assess/solve action
+ * marker — the durable contract written by /assess regardless of prose format.
+ */
+const ASSESS_ACTION_MARKER_PATTERN =
+  /<!--\s*(?:assess|solve):action=[\w-]+\s*-->/;
+
+/**
  * Pattern to extract issue numbers from header
  * Matches: "## Solve Workflow for Issues: 123, 456" or "#123"
  */
@@ -164,10 +171,16 @@ export type SolveMarkers = AssessMarkers;
 // ─── Detection Functions ────────────────────────────────────────────────────
 
 /**
- * Check if a comment is an assess command output (new format)
+ * Check if a comment is an assess command output (new format).
+ *
+ * Matches either prose markers (e.g., "## Assess Analysis") or the durable
+ * HTML action marker `<!-- assess:action=... -->` written by every /assess
+ * comment regardless of prose format. The HTML marker is the contract;
+ * prose can change.
  */
 export function isAssessComment(body: string): boolean {
-  return ALL_MARKERS.some((marker) => body.includes(marker));
+  if (ALL_MARKERS.some((marker) => body.includes(marker))) return true;
+  return ASSESS_ACTION_MARKER_PATTERN.test(body);
 }
 
 /**
