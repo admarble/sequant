@@ -617,6 +617,7 @@ Every separator and section is conditional. If there are no warnings, no chain, 
 After displaying output, prompt the user to save using `AskUserQuestion` with options "Yes (Recommended)" and "No".
 
 If confirmed, post a structured comment to each issue via `gh issue comment`. Each posted comment should include:
+- **Supersession header** (when priors exist): If `findAllAssessComments` returned ≥1 prior, prepend `buildSupersessionHeader(priors)` immediately above the `→ ACTION — reason` line. When `detectChurn(...).isChurn === true`, also emit a `⚠ Re-assessed N times since <firstDate> without execution — possible blocker or low priority` warning in the dashboard. When `shouldPromptOnConflict(prior, new) === true`, confirm with the user via `AskUserQuestion` before posting. See "Prior Assessment Detection" in Step 1 for full protocol.
 - The action headline (`→ ACTION — reason`)
 - The workflow (for PROCEED/REWRITE)
 - Standard HTML markers on separate lines:
@@ -652,5 +653,7 @@ If confirmed, post a structured comment to each issue via `gh issue comment`. Ea
 - [ ] Separators appear between every shown section; omitted when adjacent section is omitted
 - [ ] Annotations/sections omitted when not applicable (silence = healthy)
 - [ ] HTML markers present for every assessed issue
+- [ ] Supersession header prepended when prior assess comments exist (`buildSupersessionHeader`)
+- [ ] Churn warning included in dashboard when `detectChurn(...).isChurn === true`
 - [ ] Batch mode: table is the primary output, no per-issue detail sections
 - [ ] Single mode: focused summary with separators between sections
